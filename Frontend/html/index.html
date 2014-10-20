@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Web Socket Test</title>
+
+        <!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+		<!-- Optional theme -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+
+        <link rel="stylesheet" href="css/style.css">
+        <link href='http://fonts.googleapis.com/css?family=Roboto:400,300,100' rel='stylesheet' type='text/css'>
+
+		<!-- Latest compiled and minified JavaScript -->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+		<script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
+
+	</head>
+
+	<body class="background">
+        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"></div>
+        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" id="main-text">
+            <div class="main-text">
+            	<h1 class="main-text"><br>SALTO Lockers<br><br></h1>
+            	<br><br>
+            	<h4>Coloca tu tarjeta en el lector</h4>
+            	<h4>No la retires hasta el final del proceso</h4>
+            	<br>
+            	<button type="button" class="button" style="color:#004D40">INICIO</button>
+            </div>
+        </div>
+        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"></div>
+	</body>
+
+    <script type="text/javascript" charset="utf-8">
+    	$('button').click(function(event){
+    		ws.send("LOG_IN");
+    	}); 
+
+		$(document).ready(function(){
+            if ("WebSocket" in window) {
+                ws = new WebSocket("ws://localhost:49152");
+                ws.onmessage = function (msg) {
+                	$('#main-text').remove();
+
+                };
+            } else {
+                alert("WebSocket not supported");
+            }
+        });
+	</script>
+</html>

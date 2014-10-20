@@ -1,0 +1,34 @@
+/* 
+	CSS style file for the Kiosk demo.
+*/
+
+body.background {
+	background-color: #00838f;
+}
+
+h1.main-text {
+	color: #004D40;
+	font-family: 'Roboto', sans-serif;
+	font-weight: 400;
+	font-size: 80px;
+
+	background-color: #fafafa;
+}
+
+div.main-text {
+	color: #f0f0f0;
+	text-align: center;	
+	font-family: 'Roboto', sans-serif;
+	font-weight: 100;
+
+	background-color: #00838f;
+}
+
+.main-text {
+	color: #004D40;
+	font-family: 'Roboto', sans-serif;
+	font-weight: 400;
+	font-size: 25px;
+
+	background-color: #fafafa;
+}
