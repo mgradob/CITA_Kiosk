@@ -323,3 +323,20 @@ body.background {
 	top: 470px;
 	text-align: center;
 }
+
+.cant_toPay {
+	color: #3B8699;
+}
+
+.start_payment {
+	box-shadow: 0 8px 10px gray;
+	clear: both;
+	color: #3B8699;
+	font-size: 25px;
+	position: absolute;
+	left: 150px;
+	top: 570px;
+	text-align: center;
+	height: 40px;
+	width: 350px;
+}
