@@ -371,3 +371,23 @@ body.background {
 	position: relative;
 	top: 110px;
 }
+
+.success_btns {
+	font-size: 20px;
+	position: relative;
+	left: 300px;
+	top: 150px;  
+}
+
+.success_btns button {
+	background-color: white;
+	border:none;
+	box-shadow: -3px 8px 30px #054958;
+	text-align: right;
+	height: 40px;
+	width: 220px;
+}
+
+.success_btns button img {
+	margin-right: 31px;
+}
