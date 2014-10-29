@@ -340,3 +340,34 @@ body.background {
 	height: 40px;
 	width: 350px;
 }
+
+
+/*******************Trasacción exitosa classes**********************/
+
+.header_success {
+	background-color: #1F6272;
+	color: white;
+	font-size: 35px;
+	padding: 10px 0;
+	text-align: center;
+}
+
+.success_screen {
+	text-align: center;
+}
+
+.recipe_area {
+	background-color: white;
+	height: 350px;
+	width: 250px;
+	position: relative;
+	top: 70px;
+	left: 180px;
+}
+
+.thanks {
+	color: white; 
+	font-size: 20px;
+	position: relative;
+	top: 110px;
+}
