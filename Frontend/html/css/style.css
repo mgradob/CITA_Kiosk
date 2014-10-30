@@ -71,10 +71,10 @@ body.background {
 .tittle {
 	margin-bottom: 0;
 	color: white;
-	float: left;
 	font-family: "Franklin Gothic Medium", "Franklin Gothic", "ITC Franklin Gothic", Arial, sans-serif; 
 	font-size: 35px;
 	padding: 5px 0 0px 30px;
+	position: absolute;
 	text-align: left;
 }
 
@@ -85,7 +85,6 @@ body.background {
 	font-size: 20px;
 	padding: 2px 30px 2px 0;
 	text-align: right;
-
 }
 
 .menu {
@@ -295,6 +294,7 @@ body.background {
 	border-color: #3B8699;
 	color: #3B8699;
 	font-size: 80px;
+	width: 130px;
 }
 
 #zone_id {
@@ -433,4 +433,75 @@ body.background {
 .report_btns button p {
 	float: right;
 	padding-top: 4px;
+}
+
+
+/*******************Locker asignado classes***************************/
+
+.icon_space {
+	width: 50px;
+	height: 50px;
+}
+
+.cuentaBtn_area {
+	float: left;
+	position: relative;
+	left: -90px;
+	top: 50px;
+}
+
+.reportBtn_area {
+	position: relative;
+	right: -380px;
+	top: 50px;
+}
+
+.assign_screen div button {
+	background-color: white; 
+	border:none;
+}
+
+.locker_info {
+	font-size: 16px;
+	position: relative;
+	left: 150px;
+	top: 110px;
+	text-align: center;
+	width: 250px;
+}
+
+.finish_date {
+	color: #3B8699;
+	font-size: 24px;
+	position: relative;
+	top: 150px;
+	text-align: center;
+}
+
+
+/********************Locker asignado (por tiempo)********************/
+
+.assign_screen_byTime div button {
+	background-color: white; 
+	border:none;
+}
+
+.elapsed_time {
+	color: #3B8699;
+	font-size: 24px;
+	position: relative;
+	top: 130px;
+	text-align: center;
+}
+
+#pay_btn {
+	background-color: #3B8699;
+	border:none;
+	color: white;
+	font-size: 24px;
+	position: relative;
+	top: 155px;
+	left: 216px;
+	height: 40px;
+	width: 180px;
 }
