@@ -505,3 +505,83 @@ body.background {
 	height: 40px;
 	width: 180px;
 }
+
+
+/******************Mi cuenta classes*********************/
+
+.myAccount_screen {
+	font-size: 20px;
+	position: absolute;
+	left: -120px;
+}
+
+.user_data {
+	color: #3B8699;
+	position: relative;
+	text-align: left;
+	top: 40px;
+}
+
+.user_data span {
+	color: black;
+	display: inline-block;
+	margin-left: 50px;
+	text-align: right;
+	width: 300px;
+}
+
+.month_selection {
+	color: black;
+	position: relative;
+	top: 120px;
+}
+
+.month_selection p:nth-child(2) {
+	color: #3B8699;
+	display: inline;
+}
+
+.box_list{
+	float: right;
+	position: relative;
+	right: 100px;
+}
+
+.summary {
+	color: #3B8699;
+	position: relative;
+	top: 220px;
+}
+
+.summary p:nth-child(1) {
+	color: black;
+}
+
+.content {
+	display: inline;
+}
+
+.summary div {
+	color: black;
+	float: right;
+	position: relative;
+	right: 100px;
+	text-align: right;
+	width: 300px;
+}
+
+#detail_btn {
+	background-color: #3B8699;
+	border:none; 
+	box-shadow: -4px 6px 10px gray;
+	color: white;
+	height: 40px;
+	position: relative;
+	left: 620px;
+	top: 270px;
+}
+
+#detail_btn p {
+	display: inline;
+	margin-left: 100px;
+}
