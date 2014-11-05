@@ -3,7 +3,7 @@
 */
 
 /******************************* Start screen classes*******************************/
-body.background {
+.blue {
 	background-color: #3B8699;
 }
 
@@ -60,7 +60,7 @@ body.background {
 
 /************************** Menu screen classes***************************/
 
-.background_white {
+.white {
 	background-color: white;
 }
 
@@ -105,12 +105,15 @@ body.background {
 	top: 160px;
 }
 
+#bottom {
+	position: fixed;
+	bottom: 0;
+	width: 100%
+}
+
 .footer {
 	background-color: #1F6272;
 	text-align: left;
-	position: absolute;
-	bottom: 0;
-	width: 100%; 
 }
 
 .contact {

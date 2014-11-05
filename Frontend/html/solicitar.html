@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Web Socket Test</title>
+
+        <!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+		<!-- Optional theme -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+
+        <link rel="stylesheet" href="css/style.css">
+        <link href='http://fonts.googleapis.com/css?family=Roboto:400,300,100' rel='stylesheet' type='text/css'>
+
+		<!-- Latest compiled and minified JavaScript -->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+		<script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
+
+	</head>
+
+	<body class="background white">
+        <div class="header_menu" id="solicitar_locker">
+            <p class="tittle">SOLICITAR LOCKER</p>
+            <div class="icon"><img src="Images/SolicitarIcon.png"></div>
+            <p class="subttitle">Bienvenido: Justin Camaney</p>
+        </div>
+        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"></div>
+        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" id="main-text">
+            <div class="rent_menu">
+                <div class="submenu_renta">
+                    <ul class="rent_type_menu">
+                        <li class="submenu_tittle">TIPO DE RENTA</li><br>
+                        <li class="menu_element" id="by_semester">Semestral</li><br>
+                        <li class="menu_element" id="by_time">Por tiempo</li>
+                    </ul>
+                </div>
+                <div class="submenu_zona">
+                    <ul class="zone_menu">
+                        <li class="submenu_tittle">ZONA</li><br>
+                        <li class="menu_element" id="in_dome">
+                            <!--<div class="list_icons"><img class="active_icon" id="domo_active" src="Images/DomoActive.png"><img class="unactive_icon" id="domo_nonactive" src="Images/Domo.png"></div>-->
+                            <!--<div class="list_text">-->Domo<!--</div>--></li><br>
+                        <li class="menu_element" id="in_prep">
+                            <!--<div class="list_icons"><img class="active_icon" id="prepa_active" src="Images/Prepa.png"></div>-->
+                            <!--<div class="list_text">-->Prepa PB<!--</div>--></li><br>
+                        <li class="menu_element" id="in_gim">
+                            <!--<div class="list_icons"><img class="active_icon" id="gim_active" src="Images/Gimnasio.png"></div>-->
+                            <!--<div class="list_text">-->Gimnasio<!--</div>--></li>
+                    </ul>
+                </div>
+                <div class="screen_button">
+                    <button type="button" class="unabled_btn" id="nextBtn">SIGUIENTE</button>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"></div>
+        <div id="bottom">
+            <div class="footer">
+                <p class="contact">Contacto</p>
+                <div class="foot_btns">
+                    <button type="button" class="foot_button" id="return_btn"><img src="Images/Return.png"></button>
+                    <button type="button" class="foot_button" id="home_btn"><img src="Images/Home.png"></button>
+                </div>
+            </div>
+        </div>
+        <script src="app.js"></script>
+	</body>
+    
+</html>

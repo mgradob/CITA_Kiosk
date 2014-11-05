@@ -22,47 +22,30 @@
 
 	</head>
 
-	<body class="background blue">
-        <div id="top">
-            <div class="header">Powered by:<img src="Images/CitaLogo.png"></div>
+	<body class="background white">
+        <div class="header_menu" id="menu">
+            <p class="tittle">MENÚ</p>
+            <div class="icon_space"></div>
+            <p class="subttitle">Bienvenido: Justin Camaney</p>
         </div>
         <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"></div>
         <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" id="main-text">
-            <div class="main-text">
-                <div class="logo"><img src="Images/Logo.png"></div>
-                <div class="message">
-                    <p>Coloca tu tarjeta en el lector.</p>
-                    <p>No la retires hasta el final del proceso.</p>
-                </div>
-                <img class="img_encoder" src="Images/Encoder.png">
-                <div class="bottom_screen">
-                    <button type="button" class="button">INICIO</button><br>
-                    <img src="Images/Arrow.png">
-                </div>
+            <div class="menu">
+                <button type="button" class="solicitar_btn" id="solicitarBtn"><img src="Images/SolicitarLocker.png"></button>
+                <button type="button" class="cuenta_btn" id="cuentaBtn"><img src="Images/MiCuenta.png"></button>
             </div>
         </div>
         <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"></div>
         <div id="bottom">
+            <div class="footer">
+                <p class="contact">Contacto</p>
+                <div class="foot_btns">
+                    <button type="button" class="foot_button" id="return_btn"><img src="Images/Return.png"></button>
+                    <button type="button" class="foot_button" id="home_btn"><img src="Images/Home.png"></button>
+                </div>
+            </div>
         </div>
         <script src="app.js"></script>
 	</body>
-
-    <!--<script type="text/javascript" charset="utf-8">
-    	$('button').click(function(event){
-    		ws.send("LOG_IN");
-    	}); 
-
-		$(document).ready(function(){
-            if ("WebSocket" in window) {
-                ws = new WebSocket("ws://localhost:49152");
-                ws.onmessage = function (msg) {
-                	$('#main-text').children().remove();
-
-                };
-            } else {
-                alert("WebSocket not supported");
-            }
-        });
-	</script>-->
     
 </html>
