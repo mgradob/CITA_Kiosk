@@ -4,7 +4,7 @@
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>Salto Lockers</title>
+		<title>Web Socket Test</title>
 
         <!-- Latest compiled and minified CSS -->
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
@@ -20,27 +20,25 @@
 
 		<script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
 
-        <script type="text/javascript" src="js/scripts.js"></script>
-
 	</head>
 
-	<body class="background">
-	<div class="header">Powered by:<img src="Images/CitaLogo.png"></div>
+	<body class="background blue">
+        <div class="header_success">TRANSACCIÓN EXITOSA</div>
         <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"></div>
         <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" id="main-text">
-            <div class="main-text">
-            	<div class="logo"><img src="Images/Logo.png"></div>
-            	<div class="message">
-                    <p>Coloca tu tarjeta en el lector.</p>
-                    <p>No la retires hasta el final del proceso.</p>
-                </div>
-                <img class="img_encoder" src="Images/Encoder.png">
-                <div class="bottom_screen">
-                    <button type="button" class="button">INICIO</button><br>
-                    <img src="Images/Arrow.png">
+            <div class="success_screen">
+                <div class="recipe_area"></div>
+                <div class="thanks"><p>¡ GRACIAS !</p></div>
+                <div class="success_btns">
+                    <button type="button" id="print_btn"><img src="Images/PrintImg.png">Imprimir recibo</button><br><br>
+                    <button type="button" id="endSesion_btn"><img src="Images/ExitImg.png">Finalizar sesión</button>
                 </div>
             </div>
         </div>
         <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"></div>
+        <div id="bottom">
+        </div>
+        <script src="app.js"></script>
 	</body>
+    
 </html>
