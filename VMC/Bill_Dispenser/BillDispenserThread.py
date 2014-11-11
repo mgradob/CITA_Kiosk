@@ -1,11 +1,12 @@
-from VMC.Utils import Commands
-
 __author__ = 'mgradob'
 
 """ Imports """
-import serial
 import threading
-from time import sleep
+from findertools import sleep
+
+import serial
+
+from VMC.VmcController.Utils import Commands
 
 
 class BillDispenserThread(threading.Thread):
@@ -21,7 +22,7 @@ class BillDispenserThread(threading.Thread):
     com_port = None
 
     # Commands and VMCCommands object
-    commands = Commands.VmcCommands()
+    commands = Commands.BillCommands()
 
     # Balance
     balance = 0
@@ -66,7 +67,7 @@ class BillDispenserThread(threading.Thread):
 
         print('{} is open.'.format(self.com_port.name))
 
-    def write_cmd(self, cmd=Commands.VmcCommands(), in_waiting=1, sleep_thread=0.1):
+    def write_cmd(self, cmd=Commands.BillCommands(), in_waiting=1, sleep_thread=0.1):
         """
          Method for sending a command via serial port.
           Defaults: waits for 1 byte on the serial buffer, sleeps the thread for 100ms.

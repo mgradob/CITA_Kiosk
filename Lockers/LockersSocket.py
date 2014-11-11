@@ -2,10 +2,11 @@ __author__ = 'mgradob'
 
 """ Imports """
 import socket
-import threading
+from Lockers.Utils import Commands
+from Lockers.Utils import XmlParser
 
 
-class LockerThread(threading.Thread):
+class LockerSocket():
     """
     LockerThread Class.
      Thread to manage communication with Salto Lockers.
@@ -14,24 +15,28 @@ class LockerThread(threading.Thread):
     """ Global Variables """
     sock = None
     cmd = None
-    host, port = '10.33.10.194', 8050
+    host, port = '10.33.28.3', 8050
+    parser = XmlParser.XmlParser()
+    received = ''
 
-    def run(self):
+    def send_command(self, command):
         """ Run the process. """
+        self.cmd = command
 
         # Get the lockers socket information.
         for info in socket.getaddrinfo(self.host, self.port, socket.AF_UNSPEC, socket.SOCK_STREAM):
+            # Open connection to the Salto Socket.
             af, socktype, proto, canonname, sa = info
 
             try:
                 self.sock = socket.socket(af, socktype, proto)
-            except socket.error:
+            except:
                 self.sock = None
                 continue
 
             try:
                 self.sock.connect((self.host, self.port))
-            except socket.error:
+            except:
                 self.sock.close()
                 self.sock = None
                 continue
@@ -41,14 +46,20 @@ class LockerThread(threading.Thread):
             self.sock.sendall(self.cmd)
             print('Sent: {}'.format(self.cmd))
 
-            received = self.sock.recv(1024)
+            self.received = self.sock.recv(1024)
         finally:
-            self.sock.close()
+            if self.sock is not None:
+                self.sock.close()
 
-        print('Received: {}'.format(received))
+                # Check for answer, to know which info to respond.
+                if self.cmd == Commands.Commands.read_key():
+                    self.response = self.parser.get_rom_code(self.received)
 
-    def __init__(self, Command):
+                # Return the data.
+                return 'Received: {}'.format(self.response)
+            else:
+                return 'Communication error with Salto'
+
+    def __init__(self):
         """ Initialize module """
-        super(LockerThread, self).__init__()
-        self.cmd = Command
-        self.run()
+        pass

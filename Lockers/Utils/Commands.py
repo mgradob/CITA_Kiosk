@@ -25,7 +25,6 @@ class Commands:
         :return: String.
         """
         return 'STP/00/248/<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><RequestCall><RequestName> Encoder.ReadKey </RequestName><Params><EncoderID> {} </EncoderID><ReturnROMCode> {} </ReturnROMCode><ReturnLockerData> {} </ReturnLockerData></Params></RequestCall>'.format(encoder_id, return_rom_code, return_locker_data)
-        #return 'STP/00/223<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><RequestCall><RequestName> Encoder.SaltoDBUser.AssignNewKey </RequestName><Params><ExtUserID> TestUser2 </ExtUserID><EncoderID> Encoder#2 </EncoderID></Params></RequestCall>'
 
     @staticmethod
     def read_user(max_count=1):
