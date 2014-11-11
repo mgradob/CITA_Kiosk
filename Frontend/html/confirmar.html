@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="">
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Web Socket Test</title>
+
+        <!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+		<!-- Optional theme -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+
+        <link rel="stylesheet" href="css/style.css">
+        <link href='http://fonts.googleapis.com/css?family=Roboto:400,300,100' rel='stylesheet' type='text/css'>
+
+		<!-- Latest compiled and minified JavaScript -->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+		<script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
+
+	</head>
+
+	<body class="background white">
+        <div class="header_menu" id="confirmar_locker">
+            <p class="tittle">CONFIRMACIÓN DE RENTA</p>
+            <div class="icon"><img src="Images/SolicitarIcon.png"></div>
+            <p class="subttitle">Bienvenido: Justin Camaney</p>
+        </div>
+        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"></div>
+        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" id="main-text">
+            <div class="confirm_screen">
+                <div class="rent_fields">
+                    <ul class="fields_list">
+                        <li>RENTA:</li>
+                        <li>Usuario:</li>
+                        <li>Nombre:</li>
+                        <li>Inicio:</li>
+                        <li>Término:</li>
+                    </ul>
+                </div>
+                <div class="rent_values">
+                    <ul class="values_list">
+                        <li id="rent_type">SEMESTRAL</li>
+                        <li id="rent_user">A00755343</li>
+                        <li id="rent_name">Justin Camaney</li>
+                        <li id="rent_start">22-Ago-14 13:20hrs.</li>
+                        <li id="rent_end">28-Nov-14 13:20hrs.</li>
+                    </ul>
+                </div>
+                <div class="locker_data">
+                    <div class="locker_number">
+                        <p>Locker asignado</p>
+                        <p id="locker_id">A1</p>
+                    </div>
+                    <div class="locker_zone">
+                        <p>Zona</p>
+                        <p id="zone_id">Gimnasio</p>
+                    </div>
+                </div>
+                <button class="change_btn">Cambiar <img class="changeBtn_img" src="Images/CambiarIcon1.png"></button>
+                <div class="payment_stats">
+                    <p class="total_cost">Total: $<span class="total">100</span></p>
+                    <p class="cant_toPay">Saldo a pagar: $<span class="payment">0</span></p>
+                </div>
+                <div class="start_payment">¡ COMIENZA A PAGAR !</div>
+            </div>
+        </div>
+        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"></div>
+        <div id="bottom">
+            <div class="footer">
+                <p class="contact">Contacto</p>
+                <div class="foot_btns">
+                    <button type="button" class="foot_button" id="return_btn"><img src="Images/Return.png"></button>
+                    <button type="button" class="foot_button" id="home_btn"><img src="Images/Home.png"></button>
+                </div>
+            </div>
+        </div>
+        <script src="app.js"></script>
+	</body>
+    
+</html>
