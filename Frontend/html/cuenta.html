@@ -15,10 +15,9 @@
         <link rel="stylesheet" href="css/style.css">
         <link href='http://fonts.googleapis.com/css?family=Roboto:400,300,100' rel='stylesheet' type='text/css'>
 
-		<!-- Latest compiled and minified JavaScript -->
+		<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.1.js"></script>
+        <!-- Latest compiled and minified JavaScript -->
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-
-		<script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
 
 	</head>
 
@@ -26,14 +25,14 @@
         <div class="header_menu" id="mi_cuenta">
             <p class="tittle">MI CUENTA</p>
             <div class="icon"><img src="Images/CuentaIcon.png"></div>
-            <p class="subttitle">Bienvenido: Justin Camaney</p>
+            <p class="subttitle"></p>
         </div>
         <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"></div>
         <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" id="main-text">
             <div class="myAccount_screen">
                 <div class="user_data">
-                    <p>Usuario: <span id="user_id">A00755343</span></p>
-                    <p>Nombre: <span id="user_name">Justin Camaney</span></p>
+                    <p>Usuario: <span class="rent_user">A00755343</span></p>
+                    <p>Nombre: <span class="rent_name">Justin Camaney</span></p>
                 </div>
                 <div class="month_selection">
                     <p>Estado de cuenta</p>
@@ -58,8 +57,8 @@
                 </div>
                 <div class="summary">
                     <p>Resumen</p>
-                    <p class="content">Número de transacciones: <div><span id="transactions">4</span></div></p>
-                    <p class="content">Monto pagado: <div><span id="pay_done">$100</span></div></p>
+                    <p class="content">Número de transacciones: <div><span class="transactions">4</span></div></p>
+                    <p class="content">Monto pagado: <div><span class="pay_done">$100</span></div></p>
                 </div>
                 <button id="detail_btn"><img src="Images/Detail.png"><p>Detalle</p></button>
             </div>
@@ -75,6 +74,7 @@
             </div>
         </div>
         <script src="app.js"></script>
+        <script src="carhartl-jquery-cookie-92b7715/jquery.cookie.js"></script>
 	</body>
     
 </html>

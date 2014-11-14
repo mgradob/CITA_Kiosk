@@ -15,10 +15,9 @@
         <link rel="stylesheet" href="css/style.css">
         <link href='http://fonts.googleapis.com/css?family=Roboto:400,300,100' rel='stylesheet' type='text/css'>
 
-		<!-- Latest compiled and minified JavaScript -->
+		<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.1.js"></script>
+        <!-- Latest compiled and minified JavaScript -->
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-
-		<script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
 
 	</head>
 
@@ -26,7 +25,7 @@
         <div class="header_menu" id="confirmar_locker">
             <p class="tittle">CONFIRMACIÓN DE RENTA</p>
             <div class="icon"><img src="Images/SolicitarIcon.png"></div>
-            <p class="subttitle">Bienvenido: Justin Camaney</p>
+            <p class="subttitle"></p>
         </div>
         <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"></div>
         <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" id="main-text">
@@ -42,21 +41,21 @@
                 </div>
                 <div class="rent_values">
                     <ul class="values_list">
-                        <li id="rent_type">SEMESTRAL</li>
-                        <li id="rent_user">A00755343</li>
-                        <li id="rent_name">Justin Camaney</li>
-                        <li id="rent_start">22-Ago-14 13:20hrs.</li>
-                        <li id="rent_end">28-Nov-14 13:20hrs.</li>
+                        <li class="rent_type"></li>
+                        <li class="rent_user"></li>
+                        <li class="rent_name"></li>
+                        <li class="rent_start"></li>
+                        <li class="rent_end"></li>
                     </ul>
                 </div>
                 <div class="locker_data">
                     <div class="locker_number">
                         <p>Locker asignado</p>
-                        <p id="locker_id">A1</p>
+                        <p class="locker_id"></p>
                     </div>
                     <div class="locker_zone">
                         <p>Zona</p>
-                        <p id="zone_id">Gimnasio</p>
+                        <p class="zone_id"></p>
                     </div>
                 </div>
                 <button class="change_btn">Cambiar <img class="changeBtn_img" src="Images/CambiarIcon1.png"></button>
@@ -65,6 +64,9 @@
                     <p class="cant_toPay">Saldo a pagar: $<span class="payment">0</span></p>
                 </div>
                 <div class="start_payment">¡ COMIENZA A PAGAR !</div>
+                <div id="takeCard" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                    <img src="Images/Retirar.png">
+                </div>
             </div>
         </div>
         <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"></div>
@@ -78,6 +80,7 @@
             </div>
         </div>
         <script src="app.js"></script>
+        <script src="carhartl-jquery-cookie-92b7715/jquery.cookie.js"></script>
 	</body>
     
 </html>
