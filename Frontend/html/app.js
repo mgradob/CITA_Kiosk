@@ -54,7 +54,7 @@ var main = function() {
 	/*funcion para activar el web socket*/
 	window.onload = function() {
 		if ("WebSocket" in window) {
-            ws = new WebSocket("ws://10.33.3.9:49153");
+            ws = new WebSocket("ws://localhost:49153");
             //sendMsg('READY','');
             /*ws.onmessage = function (msg) {
             	var server_msg = msg.data;

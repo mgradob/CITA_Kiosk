@@ -15,9 +15,9 @@ class LockerSocket():
     """ Global Variables """
     sock = None
     cmd = None
-    host, port = '10.33.28.3', 8050
+    host, port = '10.33.2.249', 8050
     parser = XmlParser.XmlParser()
-    received = ''
+    received, response = '', ''
 
     def send_command(self, command):
         """ Run the process. """
@@ -47,6 +47,7 @@ class LockerSocket():
             print('Sent: {}'.format(self.cmd))
 
             self.received = self.sock.recv(1024)
+
         finally:
             if self.sock is not None:
                 self.sock.close()
@@ -54,9 +55,11 @@ class LockerSocket():
                 # Check for answer, to know which info to respond.
                 if self.cmd == Commands.Commands.read_key():
                     self.response = self.parser.get_rom_code(self.received)
+                else:
+                    self.response = self.received
 
                 # Return the data.
-                return 'Received: {}'.format(self.response)
+                return self.response
             else:
                 return 'Communication error with Salto'
 

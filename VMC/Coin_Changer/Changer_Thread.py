@@ -101,6 +101,8 @@ class Changer(threading.Thread):
     def start_serial(self):
         try:
             global serial_port
+
+            # TODO Change serial port to the uC's.
             serial_port = serial.Serial('/dev/tty.usbserial-FTDBL0IK', 115200, timeout=1, parity=serial.PARITY_NONE)
             self.serial_port = serial_port
             print 'Serial port open'
@@ -117,7 +119,6 @@ class Changer(threading.Thread):
         self.write_thread.write_cmd(self.commands.C_TUBE_STATUS)
         self.write_thread.write_cmd(self.commands.C_EXPANSION)
         self.write_thread.write_cmd(self.commands.disable_tubes())
-
 
     def write_dispense(self, units=0, cents=0):
             """ Writes a Dispense command. Also evaluates which coins should be dispensed. """

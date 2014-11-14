@@ -41,3 +41,19 @@ class Commands:
         :return: String.
         """
         return 'STP/00/500/<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><RequestCall><RequestName> SaltoDBUser.Update </RequestName><Params><SaltoDBUser><ExtUserID> {} </ExtUserID><UserExpiration.Enabled> {} </UserExpiration.Enabled><UserExpiration> {} </UserExpiration></SaltoDBUser></Params></RequestCall>'.format(ext_user_id, user_expiration_enable, user_expiration)
+
+    @staticmethod
+    def assign_access_level(locker_id='', user_id=''):
+        """
+        Returns an XML String for assigning access level to users from SALTO software.
+        :return: String.
+        """
+        return 'STP/00/400/<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><RequestCall><RequestName> SaltoDBGroup.Update </RequestName><Params><SaltoDBGroup><ExtGroupID> {} </ExtGroupID><SaltoDB.MembershipList.User_Group><SaltoDB.Membership.User_Group><ExtUserID> {} </ExtUserID></SaltoDB.Membership.User_Group></SaltoDB.MembershipList.User_Group></SaltoDBGroup></Params></RequestCall>'.format(locker_id, user_id)
+
+    @staticmethod
+    def assign_new_key(user_id=''):
+        """
+        Returns an XML String for to UID card from SALTO software.
+        :return: String.
+        """
+        return 'STP/00/400/<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><RequestCall><RequestName> Encoder.SaltoDBUser.AssignNewKey </RequestName><Params><ExtUserID> {} </ExtUserID><EncoderID> Encoder#2 </EncoderID></Params></RequestCall>'.format(user_id)

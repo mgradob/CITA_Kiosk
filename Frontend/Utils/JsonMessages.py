@@ -1,6 +1,6 @@
 __author__ = 'mgradob'
 
-import json
+import simplejson as json
 
 
 class Deserializer:
@@ -65,70 +65,79 @@ class Logout:
 
 
 class User:
-    command = None
-    params = []
-    data = []
+    data = {
+        'command': 'USER',
+        'params': {
+            'registrado': '',
+            'tipo': '',
+            'nombre': '',
+            'matricula': '',
+            'locker': '',
+            'area': '',
+            'entrega': '',
+            'pago': ''
+        }
+    }
 
     def __init__(self, registrado=None, tipo=None, nombre=None, matricula=None, locker=None, area=None, entrega=None, pago=None):
-        self.command = 'USER'
-        self.params.append(registrado)
-        self.params.append(tipo)
-        self.params.append(nombre)
-        self.params.append(matricula)
-        self.params.append(locker)
-        self.params.append(area)
-        self.params.append(entrega)
-        self.params.append(pago)
-
-        self.data = [self.command, self.params]
+        self.data['params']['registrado'] = str(registrado)
+        self.data['params']['tipo'] = str(tipo)
+        self.data['params']['nombre'] = str(nombre)
+        self.data['params']['matricula'] = str(matricula)
+        self.data['params']['locker'] = str(locker)
+        self.data['params']['area'] = str(area)
+        self.data['params']['entrega'] = str(entrega)
+        self.data['params']['pago'] = str(pago)
 
     def get_json(self):
-        return json.dumps(self.data, default=lambda o: o.__dict__, sort_keys=False, indent=4)
+        return json.dumps(self.data)
 
 
 class Confirm:
-    command = None
-    params = []
-    data = []
+    data = {
+        'command': 'CONFIRM',
+        'params': {
+            'inicio': '',
+            'termino': '',
+            'locker': '',
+            'total': '',
+        }
+    }
 
     def __init__(self, inicio=None, termino=None, locker=None, area=None, total=None):
-        self.command = 'CONFIRM'
-        self.params.append(inicio)
-        self.params.append(termino)
-        self.params.append(locker)
-        self.params.append(area)
-        self.params.append(total)
-
-        self.data = [self.command, self.params]
+        self.data['params']['inicio'] = str(inicio)
+        self.data['params']['termino'] = str(termino)
+        self.data['params']['locker'] = str(locker)
+        self.data['params']['total'] = str(total)
 
     def get_json(self):
-        return json.dumps(self.data, default=lambda o: o.__dict__, sort_keys=False, indent=4)
+        return json.dumps(self.data)
 
 
 class Deposit:
-    command = None
-    params = []
-    data = []
+    data = {
+        'command': 'DEPOSIT',
+        'params': {
+            'cantidad': ''
+        }
+    }
 
     def __init__(self, cantidad=None):
-        self.command = 'DEPOSIT'
-        self.params.append(cantidad)
-
-        self.data = [self.command, self.params]
+        self.data['params']['cantidad'] = cantidad
 
     def get_json(self):
-        return json.dumps(self.data, default=lambda o: o.__dict__, sort_keys=False, indent=4)
+        return json.dumps(self.data)
 
 
 class Paid:
-    command = None
-    params = ''
-    data = []
+    data = {
+        'command': 'PAID',
+        'params': {
+        }
+    }
 
     def __init__(self):
-        self.command = 'PAID'
-
-        self.data = [self.command, self.params]
+        pass
 
     def get_json(self):
-        return json.dumps(self.data, default=lambda o: o.__dict__, sort_keys=False, indent=4)
+        return json.dumps(self.data)
