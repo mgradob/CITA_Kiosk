@@ -3,14 +3,36 @@ var main = function() {
 	/*funcion botón de inicio*/
 	$('.button').click(function() {
 		sendMsg('LOG_IN','');
-		//window.location.href = "menu_screen.html";
+		/*$.cookie('msg', 'cookie');
+		window.location.href = "menu_screen.html";*/
 		ws.onmessage = function(serverMsg) {
 			console.log(serverMsg.data);
 			mensaje = serverMsg.data;
-			ws.close();
-			window.location.href = "menu_screen.html";
+			jsonMsg = JSON.parse(mensaje);
+			$command = jsonMsg.command;
+			$locker = jsonMsg.params.locker;
+			$endDate = jsonMsg.params.entrega;
+			$registred = jsonMsg.params.registrado;
+			$type = jsonMsg.params.tipo;
+			$userId = jsonMsg.params.matricula;
+			$userName = jsonMsg.params.nombre;
+			$bill = jsonMsg.params.pago;
+			$area = jsonMsg.params.area;
+			$.cookie('locker', $locker);
+			$.cookie('endDate', $endDate);
+			$.cookie('registred', $registred);
+			$.cookie('type', $type);
+			$.cookie('userId', $userId);
+			$.cookie('userName', $userName);
+			$.cookie('bill', $bill);
+			$.cookie('area', $area);
+			if ($registred == "True"){
+				window.location.href = "locker_asignado.html";
+			}else{
+				window.location.href = "menu_screen.html";
+			};
 		}
-	
+		//window.location.href = "menu_screen.html";
 	});
 
 	/*funcion botón solicitar en menu principal*/
@@ -23,10 +45,18 @@ var main = function() {
 		if ($(this).parent().hasClass('rent_type_menu')) {
 			$('.rent_type_menu .menu_element_active').removeClass('menu_element_active');
 			rentSelection = this.id;
+			console.log(rentSelection);
+			rentArea = document.getElementById(rentSelection).innerHTML;
+			console.log(rentArea);
+			$.cookie('type', rentArea);
 			rent = true;
 		} else if ($(this).parent().hasClass('zone_menu')) {
 			$('.zone_menu .menu_element_active').removeClass('menu_element_active');
 			zoneSelection = this.id;
+			console.log(zoneSelection);
+			rentZone = document.getElementById(zoneSelection).innerHTML;
+			console.log(rentZone);
+			$.cookie('area', rentZone);
 			zone = true;
 		};
 		$(this).addClass('menu_element_active');
@@ -47,51 +77,62 @@ var main = function() {
 		if ($(this).hasClass('enabled_btn')) {
 			var params = [rentSelection, zoneSelection]; 
 			sendMsg('SOLICIT', params);
-			window.location.href = "confirmar.html";
-		}
+			ws.onmessage = function(serverMsg) {
+				console.log(serverMsg.data);
+				mensaje = serverMsg.data;
+				jsonMsg = JSON.parse(mensaje);
+				$command = jsonMsg.command;
+				$locker = jsonMsg.params.locker;
+				$endDate = jsonMsg.params.termino;
+				$startDate = jsonMsg.params.inicio;
+				$bill = jsonMsg.params.pago;
+				$.cookie('locker', $locker);
+				$.cookie('endDate', $endDate);
+				$.cookie('startDate', $startDate);
+				$.cookie('bill', $bill);
+				window.location.href = "confirmar.html";
+			};
+		};
 	});
 
 	/*funcion para activar el web socket*/
 	window.onload = function() {
+		var command = $.cookie('command');
+		console.log(command);
+		console.log($.cookie('locker'));
+		//console.log($.cookie('msg'));
+		$('.subttitle').text("Bienvenido: " + $.cookie('userName'));
+		$('.rent_type').text($.cookie('type'));
+		$('.rent_user').text($.cookie('userId'));
+		$('.rent_name').text($.cookie('userName'));
+		$('.rent_start').text($.cookie('startDate'));
+		$('.rent_end').text($.cookie('endDate'));
+		$('.locker_id').text($.cookie('locker'));
+		$('.zone_id').text($.cookie('area'));
+		if ($.cookie('type') == 'TIME') {
+			$('#finish_date').addClass('hidden');
+			$('.byTime_elements').removeClass('hidden');	
+		}else if ($.cookie('type') == 'SEMESTER') {
+			$('.byTime_elements').addClass('hidden');
+			$('#finish_date').removeClass('hidden');
+		};
 		if ("WebSocket" in window) {
-            ws = new WebSocket("ws://localhost:49153");
-            //sendMsg('READY','');
-            /*ws.onmessage = function (msg) {
-            	var server_msg = msg.data;
-        		/*var hear_msg = JSON.parse(msg);
-        		var command = hear_msg.command;
-        		var params = hear_msg.params;
-        		/*switch (command) {
-        			case 'USER'
-	        			$register = params[1];
-	        			$type = params[2];
-	        			$name = params[3];
-	        			$id = params[4];
-	        			$locker = params[5];
-	        			$area = params[6];
-	        			$finish_date = params[7];
-	        			$balance = params[8];
-	        			break;
-	        		case 'CONFIRM'
-	        			$start_date = hear_msg.params[1];
-	        			$end_date = hear_msg.params[2];
-	        			$locker = hear_msg.params[3];
-	        			$area = hear_msg.params[4];
-	        			$total = hear_msg.params[5];
-	        			break;
-	        		case 'DEPOSIT'
-	        			$cant = hear_msg.params[1];
-	        			break;
-	        		case 'PAID'
-	        			break;
-        		}*/
-        		//console.log(server_msg);
-        		
-			//};
+            ws = new WebSocket("ws://10.33.17.61:49153");
         } else {
         	alert("WebSocket not supported");
-    	}
-    	console.log(mensaje);
+    	};
+    	ws.onmessage = function(serverMsg) {
+    		console.log(serverMsg.data);
+    		mensaje = serverMsg.data;
+    		jsonMsg = JSON.parse(mensaje);
+    		$command = jsonMsg.command;
+    		if ($command == 'DEPOSIT') {
+    			$currentPay = jsonMsg.params.cantidad;
+    		}else if ($command == 'PAID') {
+    			$('#takeCard').modal('show');
+				window.setTimeout(function(){window.location.href = 'transaccion_exitosa.html'},3000);
+    		};
+    	};
 	};
 
 	/*funcion para botón cambiar en pantalla confirmar*/
@@ -107,7 +148,9 @@ var main = function() {
 		$('.payment').text($payment);
 		$total = $('.total').text();
 		if ($payment == $total) {
-			window.location.href = 'transaccion_exitosa.html';
+			//window.setTimeout(function(){$('#takeCard').modal('show')},2000);
+    		$('#takeCard').modal('show');
+			window.setTimeout(function(){window.location.href = 'transaccion_exitosa.html'},3000);
 		}
 	};
 
@@ -119,9 +162,6 @@ var main = function() {
 		var json = JSON.stringify(msg);
 		console.log(json);
 		ws.send(json);
-		/*ws.onopen = function() {
-			ws.send(json);
-		};*/
 	};
 
 	/*funcion botón imprimir*/
@@ -159,8 +199,3 @@ var main = function() {
 };
 
 $(document).ready(main);
-
-/*$(document).on('click', '#solicitarBtn', function(){
-		$('#menu').remove();
-		$('#top').load('tags_directory.html #solicitar_locker');
-	});*/

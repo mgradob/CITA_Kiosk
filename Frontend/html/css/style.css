@@ -276,10 +276,11 @@
 .locker_data {
 	float: right;
 	font-size: 16px;
-	position: relative;
-	left: 40px;
-	top: -150px;
+	position: absolute;
+	left: 500px;
+	top: 80px;
 	text-align: center;
+	width: 260px;
 }
 
 .locker_number {
@@ -292,7 +293,7 @@
 	left: 60px;
 }
 
-#locker_id {
+.locker_id {
 	border-style: solid;
 	border-color: #3B8699;
 	color: #3B8699;
@@ -300,14 +301,14 @@
 	width: 130px;
 }
 
-#zone_id {
+.zone_id {
 	border-style: solid;
 	border-color: #3B8699;
 	color: #3B8699;
 	font-size: 25px;
 	line-height: 110px;
 	height: 120px;
-	width: 120px;
+	width: 130px;
 }
 
 .change_btn {
@@ -348,6 +349,11 @@
 	text-align: center;
 	height: 40px;
 	width: 350px;
+}
+
+#takeCard {
+	text-align: center;
+	top: 50%;
 }
 
 
@@ -410,7 +416,7 @@
 	left: -130px;
 	top: 250px;
 	text-align: center;
-	width: 250px;
+	width: 270px;
 }
 
 .report_btns {
@@ -466,18 +472,18 @@
 
 .locker_info {
 	font-size: 16px;
-	position: relative;
+	position: absolute;
 	left: 150px;
-	top: 110px;
+	top: 250px;
 	text-align: center;
-	width: 250px;
+	width: 280px;
 }
 
-.finish_date {
+#finish_date {
 	color: #3B8699;
 	font-size: 24px;
 	position: relative;
-	top: 150px;
+	top: 250px;
 	text-align: center;
 }
 
@@ -488,7 +494,11 @@
 	background-color: white; 
 	border:none;
 }
-
+ 
+.byTime_elements {
+	position: relative;
+	top: 140px;
+}
 .elapsed_time {
 	color: #3B8699;
 	font-size: 24px;
@@ -507,6 +517,10 @@
 	left: 216px;
 	height: 40px;
 	width: 180px;
+}
+
+.hidden {
+	display: none;
 }
 
 

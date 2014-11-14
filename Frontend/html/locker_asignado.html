@@ -22,28 +22,37 @@
 	</head>
 
 	<body class="background white">
-        <div class="header_menu" id="cambiar_locker">
-            <p class="tittle">CAMBIAR Y REPORTAR LOCKER</p>
-            <div class="icon"><img src="Images/CambiarIcon2.png"></div>
+        <div class="header_menu" id="assigned_locker">
+            <p class="tittle">LOCKER ASIGNADO</p>
+            <div class="icon_space"></div>
             <p class="subttitle"></p>
         </div>
         <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"></div>
         <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" id="main-text">
-            <div class="report_screen">
-                <div class="actual_locker">
+            <div class="assign_screen">
+                <div class="cuentaBtn_area">
+                    <button class="cuenta_btn2" id="cuentaBtn"><img src="Images/MiCuenta2.png"></button>
+                </div>
+                <div class="reportBtn_area">
+                    <button class="report_btn" id="reportarBtn"><img src="Images/Reportar.png"></button>
+                </div>
+                <div class="locker_info">
                     <div class="locker_number">
                         <p>Locker asignado</p>
-                        <p class="locker_id">A1</p>
+                        <p class="locker_id"></p>
                     </div>
                     <div class="locker_zone">
                         <p>Zona</p>
-                        <p class="zone_id">Gimnasio</p>
+                        <p class="zone_id"></p>
                     </div>
                 </div>
-                <div class="report_btns">
-                    <button id="dirty_btn"><img src="Images/SucioImg.png"><p>Sucio</p></button><br>
-                    <button id="damaged_btn"><img src="Images/DanadoImg.png"><p>Dañado</p></button><br>
-                    <button id="chUbic_btn"><img src="Images/CambiarImg.png"><p>Cambiar ubicación</p></button>      
+                <div id="finish_date">Fecha de entrega de locker: <span class="finish_date">10-Dic-2014</span></div>
+                <div class="byTime_elements hidden">
+                    <div class="elapsed_time">
+                        <p>Tiempo transcurrido: <span id="elapsed_time">2 días y 1:07 hrs</span></p>
+                        <p>Saldo a pagar: $<span id="cant_toPay">260</span></p>
+                    </div>
+                    <button id="pay_btn">PAGAR</button>
                 </div>
             </div>
         </div>
