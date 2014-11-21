@@ -86,10 +86,12 @@ var main = function() {
 				$endDate = jsonMsg.params.termino;
 				$startDate = jsonMsg.params.inicio;
 				$bill = jsonMsg.params.pago;
+				$total = jsonMsg.params.total;
 				$.cookie('locker', $locker);
 				$.cookie('endDate', $endDate);
 				$.cookie('startDate', $startDate);
 				$.cookie('bill', $bill);
+				$.cookie('total', $total);
 				window.location.href = "confirmar.html";
 			};
 		};
@@ -109,6 +111,7 @@ var main = function() {
 		$('.rent_end').text($.cookie('endDate'));
 		$('.locker_id').text($.cookie('locker'));
 		$('.zone_id').text($.cookie('area'));
+		$('.total').text($.cookie('total'))
 		if ($.cookie('type') == 'TIME') {
 			$('#finish_date').addClass('hidden');
 			$('.byTime_elements').removeClass('hidden');	
@@ -116,8 +119,8 @@ var main = function() {
 			$('.byTime_elements').addClass('hidden');
 			$('#finish_date').removeClass('hidden');
 		};
-		if ("WebSocket" in window) {
-            ws = new WebSocket("ws://10.33.17.61:49153");
+		/*if ("WebSocket" in window) {
+            ws = new WebSocket("ws://10.33.26.61:49153");
         } else {
         	alert("WebSocket not supported");
     	};
@@ -126,13 +129,17 @@ var main = function() {
     		mensaje = serverMsg.data;
     		jsonMsg = JSON.parse(mensaje);
     		$command = jsonMsg.command;
-    		if ($command == 'DEPOSIT') {
-    			$currentPay = jsonMsg.params.cantidad;
-    		}else if ($command == 'PAID') {
-    			$('#takeCard').modal('show');
-				window.setTimeout(function(){window.location.href = 'transaccion_exitosa.html'},3000);
-    		};
-    	};
+    		do {
+	    		if ($command == 'DEPOSIT') {
+	    			$currentPay = jsonMsg.params.cantidad;
+	    		}else if ($command == 'PAID') {
+	    			$('#takeCard').modal('show');
+					window.setTimeout(function(){window.location.href = 'transaccion_exitosa.html'},3000);
+	    		};	
+    		}
+    		while ($command != 'PAID');
+    	};*/
+    	
 	};
 
 	/*funcion para botón cambiar en pantalla confirmar*/
@@ -140,8 +147,37 @@ var main = function() {
 		window.location.href = "cambiar.html";
 	});
 
+	$(document).ready( function () {
+		if ("WebSocket" in window) {
+            ws = new WebSocket("ws://10.33.21.203:49153");
+            	var path = window.location.pathname;
+    			var page = path.split('/').pop();
+    			if (page == "confirmar.html") {
+    				ws.onopen = function(event){
+    					sendMsg('OK');
+    				};
+    			}
+            	ws.onmessage = function(serverMsg) {
+            		console.log(serverMsg.data);
+            		mensaje = serverMsg.data;
+            		jsonMsg = JSON.parse(mensaje);
+            		$command = jsonMsg.command;
+    	    		if ($command == 'DEPOSIT') {
+    	    			$currentPay = jsonMsg.params.cantidad;
+    	    			$('.payment').text($currentPay);
+    	    		}else if ($command == 'PAID') {
+    	    			$('#takeCard').modal('show');
+    					window.setTimeout(function(){window.location.href = 'transaccion_exitosa.html'},3000);
+    	    		};	
+            	};
+        } else {
+        	alert("WebSocket not supported");
+    	};
+    	
+	});
+
 	/*Simulación de monedero*/
-	$payment = 0;
+	/*$payment = 0;
 	document.onkeydown = function() {
 		$payment = $payment + 10;
 		console.log($payment);
@@ -152,7 +188,7 @@ var main = function() {
     		$('#takeCard').modal('show');
 			window.setTimeout(function(){window.location.href = 'transaccion_exitosa.html'},3000);
 		}
-	};
+	};*/
 
 	/*Web socket msg sender*/
 	function sendMsg(command, params) {
