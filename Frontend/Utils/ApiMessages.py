@@ -6,7 +6,7 @@ import requests
 import Models
 from requests.auth import HTTPBasicAuth
 
-base_url = 'http://localhost:8080/'
+base_url = 'http://localhost:8000/'
 headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
 
 

@@ -100,11 +100,11 @@ class Confirm:
             'inicio': '',
             'termino': '',
             'locker': '',
-            'total': '',
+            'total': ''
         }
     }
 
-    def __init__(self, inicio=None, termino=None, locker=None, area=None, total=None):
+    def __init__(self, inicio=None, termino=None, locker=None, total=None):
         self.data['params']['inicio'] = str(inicio)
         self.data['params']['termino'] = str(termino)
         self.data['params']['locker'] = str(locker)
@@ -123,7 +123,7 @@ class Deposit:
     }
 
     def __init__(self, cantidad=None):
-        self.data['params']['cantidad'] = cantidad
+        self.data['params']['cantidad'] = str(cantidad)
 
     def get_json(self):
         return json.dumps(self.data)

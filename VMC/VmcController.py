@@ -4,6 +4,7 @@ __author__ = 'mgradob'
 from VMC.Coin_Changer import Changer_Thread
 import socket
 import threading
+from time import sleep
 
 
 class VmcController(threading.Thread):
@@ -69,11 +70,13 @@ class VmcController(threading.Thread):
                                 print 'VMC: Deposit: {}, Balance: {}'.format(deposit, balance)
                                 conn.sendall('DEPOSIT: {}'.format(deposit))
 
+                        sleep(0.5)
                         print 'Balance completed'
+                        conn.sendall('COMPLETE')
 
                     else:
                         print('Incorrect cmd')
-                        conn.sendall('Error')
+                        conn.sendall('ERROR')
 
             # Close the connection on an error
             conn.close()
@@ -91,7 +94,3 @@ class VmcController(threading.Thread):
         print('Socket listening, conns: {}'.format(self.conns))
         self.changer_thread = Changer_Thread.Changer()
         self.changer_thread.start()
-
-
-vmc = VmcController()
-vmc.start()

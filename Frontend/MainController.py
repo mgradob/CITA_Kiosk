@@ -1,11 +1,12 @@
 __author__ = 'mgradob'
 
 from geventwebsocket import WebSocketServer, WebSocketApplication, Resource
-from Utils import JsonMessages, ApiMessages, Models
+from Utils import JsonMessages, ApiMessages, DataHolder
 from Lockers import LockersSocket
 from Lockers.Utils import Commands
 import datetime
-#from VMC import VmcController
+import socket
+from VMC import VmcController
 
 
 class EchoApplication(WebSocketApplication):
@@ -13,7 +14,7 @@ class EchoApplication(WebSocketApplication):
     EchoApplication Class.
      A socket listening forever to the front-end, which will manage the vending services and the lockers.
     """
-    #vmc = VmcController
+
     locker = None
     user_in_session = None
     resend = False
@@ -21,16 +22,29 @@ class EchoApplication(WebSocketApplication):
 
     card_key = ''
     locker_area_id = None
+    av_locker = None
+
+    vmc_start_flag = False
+    socket_data_in = ''
+    host, port = '127.0.0.1', 49154
+
+    # Run a new thread of the VMC module.
+    vmc = VmcController.VmcController('localhost', 49154, 1)
+    vmc.start()
+
+    # Run DataHolder thread.
+    data_holder = DataHolder.DataHolder()
+    data_holder.start()
+
+    # Open socket to the VMC Controller
+    vmc_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def on_open(self):
         """
         Initialization of the system (VMC, Websocket)
         """
-        print 'Connection opened'
 
-        # Run a new thread of the VMC module.
-        # self.vmc = VmcController.VmcController('localhost', 49154, 1)
-        # self.vmc.start()
+        print 'Connection opened'
 
     def on_message(self, message):
         """
@@ -56,10 +70,11 @@ class EchoApplication(WebSocketApplication):
                     # Get user UID.
                     locker_socket = LockersSocket.LockerSocket()
                     self.card_key = locker_socket.send_command(Commands.Commands.read_key())[:8]
+                    self.data_holder.card_key = self.card_key
 
                     # Check for key existance in DB.
-                    self.user_in_session = ApiMessages.User(self.card_key).get_user()
-                    registred = ApiMessages.Lockers().has_assigned_locker(self.card_key)
+                    self.user_in_session = ApiMessages.User(self.data_holder.card_key).get_user()
+                    registred = ApiMessages.Lockers().has_assigned_locker(self.data_holder.card_key)
 
                     # Create Json response for the user.
                     # TODO Validate with real locker and user data.
@@ -73,7 +88,8 @@ class EchoApplication(WebSocketApplication):
                     api_msg = ApiMessages.Lockers()
 
                     # Get the first available locker.
-                    locker = api_msg.get_available_lockers()[0]
+                    self.locker = api_msg.get_available_lockers()[0]
+                    self.data_holder.user_locker = self.locker
 
                     # Get the area_id of the selected locker.
                     for area in api_msg.areas_list:
@@ -87,17 +103,38 @@ class EchoApplication(WebSocketApplication):
                     start_date = '{}-{}-{} {}:{}:{}'.format(date.year, date.month, date.day, date.hour, date.minute, date.second)
                     end_date = str(datetime.datetime(2014, 12, 4, 23, 59, 59))
 
-                    # TODO Implement locker assignation.
-                    api_msg.assign_locker('CD2EE4DD', locker, self.locker_area_id, start_date)
+                    # --- TODO Implement locker assignation.
+                    api_msg.assign_locker(self.data_holder.card_key, self.data_holder.user_locker, self.locker_area_id, start_date)
 
-                    # Create Json response for the confirm.
-                    self.response = JsonMessages.Confirm(start_date, end_date, locker.locker_name, 100).get_json()
+                    # Create Json response for confirmation.
+                    self.response = JsonMessages.Confirm(start_date, end_date, self.data_holder.user_locker.locker_name, 8.5).get_json()
+                    self.ws.send(self.response)
 
-                    response = LockersSocket.LockerSocket().send_command(Commands.Commands.assign_access_level(locker.locker_name, 'CD2EE4DD'))
+                    # ---TODO Implement payment calculation.
+                    # --------------------------------------
+
+                elif command == 'OK':
+                    self.vmc_socket.connect((self.host, self. port))
+                    self.vmc_socket.sendall('ACCEPT {}'.format(8.5))
+
+                    while True:
+                        self.socket_data_in = self.vmc_socket.recv(1024)
+
+                        if self.socket_data_in == 'COMPLETE':
+                            break
+                        else:
+                            balance = self.socket_data_in.split()[1]
+                            print balance
+                            self.response = JsonMessages.Deposit(balance).get_json()
+                            self.ws.send(self.response)
+
+                    response = LockersSocket.LockerSocket().send_command(Commands.Commands.assign_access_level(self.data_holder.user_locker.locker_name, self.data_holder.card_key))
                     print 'Assign access: {}'.format(response)
 
-                    response = LockersSocket.LockerSocket().send_command(Commands.Commands.assign_new_key('CD2EE4DD'))
+                    response = LockersSocket.LockerSocket().send_command(Commands.Commands.assign_new_key(self.data_holder.card_key))
                     print 'Assign key: {}'.format(response)
+
+                    self.ws.send(JsonMessages.Paid().get_json())
 
                 elif command == 'CANCEL':
                     # TODO Implement logic for cancel an operation.
@@ -125,8 +162,8 @@ class EchoApplication(WebSocketApplication):
 
                 print 'Answered: {}'.format(self.response)
 
-            except Exception:
-                print 'Something happened'
+            except Exception as ex:
+                print ex
 
     def on_close(self, reason):
         """
@@ -134,11 +171,10 @@ class EchoApplication(WebSocketApplication):
         """
         print 'WebSocket closed\n{}'.format(reason)
 
-
 """
  Create a WebSocketServer, to listen to the front-end.
 """
 WebSocketServer(
-    ('10.33.17.61', 49153),
+    ('10.33.21.203', 49153),
     Resource({'/': EchoApplication})
 ).serve_forever()
