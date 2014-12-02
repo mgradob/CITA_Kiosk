@@ -71,6 +71,12 @@ class VmcController(threading.Thread):
                                 conn.sendall('DEPOSIT: {}'.format(deposit))
 
                         sleep(0.5)
+
+                        if deposit > balance:
+                            dif = float(deposit-balance)
+
+                            self.changer_thread.socket_com('DISPENSE {}'.format(round(dif, 2)))
+
                         print 'Balance completed'
                         conn.sendall('COMPLETE')
 

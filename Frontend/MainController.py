@@ -175,6 +175,6 @@ class EchoApplication(WebSocketApplication):
  Create a WebSocketServer, to listen to the front-end.
 """
 WebSocketServer(
-    ('10.33.21.203', 49153),
+    ('10.33.18.104', 49153),
     Resource({'/': EchoApplication})
 ).serve_forever()
