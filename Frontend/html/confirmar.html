@@ -8,8 +8,8 @@
 
         <!-- Latest compiled and minified CSS -->
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-
 		<!-- Optional theme -->
+
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
 
         <link rel="stylesheet" href="css/style.css">
@@ -61,11 +61,25 @@
                 <button class="change_btn">Cambiar <img class="changeBtn_img" src="Images/CambiarIcon1.png"></button>
                 <div class="payment_stats">
                     <p class="total_cost">Total: $<span class="total">100</span></p>
-                    <p class="cant_toPay">Saldo a pagar: $<span class="payment">0</span></p>
+                    <p class="cant_toPay">Saldo pagado: $<span class="payment">0</span></p>
                 </div>
                 <div class="start_payment">¡ COMIENZA A PAGAR !</div>
                 <div id="takeCard" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                     <img src="Images/Retirar.png">
+                </div>
+            </div>
+            <div id="contact" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <img src="Images/Contact.png">
+            </div>
+            <div id="cancelar" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <p>¿ SEGURO QUE DESEAS CANCELAR ?</p>
+                            <button type="button" id="sicancelar" class="btn btn-default">SI</button>
+                            <button type="button" id="nocancelar" class="btn btn-default" data-dismiss="modal">NO</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

@@ -5,7 +5,16 @@ var main = function() {
 		sendMsg('LOG_IN','');
 		/*$.cookie('msg', 'cookie');
 		window.location.href = "menu_screen.html";*/
+		$('#procesando').modal({
+			show: 'true',
+			backdrop: 'static',
+			keyboard:false
+		});
 		ws.onmessage = function(serverMsg) {
+			$('#procesando').modal({
+				show: 'false',
+				backdrop: true,
+			})
 			console.log(serverMsg.data);
 			mensaje = serverMsg.data;
 			jsonMsg = JSON.parse(mensaje);
@@ -149,7 +158,7 @@ var main = function() {
 
 	$(document).ready( function () {
 		if ("WebSocket" in window) {
-            ws = new WebSocket("ws://10.33.21.203:49153");
+            ws = new WebSocket("ws://10.0.2.15:49153");
             	var path = window.location.pathname;
     			var page = path.split('/').pop();
     			if (page == "confirmar.html") {
@@ -222,9 +231,11 @@ var main = function() {
 		var path = window.location.pathname;
 		var page = path.split('/').pop();
 		if (page == "confirmar.html") {
-			sendMsg('CANCEL');
+			$('#cancelar').modal('show');
+			//sendMsg('CANCEL');
+		}else{
+			window.history.back();
 		}
-		window.history.back();
 	});
 
 	/*funcion de botón home*/
@@ -232,6 +243,24 @@ var main = function() {
 		sendMsg('CANCEL');
 		window.location.href = "index.html";
 	});
+
+	/*contacto*/
+
+	$('.contact').click(function() {
+		$('#contact').modal('show');
+	});
+
+	$('#contact').click(function() {
+		$('#contact').modal('hide');
+	});
+
+	/*cancelar*/
+	$('#sicancelar').click(function(){
+		sendMsg('CANCEL');
+		window.history.back();
+	})
+
+	
 };
 
 $(document).ready(main);
