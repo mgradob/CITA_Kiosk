@@ -9,7 +9,7 @@ from time import sleep
 
 class ReadThread(threading.Thread):
 
-    deposited_50c, deposited_1, deposited_2, deposited_5 = False, False, False, False
+    deposited_50c, deposited_1, deposited_2, deposited_5, deposited_10 = False, False, False, False, False
     available_50c, available_1, available_2, available_5 = 0, 0, 0, 0
     tubes = Tubes.Tubes()
 
@@ -52,6 +52,10 @@ class ReadThread(threading.Thread):
                         available_5 = int(reading[-2:])
                         print 'READER: 1 coin $5.0, in tube: {}'.format(available_5)
                         self.deposited_5 = True
+
+                    elif reading[:-2] == 'C_CDM_45':
+                        print 'READER: 1 coin $10.0 deposited to hopper'
+                        self.deposited_10 = True
 
                     elif reading[:6] == 'C_TUB_':
                         self.tubes.full_tubes = reading[7:10]
@@ -103,7 +107,7 @@ class Changer(threading.Thread):
             global serial_port
 
             # TODO Change serial port to the uC's.
-            serial_port = serial.Serial('/dev/tty.usbserial-FTDBL0IK', 115200, timeout=1, parity=serial.PARITY_NONE)
+            serial_port = serial.Serial('COM3', 115200, timeout=1, parity=serial.PARITY_NONE)
             self.serial_port = serial_port
             print 'Serial port open'
         except serial.SerialException:
@@ -157,7 +161,9 @@ class Changer(threading.Thread):
     def write_accept(self):
         self.write_thread.write_cmd(self.commands.enable_tubes())
 
-        while (not self.read_thread.deposited_50c) and (not self.read_thread.deposited_1) and (not self.read_thread.deposited_2) and (not self.read_thread.deposited_5):
+        while (not self.read_thread.deposited_50c) and (not self.read_thread.deposited_1) \
+                and (not self.read_thread.deposited_2) and (not self.read_thread.deposited_5)\
+                and (not self.read_thread.deposited_10):
             pass
 
         print 'Coin deposited'
@@ -178,6 +184,10 @@ class Changer(threading.Thread):
         elif self.read_thread.deposited_5:
             self.read_thread.deposited_5 = False
             return 5.0
+
+        elif self.read_thread.deposited_10:
+            self.read_thread.deposited_10 = False
+            return 10.0
 
         else:
             return 0

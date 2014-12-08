@@ -15,7 +15,7 @@ class LockerSocket():
     """ Global Variables """
     sock = None
     cmd = None
-    host, port = '10.33.19.141', 8050
+    host, port = '10.33.1.174', 1028 # Modify
     parser = XmlParser.XmlParser()
     received, response = '', ''
 

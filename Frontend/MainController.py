@@ -1,6 +1,6 @@
 __author__ = 'mgradob'
 
-from geventwebsocket import WebSocketServer, WebSocketApplication, Resource
+from geventwebsocket import WebSocketServer, Resource, WebSocketApplication
 from Utils import JsonMessages, ApiMessages, DataHolder
 from Lockers import LockersSocket
 from Lockers.Utils import Commands
@@ -26,10 +26,10 @@ class EchoApplication(WebSocketApplication):
 
     vmc_start_flag = False
     socket_data_in = ''
-    host, port = '127.0.0.1', 49154
+    host_vmc, port_vmc = '127.0.0.1', 1025
 
     # Run a new thread of the VMC module.
-    vmc = VmcController.VmcController('localhost', 49154, 1)
+    vmc = VmcController.VmcController(host_vmc, port_vmc, 1)
     vmc.start()
 
     # Run DataHolder thread.
@@ -114,7 +114,7 @@ class EchoApplication(WebSocketApplication):
                     # --------------------------------------
 
                 elif command == 'OK':
-                    self.vmc_socket.connect((self.host, self. port))
+                    self.vmc_socket.connect((self.host_vmc, self. port_vmc))
                     self.vmc_socket.sendall('ACCEPT {}'.format(8.5))
 
                     while True:
@@ -175,6 +175,6 @@ class EchoApplication(WebSocketApplication):
  Create a WebSocketServer, to listen to the front-end.
 """
 WebSocketServer(
-    ('10.33.18.104', 49153),
+    ('127.0.0.1', 1024), # Modify
     Resource({'/': EchoApplication})
 ).serve_forever()
