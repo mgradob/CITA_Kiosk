@@ -24,7 +24,7 @@ class VmcController(threading.Thread):
     command = ""
 
     # Initialization
-    def __init__(self, address='127.0.0.1', port=49154, connections=1):
+    def __init__(self, address='127.0.0.1', port=1025, connections=1):
         """ __init__ for the main program. """
         super(VmcController, self).__init__()
         self.addr = address

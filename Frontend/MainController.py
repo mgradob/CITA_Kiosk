@@ -100,7 +100,7 @@ class EchoApplication(WebSocketApplication):
 
                     # Get start and end dates.
                     date = datetime.datetime.now()
-                    start_date = '{}-{}-{} {}:{}:{}'.format(date.year, date.month, date.day, date.hour, date.minute, date.second)
+                    start_date = date.strftime('%Y-%m-%d %H:%M:%S')
                     end_date = str(datetime.datetime(2014, 12, 4, 23, 59, 59))
 
                     # --- TODO Implement locker assignation.

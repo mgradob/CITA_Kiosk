@@ -165,6 +165,7 @@ class Changer(threading.Thread):
                 and (not self.read_thread.deposited_2) and (not self.read_thread.deposited_5)\
                 and (not self.read_thread.deposited_10):
             pass
+        
 
         print 'Coin deposited'
         self.write_thread.write_cmd(self.commands.disable_tubes())

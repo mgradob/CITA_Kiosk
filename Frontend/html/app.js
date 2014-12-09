@@ -158,7 +158,7 @@ var main = function() {
 
 	$(document).ready( function () {
 		if ("WebSocket" in window) {
-            ws = new WebSocket("ws://10.0.2.15:49153");
+            ws = new WebSocket("ws://127.0.0.1:1024");
             	var path = window.location.pathname;
     			var page = path.split('/').pop();
     			if (page == "confirmar.html") {
