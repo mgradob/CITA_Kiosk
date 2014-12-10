@@ -219,22 +219,20 @@
 	text-align: center;
 }
 
-.enabled_btn {
+
+#nextBtn {
 	height: 40px;
 	width: 220px;
-	background-color: #3B8699;
 	color: white;
 	border: none;
 	outline: none;
 }
+.enabled_btn {
+	background-color: #3B8699;
+}
 
 .unabled_btn {
-	height: 40px;
-	width: 220px;
 	background-color: gray;
-	color: white;
-	border: none;
-	outline: none;
 }
 
 
@@ -356,6 +354,25 @@
 	top: 50%;
 }
 
+.confirm_button {
+	clear: both;
+	font-family: "Trebuchet MS", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Tahoma, sans-serif;
+	font-size: 25px;
+	position: absolute;
+	left: 150px;
+	top: 540px;
+	text-align: center;
+}
+
+
+.confirmBtn {
+	height: 40px;
+	width: 300px;
+	background-color: #3B8699;
+	color: white;
+	border: none;
+	outline: none;
+}
 
 /*******************Trasacción exitosa classes**********************/
 
