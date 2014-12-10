@@ -4,7 +4,7 @@
 		<meta charset="utf-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<title>Web Socket Test</title>
+		<title>SALTO Lockers</title>
 
         <!-- Latest compiled and minified CSS -->
 		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
@@ -61,11 +61,44 @@
                 <button class="change_btn">Cambiar <img class="changeBtn_img" src="Images/CambiarIcon1.png"></button>
                 <div class="payment_stats">
                     <p class="total_cost">Total: $<span class="total">100</span></p>
-                    <p class="cant_toPay">Saldo pagado: $<span class="payment">0</span></p>
+                    <p class="cant_toPay hidden">Saldo pagado: $<span class="payment">0</span></p>
                 </div>
-                <div class="start_payment">¡ COMIENZA A PAGAR !</div>
+                <div class="start_payment hidden">¡ COMIENZA A PAGAR !</div>
+                <div class="confirm_button">
+                    <button type="button" class="confirmBtn">CONFIRMAR RENTA</button>
+                </div>
                 <div id="takeCard" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                     <img src="Images/Retirar.png">
+                </div>
+            </div>
+            <div id="procesando" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-body">
+                            <p>PROCESANDO...</p>
+                            <p>POR FAVOR ESPERE</p>
+                            <div class="spinner">
+                              <div class="spinner-container container1">
+                                <div class="circle1"></div>
+                                <div class="circle2"></div>
+                                <div class="circle3"></div>
+                                <div class="circle4"></div>
+                              </div>
+                              <div class="spinner-container container2">
+                                <div class="circle1"></div>
+                                <div class="circle2"></div>
+                                <div class="circle3"></div>
+                                <div class="circle4"></div>
+                              </div>
+                              <div class="spinner-container container3">
+                                <div class="circle1"></div>
+                                <div class="circle2"></div>
+                                <div class="circle3"></div>
+                                <div class="circle4"></div>
+                              </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div id="contact" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
