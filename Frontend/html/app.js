@@ -3,8 +3,6 @@ var main = function() {
 	/*funcion botón de inicio*/
 	$('.button').click(function() {
 		sendMsg('LOG_IN','');
-		/*$.cookie('msg', 'cookie');
-		window.location.href = "menu_screen.html";*/
 		$('#procesando').modal({
 			show: 'true',
 			backdrop: 'static',
@@ -14,7 +12,7 @@ var main = function() {
 			$('#procesando').modal({
 				show: 'false',
 				backdrop: true,
-			})
+			});
 			console.log(serverMsg.data);
 			mensaje = serverMsg.data;
 			jsonMsg = JSON.parse(mensaje);
@@ -111,7 +109,6 @@ var main = function() {
 		var command = $.cookie('command');
 		console.log(command);
 		console.log($.cookie('locker'));
-		//console.log($.cookie('msg'));
 		$('.subttitle').text("Bienvenido: " + $.cookie('userName'));
 		$('.rent_type').text($.cookie('type'));
 		$('.rent_user').text($.cookie('userId'));
@@ -123,31 +120,15 @@ var main = function() {
 		$('.total').text($.cookie('total'))
 		if ($.cookie('type') == 'TIME') {
 			$('#finish_date').addClass('hidden');
-			$('.byTime_elements').removeClass('hidden');	
+			$('.byTime_elements').removeClass('hidden');
+			$('.cant_toPay').addClass('hidden');
+			$('.confirm_button').removeClass('hidden');
 		}else if ($.cookie('type') == 'SEMESTER') {
 			$('.byTime_elements').addClass('hidden');
 			$('#finish_date').removeClass('hidden');
+			$('.cant_toPay').removeClass('hidden');
+			$('.confirm_button').addClass('hidden');
 		};
-		/*if ("WebSocket" in window) {
-            ws = new WebSocket("ws://10.33.26.61:49153");
-        } else {
-        	alert("WebSocket not supported");
-    	};
-    	ws.onmessage = function(serverMsg) {
-    		console.log(serverMsg.data);
-    		mensaje = serverMsg.data;
-    		jsonMsg = JSON.parse(mensaje);
-    		$command = jsonMsg.command;
-    		do {
-	    		if ($command == 'DEPOSIT') {
-	    			$currentPay = jsonMsg.params.cantidad;
-	    		}else if ($command == 'PAID') {
-	    			$('#takeCard').modal('show');
-					window.setTimeout(function(){window.location.href = 'transaccion_exitosa.html'},3000);
-	    		};	
-    		}
-    		while ($command != 'PAID');
-    	};*/
     	
 	};
 
@@ -158,7 +139,7 @@ var main = function() {
 
 	$(document).ready( function () {
 		if ("WebSocket" in window) {
-            ws = new WebSocket("ws://127.0.0.1:1024");
+            ws = new WebSocket("ws://10.0.2.15:49153");
             	var path = window.location.pathname;
     			var page = path.split('/').pop();
     			if (page == "confirmar.html") {
@@ -174,7 +155,18 @@ var main = function() {
     	    		if ($command == 'DEPOSIT') {
     	    			$currentPay = jsonMsg.params.cantidad;
     	    			$('.payment').text($currentPay);
+    	    			if ($('.payment').text() == $('.total').text()) {
+    	    				$('#procesando').modal({
+    	    					show: 'true',
+    	    					backdrop: 'static',
+    	    					keyboard:false
+    	    				});
+    	    			};
     	    		}else if ($command == 'PAID') {
+    	    			$('#procesando').modal({
+    	    				show: 'false',
+    	    				backdrop: true,
+    	    			});
     	    			$('#takeCard').modal('show');
     					window.setTimeout(function(){window.location.href = 'transaccion_exitosa.html'},3000);
     	    		};	
@@ -184,20 +176,6 @@ var main = function() {
     	};
     	
 	});
-
-	/*Simulación de monedero*/
-	/*$payment = 0;
-	document.onkeydown = function() {
-		$payment = $payment + 10;
-		console.log($payment);
-		$('.payment').text($payment);
-		$total = $('.total').text();
-		if ($payment == $total) {
-			//window.setTimeout(function(){$('#takeCard').modal('show')},2000);
-    		$('#takeCard').modal('show');
-			window.setTimeout(function(){window.location.href = 'transaccion_exitosa.html'},3000);
-		}
-	};*/
 
 	/*Web socket msg sender*/
 	function sendMsg(command, params) {
@@ -245,7 +223,6 @@ var main = function() {
 	});
 
 	/*contacto*/
-
 	$('.contact').click(function() {
 		$('#contact').modal('show');
 	});
@@ -258,9 +235,8 @@ var main = function() {
 	$('#sicancelar').click(function(){
 		sendMsg('CANCEL');
 		window.history.back();
-	})
+	});
 
-	
 };
 
 $(document).ready(main);
