@@ -4,7 +4,7 @@ from geventwebsocket import WebSocketServer, Resource, WebSocketApplication
 from Utils import JsonMessages, ApiMessages, DataHolder
 from Lockers import LockersSocket
 from Lockers.Utils import Commands
-import datetime
+import datetime, time
 import socket
 from VMC import VmcController
 
@@ -77,12 +77,23 @@ class EchoApplication(WebSocketApplication):
                     registred = ApiMessages.Lockers().has_assigned_locker(self.data_holder.card_key)
 
                     # Create Json response for the user.
-                    # TODO Validate with real locker and user data.
-                    user = '{} {} {}'.format(self.user_in_session.user_name, self.user_in_session.user_ap, self.user_in_session.user_am)
-                    self.response = JsonMessages.User(registred, '', user, self.user_in_session.user_mat, 1, '', '', 0).get_json()
+                    user = '{} {} {}'.format(
+                        self.user_in_session.user_name,
+                        self.user_in_session.user_ap,
+                        self.user_in_session.user_am
+                    )
+                    self.response = JsonMessages.User(
+                        registred, '',
+                        user,
+                        self.user_in_session.user_mat,
+                        1,
+                        '',
+                        '',
+                        0
+                    ).get_json()
 
                 elif command == 'SOLICIT':
-                    # Create a Solicit message class.
+                    # Create a Solicit message class, to easily handle message data.
                     # Create a Lockers message class.
                     solicit_msg = JsonMessages.Solicit(message)
                     api_msg = ApiMessages.Lockers()
@@ -98,17 +109,59 @@ class EchoApplication(WebSocketApplication):
                         else:
                             self.locker_area_id = '0'
 
-                    # Get start and end dates.
-                    date = datetime.datetime.now()
-                    start_date = date.strftime('%Y-%m-%d %H:%M:%S')
-                    end_date = str(datetime.datetime(2014, 12, 4, 23, 59, 59))
+                    # Check for rate type
+                    if solicit_msg.tipo_cobro == 'SEMESTER':
+                        fmt = '%Y-%m-%d %H:%M:%S'
 
-                    # --- TODO Implement locker assignation.
-                    api_msg.assign_locker(self.data_holder.card_key, self.data_holder.user_locker, self.locker_area_id, start_date)
+                        # Get start and end dates.
+                        date = datetime.datetime.now()
+                        start_date = date.strftime(fmt)
+                        end_date = str(datetime.datetime(2014, 12, 20, 0, 0, 0))
+                        d1 = datetime.datetime.strptime(start_date, fmt)
+                        d2 = datetime.datetime.strptime('2014-12-20 00:00:00', fmt)
 
-                    # Create Json response for confirmation.
-                    self.response = JsonMessages.Confirm(start_date, end_date, self.data_holder.user_locker.locker_name, 8.5).get_json()
-                    self.ws.send(self.response)
+                        # Convert to unix timestamp
+                        d1_ts = time.mktime(d1.timetuple())
+                        d2_ts = time.mktime(d2.timetuple())
+
+                        # They are now in seconds, subtract and then divide by 60 to get minutes.
+                        minutes_to_pay = int(d2_ts-d1_ts) / 60
+                        total = int(minutes_to_pay * 0.005)
+                        self.data_holder.total = total
+
+                        # Assign the locker with the calculated pay.
+                        api_msg.assign_locker(
+                            self.data_holder.card_key,
+                            self.data_holder.user_locker,
+                            self.locker_area_id, start_date
+                        )
+
+                        # Create Json response for confirmation.
+                        self.response = JsonMessages.Confirm(
+                            start_date, end_date,
+                            self.data_holder.user_locker.locker_name,
+                            total
+                        ).get_json()
+                        self.ws.send(self.response)
+
+                    elif solicit_msg.tipo_cobro == 'TIME':
+                        # Get start and end dates.
+                        date = datetime.datetime.now() + datetime.timedelta(minutes=10)
+                        start_date = date.strftime('%Y-%m-%d %H:%M:%S')
+
+                        api_msg.assign_locker(
+                            self.data_holder.card_key,
+                            self.data_holder.user_locker,
+                            self.locker_area_id, start_date
+                        )
+
+                        # Create Json response for confirmation.
+                        self.response = JsonMessages.Confirm(
+                            inicio=start_date,
+                            locker=self.data_holder.user_locker.locker_name,
+                            total='TIME'
+                        ).get_json()
+                        self.ws.send(self.response)
 
                     # ---TODO Implement payment calculation.
                     # --------------------------------------
@@ -128,10 +181,17 @@ class EchoApplication(WebSocketApplication):
                             self.response = JsonMessages.Deposit(balance).get_json()
                             self.ws.send(self.response)
 
-                    response = LockersSocket.LockerSocket().send_command(Commands.Commands.assign_access_level(self.data_holder.user_locker.locker_name, self.data_holder.card_key))
+                    response = LockersSocket.LockerSocket().send_command(
+                        Commands.Commands.assign_access_level(
+                            self.data_holder.user_locker.locker_name,
+                            self.data_holder.card_key
+                        )
+                    )
                     print 'Assign access: {}'.format(response)
 
-                    response = LockersSocket.LockerSocket().send_command(Commands.Commands.assign_new_key(self.data_holder.card_key))
+                    response = LockersSocket.LockerSocket().send_command(Commands.Commands.assign_new_key(
+                        self.data_holder.card_key)
+                    )
                     print 'Assign key: {}'.format(response)
 
                     self.ws.send(JsonMessages.Paid().get_json())
