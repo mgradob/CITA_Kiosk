@@ -104,7 +104,7 @@ var main = function() {
 		};
 	});
 
-	/*funcion para activar el web socket*/
+	/*funcion para establecer valores de panalla*/
 	window.onload = function() {
 		var command = $.cookie('command');
 		console.log(command);
@@ -123,13 +123,13 @@ var main = function() {
 			$('.byTime_elements').removeClass('hidden');
 			$('.cant_toPay').addClass('hidden');
 			$('.confirm_button').removeClass('hidden');
+			$('.total_cost').text("Cuota: $")
 		}else if ($.cookie('type') == 'SEMESTER') {
 			$('.byTime_elements').addClass('hidden');
 			$('#finish_date').removeClass('hidden');
 			$('.cant_toPay').removeClass('hidden');
 			$('.confirm_button').addClass('hidden');
 		};
-    	
 	};
 
 	/*funcion para botón cambiar en pantalla confirmar*/
@@ -137,6 +137,7 @@ var main = function() {
 		window.location.href = "cambiar.html";
 	});
 
+	/*función para el websocket*/
 	$(document).ready( function () {
 		if ("WebSocket" in window) {
             ws = new WebSocket("ws://10.0.2.15:49153");
@@ -174,7 +175,6 @@ var main = function() {
         } else {
         	alert("WebSocket not supported");
     	};
-    	
 	});
 
 	/*Web socket msg sender*/
@@ -186,6 +186,16 @@ var main = function() {
 		console.log(json);
 		ws.send(json);
 	};
+
+	/*función para botón de confirmar renta (modalidad tiempo)*/
+	$('.confirmBtn').click(function() {
+		sendMsg('ACCEPT');
+		$('#procesando').modal({
+			show: 'true',
+			backdrop: 'static',
+			keyboard:false
+		});
+	});
 
 	/*funcion botón imprimir*/
 	$('#print_btn').click(function() {
@@ -236,7 +246,6 @@ var main = function() {
 		sendMsg('CANCEL');
 		window.history.back();
 	});
-
 };
 
 $(document).ready(main);

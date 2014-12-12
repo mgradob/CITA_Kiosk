@@ -294,14 +294,17 @@
 .locker_id {
 	border-style: solid;
 	border-color: #3B8699;
+	border-radius: 20px;
 	color: #3B8699;
 	font-size: 80px;
+	height: 120px;
 	width: 130px;
 }
 
 .zone_id {
 	border-style: solid;
 	border-color: #3B8699;
+	border-radius: 20px;
 	color: #3B8699;
 	font-size: 25px;
 	line-height: 110px;
