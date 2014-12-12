@@ -123,12 +123,14 @@ var main = function() {
 			$('.byTime_elements').removeClass('hidden');
 			$('.cant_toPay').addClass('hidden');
 			$('.confirm_button').removeClass('hidden');
+			$('.start_payment').addClass('hidden');
 			$('.total_cost').text("Cuota: $")
 		}else if ($.cookie('type') == 'Semestral') {
 			$('.byTime_elements').addClass('hidden');
 			$('#finish_date').removeClass('hidden');
 			$('.cant_toPay').removeClass('hidden');
 			$('.confirm_button').addClass('hidden');
+			$('.start_payment').removeClass('hidden');
 		};
 	};
 
@@ -140,7 +142,7 @@ var main = function() {
 	/*función para el websocket*/
 	$(document).ready( function () {
 		if ("WebSocket" in window) {
-            ws = new WebSocket("ws://localhost:1024");
+            ws = new WebSocket("ws://10.0.2.15:49153");
             	var path = window.location.pathname;
     			var page = path.split('/').pop();
     			if (page == "confirmar.html") {
