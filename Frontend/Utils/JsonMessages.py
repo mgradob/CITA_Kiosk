@@ -141,3 +141,16 @@ class Paid:
 
     def get_json(self):
         return json.dumps(self.data)
+
+class Accept:
+    data = {
+        'command': 'ACCEPT',
+        'params': {
+        }
+    }
+
+    def __init__(self):
+        pass
+
+    def get_json(self):
+        return json.dumps(self.data)

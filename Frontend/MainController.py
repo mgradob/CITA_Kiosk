@@ -118,12 +118,13 @@ class EchoApplication(WebSocketApplication):
                         start_date = date.strftime(fmt)
                         end_date = str(datetime.datetime(2014, 12, 20, 0, 0, 0))
                         d1 = datetime.datetime.strptime(start_date, fmt)
-                        d2 = datetime.datetime.strptime('2014-12-20 00:00:00', fmt)
+                        d2 = datetime.datetime.strptime('2014-12-20 00:00:00', fmt) # Replace with Semester date
 
                         # Convert to unix timestamp
                         d1_ts = time.mktime(d1.timetuple())
                         d2_ts = time.mktime(d2.timetuple())
 
+                        # As a demo, payment is calculated by minute, on a standard rate ($0.005/min)
                         # They are now in seconds, subtract and then divide by 60 to get minutes.
                         minutes_to_pay = int(d2_ts-d1_ts) / 60
                         total = int(minutes_to_pay * 0.005)
@@ -196,6 +197,14 @@ class EchoApplication(WebSocketApplication):
 
                     self.ws.send(JsonMessages.Paid().get_json())
 
+                elif command == 'ACCEPT':
+                    pass
+                    # Configure user
+
+                    # Configure user id with access times
+
+                    self.ws.send(JsonMessages.Accept().get_json())
+
                 elif command == 'CANCEL':
                     # TODO Implement logic for cancel an operation.
                     print 'Canceling'
@@ -205,7 +214,7 @@ class EchoApplication(WebSocketApplication):
                     print 'Printing ticket'
 
                 elif command == 'LOG_OUT':
-                    # TODO Implement logic for clossing session.
+                    # TODO Implement logic for closing session.
                     print 'Login Out'
 
                 else:
