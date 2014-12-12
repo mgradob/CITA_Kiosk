@@ -118,13 +118,13 @@ var main = function() {
 		$('.locker_id').text($.cookie('locker'));
 		$('.zone_id').text($.cookie('area'));
 		$('.total').text($.cookie('total'))
-		if ($.cookie('type') == 'TIME') {
+		if ($.cookie('type') == 'Por tiempo') {
 			$('#finish_date').addClass('hidden');
 			$('.byTime_elements').removeClass('hidden');
 			$('.cant_toPay').addClass('hidden');
 			$('.confirm_button').removeClass('hidden');
 			$('.total_cost').text("Cuota: $")
-		}else if ($.cookie('type') == 'SEMESTER') {
+		}else if ($.cookie('type') == 'Semestral') {
 			$('.byTime_elements').addClass('hidden');
 			$('#finish_date').removeClass('hidden');
 			$('.cant_toPay').removeClass('hidden');
