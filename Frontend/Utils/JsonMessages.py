@@ -104,7 +104,7 @@ class Confirm:
         }
     }
 
-    def __init__(self, inicio=None, termino=None, locker=None, total=None):
+    def D__init__(self, inicio=None, termino=None, locker=None, total=None):
         self.data['params']['inicio'] = str(inicio)
         self.data['params']['termino'] = str(termino)
         self.data['params']['locker'] = str(locker)

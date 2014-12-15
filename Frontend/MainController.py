@@ -15,6 +15,7 @@ class EchoApplication(WebSocketApplication):
      A socket listening forever to the front-end, which will manage the vending services and the lockers.
     """
 
+    # Global Variables
     locker = None
     user_in_session = None
     resend = False
@@ -118,7 +119,7 @@ class EchoApplication(WebSocketApplication):
                         start_date = date.strftime(fmt)
                         end_date = str(datetime.datetime(2014, 12, 20, 0, 0, 0))
                         d1 = datetime.datetime.strptime(start_date, fmt)
-                        d2 = datetime.datetime.strptime('2014-12-20 00:00:00', fmt) # Replace with Semester date
+                        d2 = datetime.datetime.strptime('2014-12-20 00:00:00', fmt)  # Replace with Semester date
 
                         # Convert to unix timestamp
                         d1_ts = time.mktime(d1.timetuple())
@@ -134,12 +135,14 @@ class EchoApplication(WebSocketApplication):
                         api_msg.assign_locker(
                             self.data_holder.card_key,
                             self.data_holder.user_locker,
-                            self.locker_area_id, start_date
+                            self.locker_area_id,
+                            start_date
                         )
 
                         # Create Json response for confirmation.
                         self.response = JsonMessages.Confirm(
-                            start_date, end_date,
+                            start_date,
+                            end_date,
                             self.data_holder.user_locker.locker_name,
                             total
                         ).get_json()
@@ -198,7 +201,6 @@ class EchoApplication(WebSocketApplication):
                     self.ws.send(JsonMessages.Paid().get_json())
 
                 elif command == 'ACCEPT':
-                    pass
                     # Configure user
 
                     # Configure user id with access times
