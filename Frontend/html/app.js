@@ -2,7 +2,7 @@ var main = function() {
 
 	/*funcion botón de inicio*/
 	$('.button').click(function() {
-		sendMsg('LOG_IN','');
+        sendMsg('LOG_IN','');
 		$('#procesando').modal({
 			show: 'true',
 			backdrop: 'static',
@@ -16,6 +16,12 @@ var main = function() {
 			console.log(serverMsg.data);
 			mensaje = serverMsg.data;
 			jsonMsg = JSON.parse(mensaje);
+			if(jsonMsg.params.abort == "True"){
+				$error = jsonMsg.params.description;
+				$('.modal-body').html($error)
+				window.location.href = "index.html";
+				return
+			}
 			$command = jsonMsg.command;
 			$locker = jsonMsg.params.locker;
 			$endDate = jsonMsg.params.entrega;
@@ -72,6 +78,9 @@ var main = function() {
 
 	/*funcion para habilitar botón siguiente*/
 	function enableBtn() {
+		if (typeof rent == "undefined") rent = false;
+		if (typeof zone == "undefined") zone = false;
+
 		if (rent==true && zone==true) {
 			console.log(rent);
 			$('#nextBtn').removeClass('unabled_btn');
@@ -82,6 +91,12 @@ var main = function() {
 	/*funcion botón siguiente*/
 	$('#nextBtn').click(function() {
 		if ($(this).hasClass('enabled_btn')) {
+			$('#procesando').modal({
+                show: 'true',
+                backdrop: 'static',
+                keyboard:false
+            });
+            console.log("Solicitando Locker");
 			var params = [rentSelection, zoneSelection]; 
 			sendMsg('SOLICIT', params);
 			ws.onmessage = function(serverMsg) {
@@ -104,9 +119,10 @@ var main = function() {
 		};
 	});
 
-	/*funcion para establecer valores de panalla*/
+	/*funcion para establecer valores de pantalla*/
 	window.onload = function() {
 		var command = $.cookie('command');
+		if (typeof command == "undefined") command = "";
 		console.log(command);
 		console.log($.cookie('locker'));
 		$('.subttitle').text("Bienvenido: " + $.cookie('userName'));
@@ -142,14 +158,19 @@ var main = function() {
 	/*función para el websocket*/
 	$(document).ready( function () {
 		if ("WebSocket" in window) {
-            ws = new WebSocket("ws://10.0.2.15:49153");
+            ws = new WebSocket("ws://localhost:1024");
             	var path = window.location.pathname;
     			var page = path.split('/').pop();
     			if (page == "confirmar.html") {
     				ws.onopen = function(event){
-    					sendMsg('OK');
+                        if ($.cookie('type') == 'Por tiempo') {
+
+                        }else{
+    					    sendMsg('OK');
+    					}
     				};
     			}
+    			boolPaid = false;
             	ws.onmessage = function(serverMsg) {
             		console.log(serverMsg.data);
             		mensaje = serverMsg.data;
@@ -158,18 +179,18 @@ var main = function() {
     	    		if ($command == 'DEPOSIT') {
     	    			$currentPay = jsonMsg.params.cantidad;
     	    			$('.payment').text($currentPay);
-    	    			if ($('.payment').text() == $('.total').text()) {
-    	    				$('#procesando').modal({
+    	    			curPay = parseFloat($currentPay);
+    	    			totPay = parseFloat($('.total').text());
+    	    			if ((curPay >= totPay) && (!boolPaid)) {
+    	    			    $('#procesando').modal({
     	    					show: 'true',
     	    					backdrop: 'static',
     	    					keyboard:false
     	    				});
     	    			};
     	    		}else if ($command == 'PAID') {
-    	    			$('#procesando').modal({
-    	    				show: 'false',
-    	    				backdrop: true,
-    	    			});
+    	    		    boolPaid = true;
+    	    			$('#procesando').modal('hide');
     	    			$('#takeCard').modal('show');
     					window.setTimeout(function(){window.location.href = 'transaccion_exitosa.html'},3000);
     	    		};	
@@ -186,7 +207,14 @@ var main = function() {
 		msg['params'] = params;
 		var json = JSON.stringify(msg);
 		console.log(json);
-		ws.send(json);
+		try{
+		    ws.send(json);
+		}
+		catch(err) {
+            console.log(err.message);
+            alert("ERROR DE SOCKET");
+            return;
+        }
 	};
 
 	/*función para botón de confirmar renta (modalidad tiempo)*/

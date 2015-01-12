@@ -37,53 +37,58 @@ class VmcController(threading.Thread):
             conn, addr = self.socket.accept()
             print 'Client connected'
 
-            while 1:
-                # Wait for data (1024)
-                self.command = conn.recv(1024)
-                print('Command received: {}'.format(self.command))
+            while True:
+                try:
+                    # Wait for data (1024)
+                    self.command = conn.recv(1024)
+                    print('Command received: {}'.format(self.command))
 
-                # If data received is null close the connection.
-                # Else, split the command: data[0] = DISPENSE, data[1] = NN.CC
-                if not self.command:
-                    break
-                else:
-                    data = self.command.split()
-
-                    # Validate for the DISPENSE command. Else send an error message to the socket.
-                    # Split NN.CC as: units:NN, cents:CC
-                    if data[0] == 'DISPENSE':
-                        thread_response = self.changer_thread.socket_com(self.command)
-
-                        # Reset the response, acknowledge the command.
-                        conn.sendall('Thread_response: {}'.format(thread_response))
-
-                    elif data[0] == 'ACCEPT':
-                        balance, deposit = float(data[1]), float(0)
-
-                        while deposit < balance:
-
-                            if deposit >= balance:
-                                break
-
-                            else:
-                                deposit += self.changer_thread.socket_com('ACCEPT {}'.format(balance))
-                                print 'VMC: Deposit: {}, Balance: {}'.format(deposit, balance)
-                                conn.sendall('DEPOSIT: {}'.format(deposit))
-
-                        sleep(0.5)
-
-                        if deposit > balance:
-                            dif = float(deposit-balance)
-                            print 'Dif: '.format(dif)
-
-                            self.changer_thread.socket_com('DISPENSE {}'.format(dif))
-
-                        print 'Balance completed'
-                        conn.sendall('COMPLETE')
-
+                    # If data received is null close the connection.
+                    # Else, split the command: data[0] = DISPENSE, data[1] = NN.CC
+                    if not self.command:
+                        break
                     else:
-                        print('Incorrect cmd')
-                        conn.sendall('ERROR')
+                        data = self.command.split()
+
+                        # Validate for the DISPENSE command. Else send an error message to the socket.
+                        # Split NN.CC as: units:NN, cents:CC
+                        if data[0] == 'DISPENSE':
+                            thread_response = self.changer_thread.socket_com(self.command)
+
+                            # Reset the response, acknowledge the command.
+                            conn.sendall('Thread_response: {}'.format(thread_response))
+
+                        elif data[0] == 'ACCEPT':
+                            balance, deposit = float(data[1]), float(0)
+
+                            while deposit < balance:
+
+                                if deposit >= balance:
+                                    break
+
+                                else:
+                                    deposit += self.changer_thread.socket_com('ACCEPT {}'.format(balance))
+                                    print 'VMC: Deposit: {}, Balance: {}'.format(deposit, balance)
+                                    conn.sendall('DEPOSIT: {}'.format(deposit))
+
+                            sleep(0.5)
+
+                            if deposit > balance:
+                                dif = float(deposit-balance)
+                                print 'Dif: '.format(dif)
+
+                                self.changer_thread.socket_com('DISPENSE {}'.format(dif))
+
+                            print 'Balance completed'
+                            conn.sendall('COMPLETE')
+
+                        else:
+                            print('Incorrect cmd')
+                            conn.sendall('ERROR')
+
+                except Exception as ex:
+                    print "ERROR EN EL VMC"
+                    print ex
 
             # Close the connection on an error
             conn.close()

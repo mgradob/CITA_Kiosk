@@ -154,3 +154,22 @@ class Accept:
 
     def get_json(self):
         return json.dumps(self.data)
+
+
+class Error:
+    data = {
+        'command': 'ERROR',
+        'params': {
+            'abort': '',
+            'errno': '',
+            'description' :''
+        }
+    }
+
+    def __init__(self,abort=None, errno=None, description=None):
+        self.data['params']['abort'] = str(abort)
+        self.data['params']['errno'] = str(errno)
+        self.data['params']['description'] = str(description)
+
+    def get_json(self):
+        return json.dumps(self.data)

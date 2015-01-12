@@ -1,7 +1,9 @@
 /* 
 	CSS style file for the Kiosk demo.
 */
-
+#main-text {
+	min-width: 500px;
+}
 /******************************* Start screen classes*******************************/
 .blue {
 	background-color: #3B8699;
@@ -19,7 +21,8 @@
 .main-text {
 	background-color: #3B8699;
 	color: #f0f0f0;
-	text-align: center;	
+	text-align: center;
+	min-width: 300px;
 }
 
 .logo {
@@ -145,7 +148,7 @@
 	font-size: 25px;
 	margin: 20px 60px 60px -40px;
 	position: relative;
-	top: 150px;
+	top: 130px;
 	text-align: right;
 }
 
@@ -154,7 +157,7 @@
 	font-size: 25px;
 	margin: 20px 70px 60px 70px;
 	position: relative;
-	top: 150px;
+	top: 130px;
 }
 
 .rent_type_menu {
