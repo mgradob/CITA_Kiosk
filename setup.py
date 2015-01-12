@@ -8,7 +8,27 @@ setup(
               'LockersApi.SaltoLockers.socketSender'],
     url='',
     license='',
-    author='mgradob',
-    author_email='mgradob@gmail.com',
+    author='',
+    author_email='',
     description=''
 )
+
+'''
+Salto Lockers Controller.
+    IP addresses:
+        MainController: localhost:1024
+        VmcController: localhost:1025
+        PrinterController: localhost:1026
+        LockersSocket: <IP_de_la_maquina>:1028
+
+    Configurar estas direcciones antes de correr el programa.
+    Configurar el puerto COM de Changer_Thread al puerto del cable USB-Serial.
+    Iniciar el API (LockersAPI) antes de iniciar el programa.
+
+    Para iniciar el frontend:
+        1.- En terminal o cmd, navegar a la carpeta ..Cita Kiosk/Frontend/html
+        2.- Comando: python -m SimpleHTTPServer 80
+
+    Los archivos apiTest.py y jsonTest.py son simples archivos usados para probar funcionalidades antes de utilizarlas
+    en el codigo principal.
+'''

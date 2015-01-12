@@ -13,7 +13,7 @@ class XmlParser:
     def split_sting(self, data):
         """
         Split_string method.
-         Removes trailing data of the xml string, up until tag '<?xml... ?>
+         Removes trailing data of the xml string, up until tag '<?xml... ?>'
         """
         index = data.find('<?')
         xml = data[index:]

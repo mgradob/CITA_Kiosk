@@ -69,5 +69,5 @@ class PrinterController(threading.Thread):
             finally:
                 connection.close()
 
-ticket_thread = PrinterController('127.0.0.1', 49156, 1)
+ticket_thread = PrinterController('127.0.0.1', 1026, 1)
 ticket_thread.run()
