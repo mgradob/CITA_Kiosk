@@ -5,12 +5,13 @@ setup(
     version='1.0',
     packages=['VMC', 'VMC.Utils', 'VMC.Coin_Changer', 'VMC.Bill_Dispenser', 'Lockers', 'Lockers.Utils', 'Printer',
               'Frontend', 'Frontend.Utils', 'LockersApi.SaltoLockers.Lockers', 'LockersApi.SaltoLockers.SaltoLockers',
-              'LockersApi.SaltoLockers.socketSender'],
+              'LockersApi.SaltoLockers.socketSender', 'pytz'],
     url='',
     license='',
     author='',
     author_email='',
-    description=''
+    description='',
+    timezone="America/Chihuahua"
 )
 
 '''

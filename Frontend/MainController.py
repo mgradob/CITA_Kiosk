@@ -1,12 +1,17 @@
+# coding=utf-8
 __author__ = 'mgradob'
 
 from geventwebsocket import WebSocketServer, Resource, WebSocketApplication
 from Utils import JsonMessages, ApiMessages, DataHolder
 from Lockers import LockersSocket
 from Lockers.Utils import Commands
-import datetime, time
+import datetime
+import time
 import socket
+import pytz
 from VMC import VmcController
+from dateutil.parser import parse
+import math
 
 
 class EchoApplication(WebSocketApplication):
@@ -72,14 +77,40 @@ class EchoApplication(WebSocketApplication):
                     self.card_key = locker_socket.send_command(Commands.Commands.read_key())[:8]
                     self.data_holder.card_key = self.card_key
 
-                    if (self.data_holder.card_key == "403"): #No hay tarjeta
+                    if self.data_holder.card_key == "403":  # No hay tarjeta
                         print "No hay tarjeta"
                         self.response = JsonMessages.Error(True, "Tarjeta", "No hay tarjeta").get_json()
                     else:
                         try:
-                            # Check for key existance in DB.
+                            # Check for key existence in DB.
                             self.user_in_session = ApiMessages.User(self.data_holder.card_key).get_user()
-                            registred = ApiMessages.Lockers().has_assigned_locker(self.data_holder.card_key)
+                            assigned_locker = ApiMessages.Lockers().has_assigned_locker_info(self.data_holder.card_key)
+                            str_locker_id = ''
+                            str_locker_name = ''
+                            str_locker_start = ''
+                            str_locker_end = ''
+                            str_locker_rent_type = ''
+                            bol_registered = True
+                            bol_locker_rent_confirmed = False
+                            area_name = ''
+                            payment = 0
+
+                            if assigned_locker is None:
+                                bol_registered = False
+                            else:
+                                str_locker_id = assigned_locker.locker_id
+                                str_locker_name = assigned_locker.locker_name
+                                bol_locker_rent_confirmed = assigned_locker.locker_rent_confirmed
+                                str_locker_start = assigned_locker.locker_start_time
+                                str_locker_end = assigned_locker.locker_end_time
+                                str_locker_rent_type = assigned_locker.locker_rent_type
+                                area = ApiMessages.Lockers().get_area_info(assigned_locker.fk_area)
+                                self.data_holder.user_locker = assigned_locker
+
+                                if area is not None:
+                                    area_name = area.area_name
+                                    self.data_holder.area_name = area_name
+                                    self.data_holder.area_id = area.area_id
 
                             # Create Json response for the user.
                             user = '{} {} {}'.format(
@@ -88,35 +119,108 @@ class EchoApplication(WebSocketApplication):
                                 self.user_in_session.user_am
                             )
 
+                            if str_locker_rent_type == 'by_time':
+                                payment = self.calculate_payment(assigned_locker.locker_start_time, 0.4)
+                                self.data_holder.total = payment
+                                print payment
+
                             self.response = JsonMessages.User(
-                                registred, '',
+                                bol_registered,
+                                str_locker_rent_type,
                                 user,
                                 self.user_in_session.user_mat,
-                                1,
-                                '',
-                                '',
-                                0
+                                str_locker_id,
+                                str_locker_name,
+                                bol_locker_rent_confirmed,
+                                area_name,
+                                str_locker_start,
+                                str_locker_end,
+                                payment
                             ).get_json()
-                        except Exception:
-                            print "Error al obtener Usuario"
-                            self.response = JsonMessages.Error(True, "Usuario", "No se ha encontrado el usuario").get_json()
 
+                        except Exception as ex:
+                            print ex
+                            print "ERROR AL OBTENER USUARIO {}".format(self.card_key)
+                            self.response = JsonMessages.Error(True, "Usuario",
+                                                               "No se ha encontrado el usuario").get_json()
+
+                elif command == 'GET_AREAS':
+                    all_areas = ApiMessages.Lockers().get_areas_json()
+                    self.response = JsonMessages.Areas(all_areas).get_json()
+
+                    """
+                        elif command == 'CHANGE_LOCKER_STATUS':
+                        all_areas = ApiMessages.Lockers().get_areas_json()
+                        self.response = JsonMessages.Areas(all_areas).get_json()
+                    """
+
+                    """
+                    elif command == 'DELETE_USER':
+                        print "USER TEST DELETE"
+                        change_msg = JsonMessages.ChangeLockerStatus(message)
+                        api_msg = ApiMessages.Lockers()
+                        locker = api_msg.get_locker_info(change_msg.locker_id)
+                        api_msg.test_delete_locker(locker)
+                    """
+                elif command == 'CHANGE_LOCKER_STATUS':
+                    print "LOCKER CHANGE"
+                    change_msg = JsonMessages.ChangeLockerStatus(message)
+                    api_msg = ApiMessages.Lockers()
+                    api_msg.change_locker_status(change_msg.locker_id, change_msg.status)
+                    available_lockers = api_msg.get_available_lockers_area(self.data_holder.area_id)
+
+                    if len(available_lockers) > 0:
+                        print "DISPONIBLES PARA CAMBIO"
+                        old_locker = self.data_holder.user_locker
+                        new_locker = available_lockers[0]
+                        api_msg.migrate_locker(old_locker, new_locker)
+
+                        area = ApiMessages.Lockers().get_area_info(new_locker.fk_area)
+                        self.data_holder.user_locker = new_locker
+                        if area is not None:
+                            area_name = area.area_name
+                            self.data_holder.area_name = area_name
+                            self.data_holder.area_id = area.area_id
+
+                        self.response = JsonMessages.Changed(new_locker,area).get_json()
+                        self.ws.send(self.response)
+
+                        # TODO implement card
+                    else:
+                        print "SIN DISPONIBILIDAD"
+                        self.response = JsonMessages.Error(
+                            None, "NOT AVILABLE", "SIN DISPONIBILIDAD EN LA ZONA").get_json()
+                        self.ws.send(self.response)
+                    return
                 elif command == 'SOLICIT':
                     # Create a Solicit message class, to easily handle message data.
                     # Create a Lockers message class.
                     solicit_msg = JsonMessages.Solicit(message)
                     api_msg = ApiMessages.Lockers()
 
-                    # Get the first available locker.
-                    self.locker = api_msg.get_available_lockers()[0]
-                    self.data_holder.user_locker = self.locker
+                    try:
+                        # Get the first available locker.
+                        self.locker = api_msg.get_available_lockers_area(solicit_msg.area)[0]
+                        self.data_holder.user_locker = self.locker
 
-                    # Get the area_id of the selected locker.
-                    for area in api_msg.areas_list:
-                        if area.area_name == solicit_msg.area:
-                            self.locker_area_id = area.area_id
-                        else:
-                            self.locker_area_id = '0'
+                        # Get the area_id of the selected locker.
+                        for area in api_msg.areas_list:
+                            if area.area_name == solicit_msg.area:
+                                self.locker_area_id = area.area_id
+                            else:
+                                self.locker_area_id = '0'
+
+                    except IndexError as ex:
+                        print ex
+                        print "SIN DISPONIBILIDAD"
+                        self.response = JsonMessages.Error(None, "NOT AVAILABLE",
+                                                           "SIN DISPONIBILIDAD EN LA ZONA").get_json()
+                        self.ws.send(self.response)
+                        return
+
+                    except Exception as ex:
+                        print ex
+                        print "Error al solicitar"
 
                     # Check for rate type
                     if solicit_msg.tipo_cobro == 'by_semester':
@@ -138,14 +242,15 @@ class EchoApplication(WebSocketApplication):
                         # As a demo, payment is calculated by minute, on a standard rate ($0.005/min)
                         # They are now in seconds, subtract and then divide by 60 to get minutes.
                         minutes_to_pay = int(d2_ts-d1_ts) / 60
-                        total = int(minutes_to_pay * 0.00002)#Dumy rate
-                        self.data_holder.total = total #8.5
+                        total = int(minutes_to_pay * 0.00002)  # Dummy rate
+                        self.data_holder.total = total
 
                         # Assign the locker with the calculated pay.
                         api_msg.assign_locker(
                             self.data_holder.card_key,
                             self.data_holder.user_locker,
-                            self.locker_area_id, start_date
+                            solicit_msg.tipo_cobro,
+                            start_date, end_date
                         )
 
                         # Create Json response for confirmation.
@@ -164,7 +269,8 @@ class EchoApplication(WebSocketApplication):
                         api_msg.assign_locker(
                             self.data_holder.card_key,
                             self.data_holder.user_locker,
-                            self.locker_area_id, start_date
+                            solicit_msg.tipo_cobro,
+                            start_date, None
                         )
 
                         # Create Json response for confirmation.
@@ -175,14 +281,13 @@ class EchoApplication(WebSocketApplication):
                         ).get_json()
                         self.ws.send(self.response)
 
-                    # ---TODO Implement payment calculation.
-                    # --------------------------------------
-
                 elif command == 'OK':
                     try:
                         sock_status = self.vmc_socket.connect_ex((self.host_vmc, self. port_vmc))
-                        self.vmc_socket.sendall('ACCEPT {}'.format( self.data_holder.total)) #Total a pagar en el monedero
+                        # Total a pagar en el monedero
+                        self.vmc_socket.sendall('ACCEPT {}'.format(self.data_holder.total))
                         print "SOCKET STATUS {}".format(sock_status)
+
                     except Exception as ex:
                         print ex
                         print "Error al comunicar con el monedero 1"
@@ -215,33 +320,41 @@ class EchoApplication(WebSocketApplication):
                         )
                         print 'Assign key: {}'.format(response)
 
+                        # SAVE LOCKER CONFIRMATION
+                        try:
+                            ApiMessages.Lockers(self.data_holder.user_locker, True)
+                        except Exception as ex:
+                            print ex
+                            print "ERROR AL CONFIRMAR LOCKER DESPUES DE PAGAR"
+
                         self.ws.send(JsonMessages.Paid().get_json())
 
                     except Exception as ex:
                         print ex
                         print "Error al comunicar con el monedero"
 
-                elif command == 'ACCEPT':## POR TIEMPO
-                    response = LockersSocket.LockerSocket().send_command(
-                        Commands.Commands.assign_access_level(
-                            self.data_holder.user_locker.locker_name,
-                            self.data_holder.card_key
-                        )
-                    )
-                    print 'Assign access: {}'.format(response)
+                elif command == 'ACCEPT':
+                    # POR TIEMPO
 
-                    response = LockersSocket.LockerSocket().send_command(Commands.Commands.assign_new_key(
-                        self.data_holder.card_key)
+                    LockersSocket.LockerSocket().send_command(
+                        Commands.Commands.assign_by_time('')
                     )
-                    print 'Assign key: {}'.format(response)
+                    print("PASO 1")
 
+                    LockersSocket.LockerSocket().send_command(
+                        Commands.Commands.assign_by_time2('')
+                    )
+
+                    print("PASO 2")
+
+                    LockersSocket.LockerSocket().send_command(
+                        Commands.Commands.update_key(self.data_holder.card_key)
+                    )
+                    print("PASO 3")
+                    # print 'Assign access: {}'.format(response)
+
+                    ApiMessages.Lockers(self.data_holder.user_locker, True)
                     self.ws.send(JsonMessages.Paid().get_json())
-
-                    # pass
-                    # Configure user
-                    # Configure user id with access times
-
-                    #self.ws.send(JsonMessages.Accept().get_json())
 
                 elif command == 'CANCEL':
                     # TODO Implement logic for cancel an operation.
@@ -256,6 +369,7 @@ class EchoApplication(WebSocketApplication):
                     print 'Login Out'
 
                 else:
+                    print "COMANDO NO SOPORTADO - {}".format(command)
                     self.response = 'Message not supported'
 
                 # Save command, for posible future send backs.
@@ -273,6 +387,27 @@ class EchoApplication(WebSocketApplication):
                 print ex
                 self.response = JsonMessages.Error(True, "Otro", "Excepcion Generica").get_json()
 
+    def calculate_payment(self, p_start, rate):
+        payment = 0
+        try:
+            # Obtener la zona horaria de la maquina y añadirla a la hora actual
+            str_timezone_diff = datetime.datetime.now(pytz.timezone('America/Chihuahua')).strftime('%z')
+            end_time = datetime.datetime.today().strftime("%Y-%m-%d %H:%M:%S{}".format(str_timezone_diff))
+
+            # hacer un parse de las horas para verificar que estén en el formato adecuado
+            start = parse(p_start)
+            end = parse(end_time)
+
+            # calcular el pago por ho
+            # ra
+            elapsed_time = end - start
+            payment = math.ceil(elapsed_time.total_seconds()/60/60) * rate
+        except Exception as ex:
+            print ex
+            print "ERROR AL CALCULAR PAGO"
+            # self.response = JsonMessages.Error(True, "Calcular pago", "No se ha podido calcular el pago").get_json()
+        return payment
+
     def on_close(self, reason):
         """
         When stopping the socket, we must check to stop all services.
@@ -283,6 +418,6 @@ class EchoApplication(WebSocketApplication):
  Create a WebSocketServer, to listen to the front-end.
 """
 WebSocketServer(
-    ('127.0.0.1', 1024), # Modify
+    ('127.0.0.1', 1024),  # Modify
     Resource({'/': EchoApplication})
 ).serve_forever()

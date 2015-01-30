@@ -8,6 +8,8 @@ class DataHolder(threading.Thread):
     user_locker = Models.LockerModel
     card_key = ''
     total = 0
+    area_name = ''
+    area_id = ''
 
     def __init__(self):
         super(DataHolder, self).__init__()

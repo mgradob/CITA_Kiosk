@@ -1,0 +1,166 @@
+/* Read Key */
+
+STP/00/200/<?xml version="1.0" encoding="ISO-8859-1"?>
+<RequestCall>
+<RequestName> Encoder.ReadKey </RequestName>
+<Params>
+<EncoderID> Encoder#2 </EncoderID>
+<ReturnROMCode> 1 </ReturnROMCode>
+<ReturnLockerData> 1 </ReturnLockerData>
+</Params>
+</RequestCall>
+
+
+/*Read Users */
+
+STP/00/100/<?xml version="1.0" encoding="ISO-8859-1"?>
+<RequestCall>
+<RequestName> SaltoDBUserList.Read </RequestName>
+<Params>
+<StartingFromExtUserID> TestUser2 </StartingFromExtUserID>
+<MaxCount> 1 </MaxCount>
+<ReturnMembership_User_Group> 1 </ReturnMembership_User_Group>
+</Params>
+</RequestCall>
+
+
+/* Update User Expiration */
+
+STP/00/500/<?xml version="1.0" encoding="ISO-8859-1"?>
+<RequestCall>
+<RequestName> SaltoDBUser.Update </RequestName>
+<Params>
+<SaltoDBUser>
+<ExtUserID> TestUser </ExtUserID>
+<UserExpiration.Enabled> 1 </UserExpiration.Enabled>
+<UserExpiration> 2014-08-28T11:10:00 </UserExpiration>
+</SaltoDBUser>
+</Params>
+</RequestCall>
+
+
+/* Assign Access Level */
+
+STP/00/#char/<?xml version="1.0" encoding="ISO-8859-1"?>
+<RequestCall>
+<RequestName> SaltoDBGroup.Update </RequestName>
+<Params>
+<SaltoDBGroup>
+<ExtGroupID> LockerCajero </ExtGroupID>
+<SaltoDB.MembershipList.User_Group>
+<SaltoDB.Membership.User_Group>
+<ExtUserID> TestUser2 </ExtUserID>
+</SaltoDB.Membership.User_Group>
+</SaltoDB.MembershipList.User_Group>
+</SaltoDBGroup>
+</Params>
+</RequestCall>
+
+
+/* Delete Access Level */
+
+STP/00/#char/<?xml version="1.0" encoding="ISO-8859-1"?>
+<RequestCall>
+<RequestName> SaltoDBGroup.Update </RequestName>
+<Params>
+<SaltoDBGroup>
+<ExtGroupID> LockerCajero </ExtGroupID>
+<SaltoDB.MembershipList.User_Group/>
+</SaltoDBGroup>
+</Params>
+</RequestCall>
+
+
+/* Update dias-horas de la semana */
+
+STP/00/#char/<?xml version="1.0" encoding="ISO-8859-1"?>
+<RequestCall>
+<RequestName> SaltoDBTimezoneTable.Update </RequestName>
+<Params>
+<SaltoDBTimezoneTable>
+<TimezoneTableID> 2 </TimezoneTableID>
+<SaltoDBTimezoneList>
+<SaltoDBTimezone>
+<TimezoneID> 1 </TimezoneID>
+<StartTime> 8:00:00 </StartTime>
+<EndTime> 12:30:00 </EndTime>
+<Monday> 1 </Monday>
+</SaltoDBTimezone>
+</SaltoDBTimezoneList>
+</SaltoDBTimezoneTable>
+</Params>
+</RequestCall>
+
+
+/* Update dias del año */
+
+STP/00/#char/<?xml version="1.0" encoding="ISO-8859-1"?>
+<RequestCall>
+<RequestName> SaltoDBYearCalendar.Update </RequestName>
+<Params>
+<SaltoDBYearCalendar>
+<CalendarID> 2 </CalendarID>
+<Year> 2014 </Year>
+<Month1>
+1111111111111111111111111111111
+</Month1>
+<Month2>
+1111111111111111111111111111111
+</Month2>
+<Month3>
+1111111111111111111111111111111
+</Month3>
+<Month4>
+1111111111111111111111111111111
+</Month4>
+<Month5>
+1111111111111111111111111111111
+</Month5>
+<Month6>
+1111111111111111111111111111111
+</Month6>
+<Month7>
+1111111111111111111111111111111
+</Month7>
+<Month8>
+1111111111111111111111111111111
+</Month8>
+<Month9>
+1111111111111111111111111111111
+</Month9>
+<Month10>
+1111111101111111111111111111111
+</Month10>
+<Month11>
+1111111111111111111111111111111
+</Month11>
+<Month12>
+1111111111111111111111111111111
+</Month12>
+</SaltoDBYearCalendar>
+</Params>
+</RequestCall>
+
+
+/* Assign New Key */
+
+STP/00/#char/<?xml version="1.0" encoding="ISO-8859-1"?>
+<RequestCall>
+<RequestName> Encoder.SaltoDBUser.AssignNewKey </RequestName>
+<Params>
+<ExtUserID> TestUser2 </ExtUserID>
+<EncoderID> Encoder#2 </EncoderID>
+</Params>
+</RequestCall>
+
+
+/* Update Current Key */
+
+STP/00/#char/<?xml version="1.0" encoding="ISO-8859-1"?>
+<RequestCall>
+<RequestName> Encoder.SaltoDBUser.UpdateCurrentKey </RequestName>
+<Params>
+<ExtUserID> TestUser2 </ExtUserID>
+<EncoderID> Encoder#2 </EncoderID>
+</Params>
+</RequestCall>

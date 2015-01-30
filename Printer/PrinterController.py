@@ -11,8 +11,8 @@ class PrinterController(threading.Thread):
     Class PrinterController
     Implements threading to run a SocketServer
     """
-    client_address = ""
-    port = 0
+    client_address = "127.0.0.1"
+    port = 1026
     connects = 0
     data = None
 
@@ -48,23 +48,28 @@ class PrinterController(threading.Thread):
 
                     if self.data:
                         print 'Received {}'.format(self.data)
-                        inst = self.data.split()
-                        print inst[0]
-                        if inst[0] == 'PRINT,':
-                            user_id, folio, date, time, start_time, scheme, locker, area = inst[1].split(',')
+                        cmd, data = self.data.split()
+                        print cmd
+                        if cmd == 'PRINT,':
+                            user_id, folio, date, time, start_time, scheme, locker, area = data.split(',')
                             print [['USER ID: ', user_id], ['FOLIO: ', folio],
                                    ['DATE: ', date], ['TIME: ', time],
                                    ['START: ', start_time],['RENT: ', scheme],
                                    ['LOCKER: ', locker], ['AREA: ', area]]
 
+                            #Starts a thread to communicate with the printer
                             printer_thread = PrinterThread.PrinterThread()
+                            printer_thread.settickerparameters(user_id, folio, date, area, time, start_time,
+                            locker, scheme)
                             printer_thread.printer_ready = True
+                            printer_thread.print_ticket()
+
 
                         connection.sendall('OK {}'.format(self.data))
 
 
                     else:
-                        print 'No more data from {}'.format(self.client_address)
+                        print 'No more data from {}'.format(self.addr)
                         break
             finally:
                 connection.close()

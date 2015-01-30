@@ -57,3 +57,29 @@ class Commands:
         :return: String.
         """
         return 'STP/00/400/<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><RequestCall><RequestName> Encoder.SaltoDBUser.AssignNewKey </RequestName><Params><ExtUserID> {} </ExtUserID><EncoderID> Encoder#2 </EncoderID></Params></RequestCall>'.format(user_id)
+
+    @staticmethod
+    def assign_by_time(user_id=''):
+        """
+        Returns an XML String for to UID card from SALTO software.
+        :return: String.
+        """
+        return 'STP/00/400/<?xml version="1.0" encoding="ISO-8859-1"?><RequestCall><RequestName> SaltoDBTimezoneTable.Update </RequestName><Params><SaltoDBTimezoneTable><TimezoneTableID> 2 </TimezoneTableID><SaltoDBTimezoneList><SaltoDBTimezone><TimezoneID> 1 </TimezoneID><StartTime> 8:00:00 </StartTime><EndTime> 12:30:00 </EndTime><Monday>1</Monday></SaltoDBTimezone></SaltoDBTimezoneList></SaltoDBTimezoneTable></Params></RequestCall>'
+
+
+    @staticmethod
+    def assign_by_time2(user_id=''):
+        """
+        Returns an XML String for to UID card from SALTO software.
+        :return: String.
+        """
+        return 'STP/00/400/<?xml version="1.0" encoding="ISO-8859-1"?><RequestCall><RequestName> SaltoDBYearCalendar.Update </RequestName><Params><SaltoDBYearCalendar><CalendarID> 2 </CalendarID><Year> 2015 </Year><Month1>1111111111111111111111111111111</Month1><Month2>1111111111111111111111111111111</Month2><Month3>1111111111111111111111111111111</Month3><Month4>1111111111111111111111111111111</Month4><Month5>1111111111111111111111111111111</Month5><Month6>1111111111111111111111111111111</Month6><Month7>1111111111111111111111111111111</Month7><Month8>1111111111111111111111111111111</Month8><Month9>1111111111111111111111111111111</Month9><Month10>1111111101111111111111111111111</Month10><Month11>1111111111111111111111111111111</Month11><Month12>1111111111111111111111111111111</Month12></SaltoDBYearCalendar></Params></RequestCall>'
+
+
+    @staticmethod
+    def update_key(user_id=''):
+        """
+        Returns an XML String for to UID card from SALTO software.
+        :return: String.
+        """
+        return 'STP/00/400/<?xml version="1.0" encoding="ISO-8859-1"?><RequestCall><RequestName> Encoder.SaltoDBUser.UpdateCurrentKey </RequestName><Params><ExtUserID> {} </ExtUserID><EncoderID> Encoder#2 </EncoderID></Params></RequestCall>'.format(user_id)

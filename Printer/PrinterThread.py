@@ -1,9 +1,10 @@
 __author__ = 'mario_000'
 
 """ Imports """
-from VMC.Utils import Commands
 
+from VMC.Utils import Commands
 import serial
+
 import threading
 from time import sleep
 
@@ -45,6 +46,7 @@ class PrinterThread(threading.Thread):
 
     def open_com(self):
         """ Creates and opens the serial port. """
+
         """
         coms = []
 
@@ -61,14 +63,14 @@ class PrinterThread(threading.Thread):
 
         self.com_port_number = int(raw_input('Select COM port: ')) - 1
         """
-
-        self.com_port = serial.Serial('COM3', 9600, parity=serial.PARITY_NONE)
-
+        self.com_port = serial.Serial('COM4', 9600, parity=serial.PARITY_NONE)
+        print self.com_port
         if self.com_port.isOpen():
             self.com_port.close()
         self.com_port.open()
 
         print('{} is open.'.format(self.com_port.name))
+
 
     def settickerparameters(self, user, folio, date, place, hour, start_hour, state, scheme):
         self.user = user
@@ -89,9 +91,11 @@ class PrinterThread(threading.Thread):
         # Try to open the serial port. First check if it's open already.
         try:
             if self.com_port.isOpen():
+                print self.user, self.folio, self.date, self.state
                 self.com_port.write("""
                     ^XA~TA000~JSB^LT0^MNV^MTD^PON^PMN^LH0,0^JMA^PR4,4~SD20^JUS^LRN^CI0^XZ
                 """)
+            
                 self.com_port.write("""
                     ^XA
                     ^LL560
@@ -128,6 +132,7 @@ class PrinterThread(threading.Thread):
                     ^FT189,663^A0N,20,19^FB191,1,0,C^FH\^FDSALTO LOCKERS^FS
                     ^PQ1,0,1,Y^XZ
                 """)
+
                 self.com_port.write("""^XA^ID000.GRF^FS^XZ""")
 
 
@@ -148,6 +153,7 @@ class PrinterThread(threading.Thread):
             # If a SerialException is catch then must restart the communication.
             self.must_reset = True
             sleep(sleep_thread)
+            print 'sup'
             return ''
 
     def run(self):
