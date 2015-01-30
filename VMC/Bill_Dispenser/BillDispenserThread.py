@@ -6,7 +6,7 @@ from findertools import sleep
 
 import serial
 
-from VMC.VmcController.Utils import Commands
+from VMC.Utils import Commands
 
 
 class BillDispenserThread(threading.Thread):
@@ -28,6 +28,8 @@ class BillDispenserThread(threading.Thread):
     balance = 0
     bill_count = 0
     bill_type = 0
+
+    deposited_20, deposited_50, deposited_100, deposited_200, deposited_500 = False, False, False, False, False
 
     # Flags
     is_writing = False
@@ -72,7 +74,6 @@ class BillDispenserThread(threading.Thread):
          Method for sending a command via serial port.
           Defaults: waits for 1 byte on the serial buffer, sleeps the thread for 100ms.
         """
-
         # Try to open the serial port. First check if it's open already.
         try:
             if self.com_port.isOpen():
@@ -108,7 +109,7 @@ class BillDispenserThread(threading.Thread):
         except serial.SerialException:
             # If a SerialException is catch then must restart the communication.
             self.must_reset = True
-            sleep(sleep_thread)
+            print 'Error'
             return ''
 
     def write_status(self):
@@ -146,20 +147,21 @@ class BillDispenserThread(threading.Thread):
 
         # First run.
         # Must not reset and start the initialization sequence.
-        while 1:
+        read, reading = True, ''
+        while read:
             self.must_reset = False
             self.init_sequence()
             while not self.must_reset:
                 reading = 0
-
                 if self.com_port.inWaiting() > 0:
                     reading = self.com_port.read()
                     reading = ord(reading)
                     #print reading
 
                 if self.must_accept and self.bill_count == 0 and not self.first_run:
-                    self.balance = int(self.socket_receive[0])
+                    print "Initializing bill escrow..."
                     self.write_enable_escrow()
+                    print "Deposit now"
                     self.first_run = True
                 elif self.bill_count >= self.balance and self.first_run:
                     self.must_accept = False
@@ -176,29 +178,34 @@ class BillDispenserThread(threading.Thread):
                         self.bill_type = 1
                         if (self.balance - self.bill_count) >= 20:
                             self.com_port.write(self.commands.BILL_ACCEPT_ESCROW['cmd'])
+                            self.deposited_20 = True
                         else:
                             self.com_port.write(self.commands.BILL_REJECT_ESCROW['cmd'])
                     elif reading == 2:
                         self.bill_type = 2
                         if (self.balance - self.bill_count) >= 50:
+                            self.deposited_50 = True
                             self.com_port.write(self.commands.BILL_ACCEPT_ESCROW['cmd'])
                         else:
                             self.com_port.write(self.commands.BILL_REJECT_ESCROW['cmd'])
                     elif reading == 3:
                         self.bill_type = 3
                         if (self.balance - self.bill_count) >= 100:
+                            self.deposited_100 = True
                             self.com_port.write(self.commands.BILL_ACCEPT_ESCROW['cmd'])
                         else:
                             self.com_port.write(self.commands.BILL_REJECT_ESCROW['cmd'])
                     elif reading == 4:
                         self.bill_type = 4
                         if (self.balance - self.bill_count) >= 200:
+                            self.deposited_200 = True
                             self.com_port.write(self.commands.BILL_ACCEPT_ESCROW['cmd'])
                         else:
                             self.com_port.write(self.commands.BILL_REJECT_ESCROW['cmd'])
                     elif reading == 5:
                         self.bill_type = 5
                         if (self.balance - self.bill_count) >= 500:
+                            self.deposited_500 = True
                             self.com_port.write(self.commands.BILL_ACCEPT_ESCROW['cmd'])
                         else:
                             self.com_port.write(self.commands.BILL_REJECT_ESCROW['cmd'])
@@ -227,6 +234,53 @@ class BillDispenserThread(threading.Thread):
                             self.bill_count += 500
                             print 'Balance: ${}'.format(self.bill_count)
                             print 'Owes: ${}'.format(self.balance - self.bill_count)
+
+    def write_accept(self):
+
+
+        while (not self.deposited_20) and (not self.deposited_50) \
+                and (not self.deposited_100) and (not self.deposited_200)\
+                and (not self.deposited_500):
+            pass
+
+        self.must_accept = False
+        if self.deposited_20:
+            self.deposited_20 = False
+            return 20
+
+        elif self.deposited_50:
+            self.deposited_50 = False
+            return 50
+
+        elif self.deposited_100:
+            self.deposited_100 = False
+            return 100
+
+        elif self.deposited_200:
+            self.deposited_200 = False
+            return 200
+
+        elif self.deposited_500:
+            self.deposited_500 = False
+            return 500
+
+        else:
+            return 0
+
+    def set_balance(self, balance):
+        self.balance = balance
+
+
+
+    def socket_com(self, command=''):
+        cmd, param1 = command.split()
+
+        if cmd == 'ACCEPT':
+            self.must_accept = True
+            return self.write_accept()
+
+        else:
+            pass
 
     def __init__(self):
         """ Thread initialization """

@@ -2,6 +2,7 @@ __author__ = 'mgradob'
 
 """ Imports """
 from VMC.Coin_Changer import Changer_Thread
+from VMC.Bill_Dispenser import BillDispenserThread
 import socket
 import threading
 from time import sleep
@@ -60,7 +61,7 @@ class VmcController(threading.Thread):
 
                         elif data[0] == 'ACCEPT':
                             balance, deposit = float(data[1]), float(0)
-
+                            self.bill_dispenser_thread.set_balance(balance)
                             while deposit < balance:
 
                                 if deposit >= balance:
@@ -68,6 +69,7 @@ class VmcController(threading.Thread):
 
                                 else:
                                     deposit += self.changer_thread.socket_com('ACCEPT {}'.format(balance))
+                                    deposit += self.bill_dispenser_thread.socket_com('ACCEPT {}'.format(balance))
                                     print 'VMC: Deposit: {}, Balance: {}'.format(deposit, balance)
                                     conn.sendall('DEPOSIT: {}'.format(deposit))
 
@@ -106,3 +108,5 @@ class VmcController(threading.Thread):
         print('Socket listening, conns: {}'.format(self.conns))
         self.changer_thread = Changer_Thread.Changer()
         self.changer_thread.start()
+        self.bill_dispenser_thread = BillDispenserThread.BillDispenserThread()
+        self.bill_dispenser_thread.start()

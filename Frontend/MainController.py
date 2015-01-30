@@ -10,6 +10,7 @@ import time
 import socket
 import pytz
 from VMC import VmcController
+from Printer import PrinterController
 from dateutil.parser import parse
 import math
 
@@ -41,8 +42,14 @@ class EchoApplication(WebSocketApplication):
     data_holder = DataHolder.DataHolder()
     data_holder.start()
 
+    #Create a printer controller instance
+
+    printer = PrinterController.PrinterController('localhost', 1026, 2)
+    printer.start()
+
     # Open socket to the VMC Controller
     vmc_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    printer_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
     def on_open(self):
         """
@@ -361,7 +368,32 @@ class EchoApplication(WebSocketApplication):
                     print 'Canceling'
 
                 elif command == 'PRINT':
-                    # TODO Implement logic for printer.
+                    format_date = '%Y-%m-%d'
+                    format_time = '%H:%M:%S'
+
+                    # Get start and end dates.
+                    date = datetime.datetime.now()
+                    actual_date = date.strftime(format_date)
+                    actual_time = date.strftime(format_time)
+
+                    try:
+                        #user_in_session : Info about user
+                        #data_holder.user_locker : Info about locker
+                        self.data_holder.folio += 1
+                        number_of_zeroes = 7 - len(str(self.data_holder.folio))
+                        folio = str(self.data_holder.folio).zfill(number_of_zeroes)
+                        printer_status = self.printer_socket.connect_ex((self.host_vmc, 1026))
+                        self.printer_socket.sendall("{0}, {1},{2},{3},{4},{5},{6},{7},{8}".format(command,
+                                                    self.user_in_session.user_mat,folio, actual_date, actual_time,
+                                                    self.data_holder.user_locker.locker_start_time,
+                                                    self.user_in_session.user_discount,
+                                                    self.data_holder.user_locker.locker_name,
+                                                    self.data_holder.area_name,))
+                        print "PRINTER STATUS {}".format(printer_status)
+                    except Exception as ex:
+                        print ex
+                        print "Error al comunicar con impresora"
+
                     print 'Printing ticket'
 
                 elif command == 'LOG_OUT':

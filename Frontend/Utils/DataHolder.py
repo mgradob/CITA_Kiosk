@@ -10,6 +10,7 @@ class DataHolder(threading.Thread):
     total = 0
     area_name = ''
     area_id = ''
+    folio = 0
 
     def __init__(self):
         super(DataHolder, self).__init__()
