@@ -11,10 +11,11 @@ class PrinterController(threading.Thread):
     Class PrinterController
     Implements threading to run a SocketServer
     """
-    client_address = "127.0.0.1"
-    port = 1026
+    client_address = ""
+    port = 0
     connects = 0
     data = None
+    printer_thread = None
 
 
     def __init__(self, address, port, connections):
@@ -33,11 +34,15 @@ class PrinterController(threading.Thread):
         except socket.error as msg:
             print('Failed bind. Error code: {}'.format(msg))
             sys.exit()
-        print('Successful bind on address %s') % self.addr
+        print('PRINTER bind on address %s') % self.addr
 
         self.socket.listen(self.connects)
         print('Socket listening, conns: {}'.format(self.connects))
 
+        self.printer_thread = PrinterThread.PrinterThread()
+        self.printer_thread.start()
+
+    def run(self):
         while True:
             connection, client_address = self.socket.accept()
 
@@ -48,31 +53,27 @@ class PrinterController(threading.Thread):
 
                     if self.data:
                         print 'Received {}'.format(self.data)
-                        cmd, data = self.data.split()
-                        print cmd
-                        if cmd == 'PRINT,':
-                            user_id, folio, date, time, start_time, scheme, locker, area = data.split(',')
+                        inst = self.data.split()
+                        print inst[0]
+                        if inst[0] == 'PRINT,':
+                            user_id, folio, date, time, start_time, scheme, locker, area = inst[1].split(',')
                             print [['USER ID: ', user_id], ['FOLIO: ', folio],
                                    ['DATE: ', date], ['TIME: ', time],
                                    ['START: ', start_time],['RENT: ', scheme],
                                    ['LOCKER: ', locker], ['AREA: ', area]]
 
-                            #Starts a thread to communicate with the printer
-                            printer_thread = PrinterThread.PrinterThread()
-                            printer_thread.settickerparameters(user_id, folio, date, area, time, start_time,
-                            locker, scheme)
-                            printer_thread.printer_ready = True
-                            printer_thread.print_ticket()
-
+                             # Set the parameters
+                            self.printer_thread.settickerparameters(user_id, folio, date, area, time, start_time, locker, scheme)
+                            self.printer_thread.printer_ready = True
 
                         connection.sendall('OK {}'.format(self.data))
 
 
                     else:
-                        print 'No more data from {}'.format(self.addr)
+                        print 'No more data from {}'.format(self.client_address)
                         break
-            finally:
-                connection.close()
+            except Exception as ex:
+                print "Error de PRINTER"
+                print ex
 
-ticket_thread = PrinterController('127.0.0.1', 1026, 1)
-ticket_thread.run()
+            connection.close()
