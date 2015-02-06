@@ -61,7 +61,7 @@ class VmcController(threading.Thread):
 
                         elif data[0] == 'ACCEPT':
                             balance, deposit = float(data[1]), float(0)
-                            self.bill_dispenser_thread.set_balance(balance)
+                            self.bill_dispenser_thread.balance = balance
                             while deposit < balance:
 
                                 if deposit >= balance:

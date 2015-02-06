@@ -29,7 +29,7 @@ class BillDispenserThread(threading.Thread):
     bill_count = 0
     bill_type = 0
 
-    deposited_20, deposited_50, deposited_100, deposited_200, deposited_500 = False, False, False, False, False
+    deposited_20, deposited_50, deposited_100, deposited_200 = False, False, False, False
 
     # Flags
     is_writing = False
@@ -203,11 +203,6 @@ class BillDispenserThread(threading.Thread):
                         else:
                             self.com_port.write(self.commands.BILL_REJECT_ESCROW['cmd'])
                     elif reading == 5:
-                        self.bill_type = 5
-                        if (self.balance - self.bill_count) >= 500:
-                            self.deposited_500 = True
-                            self.com_port.write(self.commands.BILL_ACCEPT_ESCROW['cmd'])
-                        else:
                             self.com_port.write(self.commands.BILL_REJECT_ESCROW['cmd'])
                     elif reading == 172:
                         while self.com_port.inWaiting() < 1:
@@ -230,17 +225,12 @@ class BillDispenserThread(threading.Thread):
                             self.bill_count += 200
                             print 'Balance: ${}'.format(self.bill_count)
                             print 'Owes: ${}'.format(self.balance - self.bill_count)
-                        elif self.bill_type == 5:
-                            self.bill_count += 500
-                            print 'Balance: ${}'.format(self.bill_count)
-                            print 'Owes: ${}'.format(self.balance - self.bill_count)
 
     def write_accept(self):
 
 
         while (not self.deposited_20) and (not self.deposited_50) \
-                and (not self.deposited_100) and (not self.deposited_200)\
-                and (not self.deposited_500):
+                and (not self.deposited_100) and (not self.deposited_200):
             pass
 
         self.must_accept = False
@@ -260,17 +250,8 @@ class BillDispenserThread(threading.Thread):
             self.deposited_200 = False
             return 200
 
-        elif self.deposited_500:
-            self.deposited_500 = False
-            return 500
-
         else:
             return 0
-
-    def set_balance(self, balance):
-        self.balance = balance
-
-
 
     def socket_com(self, command=''):
         cmd, param1 = command.split()
@@ -280,7 +261,8 @@ class BillDispenserThread(threading.Thread):
             return self.write_accept()
 
         else:
-            pass
+            self.must_accept = False
+            self.write_reject_escrow()
 
     def __init__(self):
         """ Thread initialization """
