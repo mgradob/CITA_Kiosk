@@ -38,6 +38,7 @@ class PrinterThread(threading.Thread):
     start_hour=""
     state=""
     scheme=""
+    total =""
 
     # Thread communication
     socket_receive = []
@@ -69,7 +70,7 @@ class PrinterThread(threading.Thread):
         self.com_port.open()
         print('{} is open.'.format(self.com_port.name))
 
-    def settickerparameters(self, user, folio, date, place, hour, start_hour, state, scheme):
+    def settickerparameters(self, user, folio, date, place, hour, start_hour, state, scheme, total):
         self.user = user
         self.folio = folio
         self.date = date
@@ -78,6 +79,7 @@ class PrinterThread(threading.Thread):
         self.start_hour = start_hour
         self.state = state
         self.scheme = scheme
+        self.total = total
 
     def print_ticket(self, sleep_thread=0.25):
         """
@@ -116,6 +118,7 @@ class PrinterThread(threading.Thread):
                     ^FT44,477^A0N,20,19^FH\^FDHORA DE INICIO: """ + self.start_hour + """^FS
                     ^FT321,437^A0N,20,19^FH\^FDLOCKER """ + self.state + """^FS
                     ^FT44,500^A0N,14,14^FH\^FDESQUEMA DE RENTA: """ + self.scheme + """^FS
+                    ^FT44,540^A0N,20,20^FH\^FDTOTAL: $""" + self.total + """^FS
                     ^FT189,639^A0N,20,19^FB191,1,0,C^FH\^FDGRACIAS POR UTILIZAR^FS
                     ^FT189,663^A0N,20,19^FB191,1,0,C^FH\^FDSALTO LOCKERS^FS
                     ^PQ1,0,1,Y^XZ

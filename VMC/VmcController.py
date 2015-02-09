@@ -110,5 +110,5 @@ class VmcController(threading.Thread):
         print('Socket listening, conns: {}'.format(self.conns))
         self.changer_thread = Changer_Thread.Changer()
         self.changer_thread.start()
-        self.bill_dispenser_thread = BillDispenserThread.BillDispenserThread()
-        self.bill_dispenser_thread.start()
+        #self.bill_dispenser_thread = BillDispenserThread.BillDispenserThread()
+        #self.bill_dispenser_thread.start()
