@@ -44,8 +44,8 @@ class EchoApplication(WebSocketApplication):
 
     #Create a printer controller instance
 
-    printer = PrinterController.PrinterController('localhost', 1026, 2)
-    printer.start()
+    #printer = PrinterController.PrinterController('localhost', 1026, 2)
+    #printer.start()
 
     # Open socket to the VMC Controller
     vmc_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

@@ -2,7 +2,6 @@ __author__ = 'mgradob'
 
 """ Imports """
 import threading
-from findertools import sleep
 
 import serial
 
@@ -61,7 +60,7 @@ class BillDispenserThread(threading.Thread):
         self.com_port_number = int(raw_input('Select COM port: ')) - 1
         """
 
-        self.com_port = serial.Serial('/dev/tty.usbserial', 9600, parity=serial.PARITY_NONE)
+        self.com_port = serial.Serial('COM3', 9600, parity=serial.PARITY_NONE)
 
         if self.com_port.isOpen():
             self.com_port.close()
