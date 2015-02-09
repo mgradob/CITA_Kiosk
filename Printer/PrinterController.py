@@ -78,6 +78,3 @@ class PrinterController(threading.Thread):
                 print ex
 
             connection.close()
-
-printer = PrinterController('localhost', 1026, 1)
-printer.start()
