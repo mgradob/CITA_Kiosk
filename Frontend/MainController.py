@@ -364,7 +364,7 @@ class EchoApplication(WebSocketApplication):
                     self.ws.send(JsonMessages.Paid().get_json())
 
                 elif command == 'CANCEL':
-                    # TODO Implement logic for cancel an operation.
+                    self.vmc_socket.sendall('CANCEL')
                     print 'Canceling'
 
                 elif command == 'PRINT':
