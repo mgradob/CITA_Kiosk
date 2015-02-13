@@ -2,8 +2,6 @@ __author__ = 'mgradob'
 
 """ Imports """
 import threading
-from findertools import sleep
-
 import serial
 
 from VMC.Utils import Commands
