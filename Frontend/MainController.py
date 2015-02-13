@@ -386,7 +386,7 @@ class EchoApplication(WebSocketApplication):
                         self.printer_socket.sendall("{0}, {1},{2},{3},{4},{5},{6},{7},{8},{9}".format(command,
                                                     self.user_in_session.user_mat,folio, actual_date, actual_time,
                                                     self.data_holder.user_locker.locker_start_time,
-                                                    self.user_in_session.user_discount,
+                                                    self.data_holder.user_locker.locker_rent_type,
                                                     self.data_holder.user_locker.locker_name,
                                                     self.data_holder.area_name,self.data_holder.total,))
                         print "PRINTER STATUS {}".format(printer_status)

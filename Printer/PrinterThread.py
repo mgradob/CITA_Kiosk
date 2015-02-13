@@ -70,7 +70,7 @@ class PrinterThread(threading.Thread):
         self.com_port.open()
         print('{} is open.'.format(self.com_port.name))
 
-    def settickerparameters(self, user, folio, date, place, hour, start_hour, state, scheme, total):
+    def set_ticker_parameters(self, user, folio, date, place, hour, start_hour, state, scheme, total):
         self.user = user
         self.folio = folio
         self.date = date

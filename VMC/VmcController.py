@@ -86,6 +86,8 @@ class VmcController(threading.Thread):
 
                         elif data[0] == 'CANCEL':
                             self.bill_dispenser_thread.write_reject_escrow()
+                            self.bill_dispenser_thread.write_disable_escrow()
+                            conn.sendall('CANCEL')
                         else:
                             print('Incorrect cmd')
                             conn.sendall('ERROR')
