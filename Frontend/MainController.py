@@ -383,12 +383,13 @@ class EchoApplication(WebSocketApplication):
                         number_of_zeroes = 7 - len(str(self.data_holder.folio))
                         folio = str(self.data_holder.folio).zfill(number_of_zeroes)
                         printer_status = self.printer_socket.connect_ex((self.host_vmc, 1026))
-                        self.printer_socket.sendall("{0}, {1},{2},{3},{4},{5},{6},{7},{8},{9}".format(command,
+                        """self.printer_socket.sendall("{0}, {1},{2},{3},{4},{5},{6},{7},{8},{9}".format(command,
                                                     self.user_in_session.user_mat,folio, actual_date, actual_time,
                                                     self.data_holder.user_locker.locker_start_time,
                                                     self.data_holder.user_locker.locker_rent_type,
                                                     self.data_holder.user_locker.locker_name,
-                                                    self.data_holder.area_name,self.data_holder.total,))
+                                                    self.data_holder.area_name,self.data_holder.total,))"""
+                        self.printer_socket.sendall("PRINT, MAT,FOLIO,"+actual_date+","+actual_time+",INICIO,ESQUEMA,LOCKER,A3,10")
                         print "PRINTER STATUS {}".format(printer_status)
                     except Exception as ex:
                         print ex
