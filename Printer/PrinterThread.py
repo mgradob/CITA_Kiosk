@@ -107,13 +107,11 @@ class PrinterThread(threading.Thread):
                     ^FT0,201^XG000.GRF,1,1^FS
                     ^FO8,30^GB592,0,12^FS
                     ^FO58,678^GB488,0,8^FS
-                    ^FT17,255^A0N,28,28^FH\^FDFOLIO: """ + self.folio + """^FS
+                    ^FT17,240^A0N,28,28^FH\^FDFOLIO: """ + self.folio + """^FS
                     ^FT17,265^A0N,28,28^FH\^FDUSUARIO:""" + self.user + """^FS
-                    ^FT111,347^A0N,25,24^FH\^FDFECHA^FS
-                    ^FT371,346^A0N,25,24^FH\^FDHora^FS
                     ^FT337,548^A0N,110,112^FH\^FD""" + self.place + """^FS
                     ^FT327,591^A0N,11,14^FH\^F""" + self.place + """^FS
-                    ^FT111,347^A0N,20,19^FH\^FDHORA DE INICIO: """ + self.start_hour + """^FS
+                    ^FT17,347^A0N,20,19^FH\^FDHORA DE INICIO: """ + self.start_hour + """^FS
                     ^FT315,437^A0N,20,19^FH\^FDLOCKER """ + self.state + """^FS
                     ^FT44,500^A0N,14,14^FH\^FDESQUEMA DE RENTA: """ + self.scheme + """^FS
                     ^FT44,540^A0N,20,20^FH\^FDTOTAL: $""" + self.total + """^FS
