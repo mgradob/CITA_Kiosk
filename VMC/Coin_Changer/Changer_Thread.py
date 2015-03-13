@@ -12,6 +12,7 @@ class ReadThread(threading.Thread):
     deposited_50c, deposited_1, deposited_2, deposited_5, deposited_10 = False, False, False, False, False
     available_50c, available_1, available_2, available_5 = 0, 0, 0, 0
     tubes = Tubes.Tubes()
+    hopper_ok = False
 
     def __init__(self, thread_id, name):
         threading.Thread.__init__(self)
@@ -70,6 +71,12 @@ class ReadThread(threading.Thread):
                         print 'READER: Coins on tube_2: {}'.format(self.tubes.tube_2)
                         print 'READER: Coins on tube_5: {}'.format(self.tubes.tube_5)
 
+                    #Check for hopper availability
+                    elif reading == 'H_STA_OK<':
+                        self.hopper_ok = True
+
+                    elif reading == 'H_STA_ERROR<':
+                        self.hopper_ok = False
                     reading = ''
                 else:
                     reading += data
@@ -95,13 +102,12 @@ class WriteThread(threading.Thread):
 
         sleep(0.5)
 
-
 class Changer(threading.Thread):
 
     read_thread = ReadThread(1, 'Reader')
     write_thread = WriteThread(2, 'Writer')
     commands = Commands.VmcCommands()
-
+    number_of_coins = 100 #dummy data for coins on hopper
     def start_serial(self):
         try:
             global serial_port
@@ -142,8 +148,12 @@ class Changer(threading.Thread):
             self.write_thread.write_cmd(self.commands.enable_tubes())
 
             if not quantity_10 == 0:
-                self.write_thread.write_cmd(self.commands.hopper_dispense(quantity_10))
-
+                self.write_thread.write_cmd(self.commands.check_hopper())
+                if self.read_thread.hopper_ok:
+                    self.write_thread.write_cmd(self.commands.hopper_dispense(quantity_10))
+                    self.number_of_coins -= quantity_10
+                else:
+                    print 'Error with Hopper, please check.'
             if not quantity_5 == 0:
                 self.write_thread.write_cmd(self.commands.changer_dispense(4, quantity_5))
 

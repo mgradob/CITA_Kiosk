@@ -2,7 +2,6 @@ __author__ = 'mgradob'
 
 """ Imports """
 import threading
-
 import serial
 
 from VMC.Utils import Commands
@@ -36,7 +35,6 @@ class BillDispenserThread(threading.Thread):
     must_reset = False
     must_accept = False
     first_run = False
-    first_bill = True
 
     # Thread communication
     socket_receive = []
@@ -164,8 +162,6 @@ class BillDispenserThread(threading.Thread):
                     print "Deposit now"
                     self.first_run = True
                 elif self.bill_count >= self.balance and self.first_run:
-                    if self.escrow_filled:
-                        self.com_port.write(self.commands.BILL_ACCEPT_ESCROW['cmd'])
                     self.must_accept = False
                     self.balance = 0
                     self.bill_count = 0
@@ -179,41 +175,29 @@ class BillDispenserThread(threading.Thread):
                     elif reading == 1:
                         self.bill_type = 1
                         if (self.balance - self.bill_count) >= 20:
+                            self.com_port.write(self.commands.BILL_ACCEPT_ESCROW['cmd'])
                             self.deposited_20 = True
-                            if self.first_bill:
-                                self.first_bill = False
-                            else:
-                               self.com_port.write(self.commands.BILL_ACCEPT_ESCROW['cmd'])
                         else:
                             self.com_port.write(self.commands.BILL_REJECT_ESCROW['cmd'])
                     elif reading == 2:
                         self.bill_type = 2
                         if (self.balance - self.bill_count) >= 50:
                             self.deposited_50 = True
-                            if self.first_bill:
-                                self.first_bill = False
-                            else:
-                               self.com_port.write(self.commands.BILL_ACCEPT_ESCROW['cmd'])
+                            self.com_port.write(self.commands.BILL_ACCEPT_ESCROW['cmd'])
                         else:
                             self.com_port.write(self.commands.BILL_REJECT_ESCROW['cmd'])
                     elif reading == 3:
                         self.bill_type = 3
                         if (self.balance - self.bill_count) >= 100:
                             self.deposited_100 = True
-                            if self.first_bill:
-                                self.first_bill = False
-                            else:
-                               self.com_port.write(self.commands.BILL_ACCEPT_ESCROW['cmd'])
+                            self.com_port.write(self.commands.BILL_ACCEPT_ESCROW['cmd'])
                         else:
                             self.com_port.write(self.commands.BILL_REJECT_ESCROW['cmd'])
                     elif reading == 4:
                         self.bill_type = 4
                         if (self.balance - self.bill_count) >= 200:
                             self.deposited_200 = True
-                            if self.first_bill:
-                                self.first_bill = False
-                            else:
-                               self.com_port.write(self.commands.BILL_ACCEPT_ESCROW['cmd'])
+                            self.com_port.write(self.commands.BILL_ACCEPT_ESCROW['cmd'])
                         else:
                             self.com_port.write(self.commands.BILL_REJECT_ESCROW['cmd'])
                     elif reading == 5:
@@ -250,19 +234,19 @@ class BillDispenserThread(threading.Thread):
         self.must_accept = False
         if self.deposited_20:
             self.deposited_20 = False
-            return 20
+            return 20.0
 
         elif self.deposited_50:
             self.deposited_50 = False
-            return 50
+            return 50.0
 
         elif self.deposited_100:
             self.deposited_100 = False
-            return 100
+            return 100.0
 
         elif self.deposited_200:
             self.deposited_200 = False
-            return 200
+            return 200.0
 
         else:
             return 0

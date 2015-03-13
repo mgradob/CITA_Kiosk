@@ -70,7 +70,7 @@ class PrinterThread(threading.Thread):
         self.com_port.open()
         print('{} is open.'.format(self.com_port.name))
 
-    def settickerparameters(self, user, folio, date, place, hour, start_hour, state, scheme, total):
+    def set_ticker_parameters(self, user, folio, date, place, hour, start_hour, state, scheme, total):
         self.user = user
         self.folio = folio
         self.date = date
@@ -107,16 +107,12 @@ class PrinterThread(threading.Thread):
                     ^FT0,201^XG000.GRF,1,1^FS
                     ^FO8,30^GB592,0,12^FS
                     ^FO58,678^GB488,0,8^FS
+                    ^FT17,240^A0N,28,28^FH\^FDFOLIO: """ + self.folio + """^FS
                     ^FT17,265^A0N,28,28^FH\^FDUSUARIO:""" + self.user + """^FS
-                    ^FT315,265^A0N,28,28^FH\^FDFOLIO: """ + self.folio + """^FS
-                    ^FT111,347^A0N,25,24^FH\^FDFECHA^FS
-                    ^FT371,346^A0N,25,24^FH\^FDHora^FS
-                    ^FT71,381^A0N,25,24^FH\^FD""" + self.date + """^FS
-                    ^FT367,382^A0N,25,24^FH\^FD""" + self.hour + """^FS
                     ^FT337,548^A0N,110,112^FH\^FD""" + self.place + """^FS
                     ^FT327,591^A0N,11,14^FH\^F""" + self.place + """^FS
-                    ^FT44,477^A0N,20,19^FH\^FDHORA DE INICIO: """ + self.start_hour + """^FS
-                    ^FT321,437^A0N,20,19^FH\^FDLOCKER """ + self.state + """^FS
+                    ^FT17,347^A0N,20,19^FH\^FDHORA DE INICIO: """ + self.start_hour + """^FS
+                    ^FT315,437^A0N,20,19^FH\^FDLOCKER """ + self.state + """^FS
                     ^FT44,500^A0N,14,14^FH\^FDESQUEMA DE RENTA: """ + self.scheme + """^FS
                     ^FT44,540^A0N,20,20^FH\^FDTOTAL: $""" + self.total + """^FS
                     ^FT189,639^A0N,20,19^FB191,1,0,C^FH\^FDGRACIAS POR UTILIZAR^FS

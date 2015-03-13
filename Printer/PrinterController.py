@@ -63,7 +63,7 @@ class PrinterController(threading.Thread):
                                    ['LOCKER: ', locker], ['AREA: ', area],['TOTAL: ', total]]
 
                              # Set the parameters
-                            self.printer_thread.settickerparameters(user_id, folio, date, area, time, start_time,
+                            self.printer_thread.set_ticker_parameters(user_id, folio, date, area, time, start_time,
                                                                     locker, scheme, total,)
                             self.printer_thread.printer_ready = True
 

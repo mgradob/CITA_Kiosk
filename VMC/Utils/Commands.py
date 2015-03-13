@@ -34,6 +34,11 @@ class VmcCommands:
         print cmd['request']
         return cmd
 
+    def check_hopper(self):
+        cmd = self.H_STATUS
+        print cmd['request']
+        return cmd
+
     def changer_dispense(self, coin_type=0, number=0):
         data = 'C_DIS_{}{}<'.format(coin_type, number)
         cmd = self.C_DISPENSE
