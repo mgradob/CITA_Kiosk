@@ -61,7 +61,7 @@ class VmcController(threading.Thread):
 
                         elif data[0] == 'ACCEPT':
                             balance, deposit = float(data[1]), float(0)
-                            self.bill_dispenser_thread.balance = balance
+                            #self.bill_dispenser_thread.balance = balanbe
                             while deposit < balance:
 
                                 if deposit >= balance:
@@ -69,7 +69,7 @@ class VmcController(threading.Thread):
 
                                 else:
                                     deposit += self.changer_thread.socket_com('ACCEPT {}'.format(balance))
-                                    deposit += self.bill_dispenser_thread.socket_com('ACCEPT {}'.format(balance))
+                                    #deposit += self.bill_dispenser_thread.socket_com('ACCEPT {}'.format(balance))
                                     print 'VMC: Deposit: {}, Balance: {}'.format(deposit, balance)
                                     conn.sendall('DEPOSIT: {}'.format(deposit))
 
@@ -110,5 +110,5 @@ class VmcController(threading.Thread):
         print('Socket listening, conns: {}'.format(self.conns))
         self.changer_thread = Changer_Thread.Changer()
         self.changer_thread.start()
-        self.bill_dispenser_thread = BillDispenserThread.BillDispenserThread()
-        self.bill_dispenser_thread.start()
+        #self.bill_dispenser_thread = BillDispenserThread.BillDispenserThread()
+        #self.bill_dispenser_thread.start()

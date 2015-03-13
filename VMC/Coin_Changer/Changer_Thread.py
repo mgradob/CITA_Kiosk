@@ -107,7 +107,7 @@ class Changer(threading.Thread):
             global serial_port
 
             # TODO Change serial port to the uC's.
-            serial_port = serial.Serial('COM3', 115200, timeout=1, parity=serial.PARITY_NONE)
+            serial_port = serial.Serial('COM6', 115200, timeout=1, parity=serial.PARITY_NONE)
             self.serial_port = serial_port
             print 'Serial port open'
         except serial.SerialException:

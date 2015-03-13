@@ -12,10 +12,15 @@ class LockerSocket():
      Thread to manage communication with Salto Lockers.
     """
 
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    s.connect(("gmail.com",80))
+    myHost = s.getsockname()[0]
+    s.close()
+
     """ Global Variables """
     sock = None
     cmd = None
-    host, port = '10.33.8.103', 1028 # Modify
+    host, port = myHost, 1028 #'10.33.25.219', 1028 # Modify
     parser = XmlParser.XmlParser()
     received, response = '', ''
 
@@ -61,7 +66,8 @@ class LockerSocket():
                 # Return the data.
                 return self.response
             else:
-                return 'Communication error with Salto'
+                #return 'Communication error with Salto'
+                return 'ERRSALTO'
 
     def __init__(self):
         """ Initialize module """

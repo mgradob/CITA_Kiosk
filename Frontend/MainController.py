@@ -44,8 +44,8 @@ class EchoApplication(WebSocketApplication):
 
     #Create a printer controller instance
 
-    #printer = PrinterController.PrinterController('localhost', 1026, 2)
-    #printer.start()
+    printer = PrinterController.PrinterController('localhost', 1026, 2)
+    printer.start()
 
     # Open socket to the VMC Controller
     vmc_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -83,6 +83,11 @@ class EchoApplication(WebSocketApplication):
                     locker_socket = LockersSocket.LockerSocket()
                     self.card_key = locker_socket.send_command(Commands.Commands.read_key())[:8]
                     self.data_holder.card_key = self.card_key
+                    if self.card_key == "ERRSALTO":
+                        self.response = JsonMessages.Error(True, "Salto",
+                                       "Error de comunicación con SALTO").get_json()
+                        self.ws.send(self.response)
+                        return
 
                     if self.data_holder.card_key == "403":  # No hay tarjeta
                         print "No hay tarjeta"
@@ -127,8 +132,10 @@ class EchoApplication(WebSocketApplication):
                             )
 
                             if str_locker_rent_type == 'by_time':
-                                payment = self.calculate_payment(assigned_locker.locker_start_time, 0.4)
+                                payment = self.calculate_payment(assigned_locker.locker_start_time,0.03)
                                 self.data_holder.total = payment
+                                date = datetime.datetime.now() #+ datetime.timedelta(minutes=10)
+                                self.data_holder.end_date = date.strftime('%Y-%m-%d %H:%M:%S')
                                 print payment
 
                             self.response = JsonMessages.User(
@@ -146,8 +153,7 @@ class EchoApplication(WebSocketApplication):
                             ).get_json()
 
                         except Exception as ex:
-                            print ex
-                            print "ERROR AL OBTENER USUARIO {}".format(self.card_key)
+                            print "ERROR AL OBTENER USUARIO {} - {}".format(self.card_key, ex)
                             self.response = JsonMessages.Error(True, "Usuario",
                                                                "No se ha encontrado el usuario").get_json()
 
@@ -249,7 +255,7 @@ class EchoApplication(WebSocketApplication):
                         # As a demo, payment is calculated by minute, on a standard rate ($0.005/min)
                         # They are now in seconds, subtract and then divide by 60 to get minutes.
                         minutes_to_pay = int(d2_ts-d1_ts) / 60
-                        total = int(minutes_to_pay * 0.00002)  # Dummy rate
+                        total = 100  # Dummy rate
                         self.data_holder.total = total
 
                         # Assign the locker with the calculated pay.
@@ -379,16 +385,16 @@ class EchoApplication(WebSocketApplication):
                     try:
                         #user_in_session : Info about user
                         #data_holder.user_locker : Info about locker
-                        self.data_holder.folio += 1
-                        number_of_zeroes = 7 - len(str(self.data_holder.folio))
-                        folio = str(self.data_holder.folio).zfill(number_of_zeroes)
+
+                        folio = "00001"
                         printer_status = self.printer_socket.connect_ex((self.host_vmc, 1026))
-                        self.printer_socket.sendall("{0}, {1},{2},{3},{4},{5},{6},{7},{8},{9}".format(command,
+                        """self.printer_socket.sendall("{0}, {1},{2},{3},{4},{5},{6},{7},{8},{9}".format(command,
                                                     self.user_in_session.user_mat,folio, actual_date, actual_time,
                                                     self.data_holder.user_locker.locker_start_time,
-                                                    self.user_in_session.user_discount,
-                                                    self.data_holder.user_locker.locker_name,
-                                                    self.data_holder.area_name,self.data_holder.total,))
+                                                    self.data_holder.user_locker.locker_rent_type,
+                                                    self.data_holder.area_name,self.data_holder.user_locker.locker_name,
+                                                    self.data_holder.total,))"""
+                        self.printer_socket.sendall("PRINT, Matricula,0003,23-02-2015,12:30,10:30,By_Time,CITA,A3,20")
                         print "PRINTER STATUS {}".format(printer_status)
                     except Exception as ex:
                         print ex
