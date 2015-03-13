@@ -234,19 +234,19 @@ class BillDispenserThread(threading.Thread):
         self.must_accept = False
         if self.deposited_20:
             self.deposited_20 = False
-            return 20
+            return 20.0
 
         elif self.deposited_50:
             self.deposited_50 = False
-            return 50
+            return 50.0
 
         elif self.deposited_100:
             self.deposited_100 = False
-            return 100
+            return 100.0
 
         elif self.deposited_200:
             self.deposited_200 = False
-            return 200
+            return 200.0
 
         else:
             return 0
