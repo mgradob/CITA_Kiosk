@@ -65,18 +65,18 @@ class ReadThread(threading.Thread):
                         self.tubes.tube_2 = int(reading[17:18])
                         self.tubes.tube_5 = int(reading[19:20])
 
-                    #Check for hopper availability
-                    elif reading == 'H_STA_OK<':
-                        self.hopper_ok = True
-
-                    elif reading == 'H_STA_ERROR<':
-                        self.hopper_ok = False
                         print 'READER: Full tubes: {}'.format(self.tubes.full_tubes)
                         print 'READER: Coins on tube_50c: {}'.format(self.tubes.tube_50c)
                         print 'READER: Coins on tube_1: {}'.format(self.tubes.tube_1)
                         print 'READER: Coins on tube_2: {}'.format(self.tubes.tube_2)
                         print 'READER: Coins on tube_5: {}'.format(self.tubes.tube_5)
 
+                    #Check for hopper availability
+                    elif reading == 'H_STA_OK<':
+                        self.hopper_ok = True
+
+                    elif reading == 'H_STA_ERROR<':
+                        self.hopper_ok = False
                     reading = ''
                 else:
                     reading += data
@@ -107,7 +107,7 @@ class Changer(threading.Thread):
     read_thread = ReadThread(1, 'Reader')
     write_thread = WriteThread(2, 'Writer')
     commands = Commands.VmcCommands()
-
+    number_of_coins = 100 #dummy data for coins on hopper
     def start_serial(self):
         try:
             global serial_port
@@ -151,6 +151,7 @@ class Changer(threading.Thread):
                 self.write_thread.write_cmd(self.commands.check_hopper())
                 if self.read_thread.hopper_ok:
                     self.write_thread.write_cmd(self.commands.hopper_dispense(quantity_10))
+                    self.number_of_coins -= quantity_10
                 else:
                     print 'Error with Hopper, please check.'
             if not quantity_5 == 0:
