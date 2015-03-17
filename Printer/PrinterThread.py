@@ -30,15 +30,16 @@ class PrinterThread(threading.Thread):
     first_run = False
 
     #Ticket Parameters
-    user=""
-    folio=""
-    date=""
-    place=""
-    hour=""
-    start_hour=""
-    state=""
-    scheme=""
-    total =""
+    user = ""
+    folio = ""
+    date = ""
+    place = ""
+    hour = ""
+    start_hour = ""
+    end_hour = ""
+    state = ""
+    scheme = ""
+    total = ""
 
     # Thread communication
     socket_receive = []
@@ -63,20 +64,23 @@ class PrinterThread(threading.Thread):
         self.com_port_number = int(raw_input('Select COM port: ')) - 1
         """
 
-        self.com_port = serial.Serial('COM3', 115200, parity=serial.PARITY_NONE)
+        self.com_port = serial.Serial('/dev/cu.usbserial', 115200,
+                                      parity=serial.PARITY_NONE)
 
         if self.com_port.isOpen():
             self.com_port.close()
         self.com_port.open()
         print('{} is open.'.format(self.com_port.name))
 
-    def set_ticker_parameters(self, user, folio, date, place, hour, start_hour, state, scheme, total):
+    def set_ticker_parameters(self, user, folio, date, place, hour, start_hour,
+                              end_hour, state, scheme, total):
         self.user = user
         self.folio = folio
         self.date = date
         self.place = place
         self.hour = hour
         self.start_hour = start_hour
+        self.end_hour = end_hour
         self.state = state
         self.scheme = scheme
         self.total = total
@@ -111,7 +115,8 @@ class PrinterThread(threading.Thread):
                     ^FT17,265^A0N,28,28^FH\^FDUSUARIO:""" + self.user + """^FS
                     ^FT337,548^A0N,110,112^FH\^FD""" + self.place + """^FS
                     ^FT327,591^A0N,11,14^FH\^F""" + self.place + """^FS
-                    ^FT17,347^A0N,20,19^FH\^FDHORA DE INICIO: """ + self.start_hour + """^FS
+                    ^FT17,347^A0N,20,19^FH\^FDHORA DE FIN": """ + self.end_hour + """^FS
+                    ^FT17,367^A0N,20,19^FH\^FDHORA DE INICIO: """ + self.start_hour + """^FS
                     ^FT315,437^A0N,20,19^FH\^FDLOCKER """ + self.state + """^FS
                     ^FT44,500^A0N,14,14^FH\^FDESQUEMA DE RENTA: """ + self.scheme + """^FS
                     ^FT44,540^A0N,20,20^FH\^FDTOTAL: $""" + self.total + """^FS
