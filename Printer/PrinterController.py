@@ -56,14 +56,11 @@ class PrinterController(threading.Thread):
                         inst = self.data.split()
                         print inst[0]
                         if inst[0] == 'PRINT,':
-                            user_id, folio, date, time, start_time, scheme, locker, area, total, =  inst[1].split(',')
-                            print [['USER ID: ', user_id], ['FOLIO: ', folio],
-                                   ['DATE: ', date], ['TIME: ', time],
-                                   ['START: ', start_time],['RENT: ', scheme],
-                                   ['LOCKER: ', locker], ['AREA: ', area],['TOTAL: ', total]]
+                            user_id, folio, date, time, start_time, end_time,
+                            scheme, locker, area, total, =  inst[1].split(',')
 
                              # Set the parameters
-                            self.printer_thread.set_ticker_parameters(user_id, folio, date, area, time, start_time,
+                            self.printer_thread.set_ticker_parameters(user_id, folio, date, area, time, start_time, end_time,
                                                                     locker, scheme, total,)
                             self.printer_thread.printer_ready = True
 
