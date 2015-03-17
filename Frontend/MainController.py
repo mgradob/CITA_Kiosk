@@ -42,7 +42,7 @@ class EchoApplication(WebSocketApplication):
     data_holder = DataHolder.DataHolder()
     data_holder.start()
 
-    #Create a printer controller instance
+    # Create a printer controller instance
 
     printer = PrinterController.PrinterController('localhost', 1026, 2)
     printer.start()
@@ -85,7 +85,7 @@ class EchoApplication(WebSocketApplication):
                     self.data_holder.card_key = self.card_key
                     if self.card_key == "ERRSALTO":
                         self.response = JsonMessages.Error(True, "Salto",
-                                       "Error de comunicación con SALTO").get_json()
+                                                           "Error de comunicación con SALTO").get_json()
                         self.ws.send(self.response)
                         return
 
@@ -106,6 +106,8 @@ class EchoApplication(WebSocketApplication):
                             bol_locker_rent_confirmed = False
                             area_name = ''
                             payment = 0
+
+                            self.get_rates()
 
                             if assigned_locker is None:
                                 bol_registered = False
@@ -132,10 +134,11 @@ class EchoApplication(WebSocketApplication):
                             )
 
                             if str_locker_rent_type == 'by_time':
-                                payment = self.calculate_payment(assigned_locker.locker_start_time,0.03)
+                                payment = self.calculate_payment(assigned_locker.locker_start_time)
                                 self.data_holder.total = payment
-                                date = datetime.datetime.now() #+ datetime.timedelta(minutes=10)
-                                self.data_holder.end_date = date.strftime('%Y-%m-%d %H:%M:%S')
+                                date = datetime.datetime.now()  # + datetime.timedelta(minutes=10)
+                                str_locker_end = date.strftime('%Y-%m-%d %H:%M:%S')
+                                self.data_holder.end_date = str_locker_end
                                 print payment
 
                             self.response = JsonMessages.User(
@@ -181,10 +184,11 @@ class EchoApplication(WebSocketApplication):
                     api_msg = ApiMessages.Lockers()
                     api_msg.change_locker_status(change_msg.locker_id, change_msg.status)
                     available_lockers = api_msg.get_available_lockers_area(self.data_holder.area_id)
+                    old_locker = api_msg.get_locker_info(change_msg.locker_id)
 
                     if len(available_lockers) > 0:
                         print "DISPONIBLES PARA CAMBIO"
-                        old_locker = self.data_holder.user_locker
+                        # old_locker = self.data_holder.user_locker
                         new_locker = available_lockers[0]
                         api_msg.migrate_locker(old_locker, new_locker)
 
@@ -195,15 +199,20 @@ class EchoApplication(WebSocketApplication):
                             self.data_holder.area_name = area_name
                             self.data_holder.area_id = area.area_id
 
-                        self.response = JsonMessages.Changed(new_locker,area).get_json()
+                        self.response = JsonMessages.Changed(new_locker, area).get_json()
                         self.ws.send(self.response)
 
-                        # TODO implement card
+                        if change_msg.status == 'is_relocated':
+                            api_msg.set_locker_available(old_locker)
+
+                            # TODO implement card
                     else:
                         print "SIN DISPONIBILIDAD"
                         self.response = JsonMessages.Error(
                             None, "NOT AVILABLE", "SIN DISPONIBILIDAD EN LA ZONA").get_json()
                         self.ws.send(self.response)
+                        return
+
                     return
                 elif command == 'SOLICIT':
                     # Create a Solicit message class, to easily handle message data.
@@ -224,16 +233,14 @@ class EchoApplication(WebSocketApplication):
                                 self.locker_area_id = '0'
 
                     except IndexError as ex:
-                        print ex
-                        print "SIN DISPONIBILIDAD"
+                        print "SIN DISPONIBILIDAD - {}".format(ex)
                         self.response = JsonMessages.Error(None, "NOT AVAILABLE",
                                                            "SIN DISPONIBILIDAD EN LA ZONA").get_json()
                         self.ws.send(self.response)
                         return
 
                     except Exception as ex:
-                        print ex
-                        print "Error al solicitar"
+                        print "Error al solicitar {}".format(ex)
 
                     # Check for rate type
                     if solicit_msg.tipo_cobro == 'by_semester':
@@ -242,20 +249,49 @@ class EchoApplication(WebSocketApplication):
                         # Get start and end dates.
                         date = datetime.datetime.now()
                         start_date = date.strftime(fmt)
-                        end_date = str(datetime.datetime(2015, 06, 20, 0, 0, 0))
+
+                        per_msg = ApiMessages.Periods()
+
+                        end_date = start_date
+                        bool_first = True
+                        aux_period = None
+                        for period in per_msg.periods_list:
+
+                            fmt2 = '%Y-%m-%dT%H:%M:%SZ'
+                            aux_start_time = datetime.datetime.strptime(period.period_start_time, fmt2)
+                            aux_end_time = datetime.datetime.strptime(period.period_end_time, fmt2)
+                            print "aux1 - {}".format(aux_end_time)
+
+                            if date.date() < aux_start_time.date():
+                                print "Menor"
+                            else:
+                                if bool_first:
+                                    bool_first = False
+                                    end_date = aux_end_time
+                                    aux_period = period
+                                else:
+                                    if aux_end_time.date() < end_date.date():
+                                        end_date = aux_end_time
+                                        aux_period = period
+
+                        if bool_first:
+                            print "SIN PERIODOS"
+                            self.response = JsonMessages.Error(None, "NOT AVAILABLE",
+                                                               "NO HAY PERIODOS DISPONIBLES").get_json()
+                            self.ws.send(self.response)
+                            return
+
                         d1 = datetime.datetime.strptime(start_date, fmt)
-                        # d2 = datetime.datetime.strptime('2015-06-20 00:00:00', fmt) # Replace with Semester date
-                        #  Replace with Semester date
-                        d2 = datetime.datetime.strptime(end_date, fmt)
+                        d2 = end_date
 
                         # Convert to unix timestamp
                         d1_ts = time.mktime(d1.timetuple())
                         d2_ts = time.mktime(d2.timetuple())
 
                         # As a demo, payment is calculated by minute, on a standard rate ($0.005/min)
-                        # They are now in seconds, subtract and then divide by 60 to get minutes.
-                        minutes_to_pay = int(d2_ts-d1_ts) / 60
-                        total = 100  # Dummy rate
+                        minutes_to_pay = int(d2_ts - d1_ts) / 60
+                        hours_to_pay = minutes_to_pay / 60
+                        total = int(hours_to_pay * self.data_holder.rate_s)
                         self.data_holder.total = total
 
                         # Assign the locker with the calculated pay.
@@ -270,13 +306,13 @@ class EchoApplication(WebSocketApplication):
                         self.response = JsonMessages.Confirm(
                             start_date, end_date,
                             self.data_holder.user_locker.locker_name,
-                            total
+                            total, aux_period.period_name
                         ).get_json()
                         self.ws.send(self.response)
 
                     elif solicit_msg.tipo_cobro == 'by_time':
                         # Get start and end dates.
-                        date = datetime.datetime.now() + datetime.timedelta(minutes=10)
+                        date = datetime.datetime.now()  # + datetime.timedelta(minutes=10)
                         start_date = date.strftime('%Y-%m-%d %H:%M:%S')
 
                         api_msg.assign_locker(
@@ -290,22 +326,28 @@ class EchoApplication(WebSocketApplication):
                         self.response = JsonMessages.Confirm(
                             inicio=start_date,
                             locker=self.data_holder.user_locker.locker_name,
-                            total='TIME'
+                            total='APARTADO',
+                            periodo=None
                         ).get_json()
                         self.ws.send(self.response)
 
                 elif command == 'OK':
+                    ok_msg = JsonMessages.OkAvailable(message)
+
                     try:
-                        sock_status = self.vmc_socket.connect_ex((self.host_vmc, self. port_vmc))
-                        # Total a pagar en el monedero
+                        # CONNECT TO VMC SOCKET
+                        sock_status = self.vmc_socket.connect_ex((self.host_vmc, self.port_vmc))
+
+                        # SEND TOTAL AMOUNT TO PAY
                         self.vmc_socket.sendall('ACCEPT {}'.format(self.data_holder.total))
                         print "SOCKET STATUS {}".format(sock_status)
 
                     except Exception as ex:
-                        print ex
-                        print "Error al comunicar con el monedero 1"
+                        print "ERROR AL COMUNICAR CON EL MONEDERO - {}".format(ex)
 
+                    # LISTEN TO THE VMC PAYMENT
                     try:
+                        complete = False
                         while True:
                             self.socket_data_in = self.vmc_socket.recv(1024)
 
@@ -313,6 +355,7 @@ class EchoApplication(WebSocketApplication):
                                 print "CANCELAR PEDIDO"
                                 break
                             if self.socket_data_in == 'COMPLETE':
+                                complete = True
                                 break
                             else:
                                 balance = self.socket_data_in.split()[1]
@@ -320,85 +363,188 @@ class EchoApplication(WebSocketApplication):
                                 self.response = JsonMessages.Deposit(balance).get_json()
                                 self.ws.send(self.response)
 
-                        response = LockersSocket.LockerSocket().send_command(
-                            Commands.Commands.assign_access_level(
-                                self.data_holder.user_locker.locker_name,
-                                self.data_holder.card_key
+                        if complete:
+                            if self.data_holder.user_locker.locker_rent_type == 'by_time':
+                                print "USER PAID RENT BY TIME"
+                                now_p = datetime.datetime.today()
+                                now_plus_10 = datetime.datetime.today() + datetime.timedelta(minutes=10)
+                                end_now = now_plus_10.strftime('%Y-%m-%d %H:%M:%S')
+
+                                print "{}".format(end_now)
+
+                                response = LockersSocket.LockerSocket().send_command(
+                                    Commands.Commands.update_user(self.data_holder.card_key,
+                                                                  self.data_holder.user_locker.locker_name, end_now )
+                                )
+                                print 'UPDATE USER: {}'.format(response)
+                                # SEND COMMAND TO SALTO PROGRAMMER
+                                response = LockersSocket.LockerSocket().send_command(
+                                    Commands.Commands.assign_new_key(
+                                        self.data_holder.card_key)
+                                )
+                                print 'Assign key: {}'.format(response)
+
+                                response = LockersSocket.LockerSocket().send_command(
+                                    Commands.Commands.update_key(self.data_holder.card_key)
+                                )
+                                print 'Update key: {}'.format(response)
+
+                            """
+                            # Delete access
+                            response = LockersSocket.LockerSocket().send_command(
+                                Commands.Commands.delete_access_level(
+                                    self.data_holder.user_locker.locker_name
+                                )
                             )
-                        )
-                        print 'Assign access: {}'.format(response)
+                            print 'Delete access: {}'.format(response)
 
-                        response = LockersSocket.LockerSocket().send_command(Commands.Commands.assign_new_key(
-                            self.data_holder.card_key)
-                        )
-                        print 'Assign key: {}'.format(response)
+                            response = LockersSocket.LockerSocket().send_command(
+                                Commands.Commands.assign_access_level(
+                                    self.data_holder.user_locker.locker_name,
+                                    self.data_holder.card_key
+                                )
+                            )
+                            print 'Assign access: {}'.format(response)
 
-                        # SAVE LOCKER CONFIRMATION
-                        try:
-                            ApiMessages.Lockers(self.data_holder.user_locker, True)
-                        except Exception as ex:
-                            print ex
-                            print "ERROR AL CONFIRMAR LOCKER DESPUES DE PAGAR"
+                            # PROGRAM CARD WHEN RENT IS TIME BASED
+                            now_p = datetime.datetime.today()
+                            now_plus_10 = datetime.datetime.today() + datetime.timedelta(minutes=10)
+                            dow = now_p.weekday()
+                            days=['0','0','0','0','0','0','0']
+                            days[dow] = '1'
+                            start_rent = "{}".format(now_p.strftime('%H:%M:%S'))
+                            end_rent = "{}".format(now_plus_10.strftime('%H:%M:%S'))
+                            print "{} - {}".format(start_rent, end_rent)
+                            response = LockersSocket.LockerSocket().send_command(
+                                Commands.Commands.assign_by_time(self.data_holder.user_locker.locker_id,
+                                                                 start_rent, end_rent, days)
+                            )
+                            print 'Set day of week & time: {}'.format(response)
 
-                        self.ws.send(JsonMessages.Paid().get_json())
+                            # PROGRAM CARD WHEN RENT IS TIME BASED3
+
+                            months = ['0','0','0','0','0','0','0','0','0','0','0','0']
+                            curr_month = now_p.month
+                            for int_month in range(1,13):
+                                aux_str_month = "0"*31
+                                arr_month = list(aux_str_month)
+                                if int_month == curr_month:
+                                    arr_month[now_p.weekday()-1] = "1"
+                                str_month = "".join(aux_str_month)
+                                print str_month
+                                months[int_month -1 ] = str_month
+
+                            response = LockersSocket.LockerSocket().send_command(
+                                Commands.Commands.assign_calendar(self.data_holder.user_locker.locker_id,
+                                                                 now_p.year,months)
+                            )
+                            print 'Set calendar: {}'.format(response)
+                            """
+
+                            api_msg = ApiMessages.Lockers()
+
+                            # SAVE LOCKER CONFIRMATION
+                            if ok_msg.rent_type == 'by_semester':
+                                api_msg.confirm_assign_locker(self.data_holder.user_locker, True)
+                            elif ok_msg.rent_type == 'by_time':
+                                api_msg.set_locker_available(self.data_holder.user_locker)
+
+                            # RETURN PAID MESSAGE TO FRONTEND
+                            self.ws.send(JsonMessages.Paid().get_json())
+
+                           # RECORD LOG
+                            api_msg.locker_paid(self.data_holder.user_locker, self.data_holder.card_key,
+                                                self.data_holder.total, ok_msg.rent_type, self.data_holder.end_date)
 
                     except Exception as ex:
-                        print ex
-                        print "Error al comunicar con el monedero"
+                        print "ERROR AL PAGAR EN EL MONEDERO {}".format(ex)
 
                 elif command == 'ACCEPT':
-                    # POR TIEMPO
+                    # CUANDO SE APARTA EL LOCKER 
+                    now_p = datetime.datetime.today()
+                    now_plus_10 = datetime.datetime.today() + datetime.timedelta(minutes=10)
+                    end_now = now_plus_10.strftime('%Y-%m-%d %H:%M:%S')
+                    print "{}".format(end_now)
 
-                    LockersSocket.LockerSocket().send_command(
-                        Commands.Commands.assign_by_time('')
+                    response = LockersSocket.LockerSocket().send_command(
+                        Commands.Commands.update_user(self.data_holder.card_key,
+                                                      self.data_holder.user_locker.locker_name,  end_now )
                     )
-                    print("PASO 1")
+                    print 'UPDATE USER: {}'.format(response)
 
-                    LockersSocket.LockerSocket().send_command(
-                        Commands.Commands.assign_by_time2('')
+                    # SEND COMMAND TO SALTO PROGRAMMER
+                    response = LockersSocket.LockerSocket().send_command(
+                        Commands.Commands.assign_new_key(
+                            self.data_holder.card_key)
                     )
+                    print 'Assign key: {}'.format(response)
 
-                    print("PASO 2")
-
-                    LockersSocket.LockerSocket().send_command(
+                    response = LockersSocket.LockerSocket().send_command(
                         Commands.Commands.update_key(self.data_holder.card_key)
                     )
-                    print("PASO 3")
-                    # print 'Assign access: {}'.format(response)
+                    print 'Update key: {}'.format(response)
 
-                    ApiMessages.Lockers(self.data_holder.user_locker, True)
+                    api_msg = ApiMessages.Lockers(self.data_holder.user_locker, True)
                     self.ws.send(JsonMessages.Paid().get_json())
+                    print "{} - ".format(self.data_holder.user_locker.locker_start_time)
+                    api_msg.locker_paid(self.data_holder.user_locker, self.data_holder.card_key,
+                                        0, "locker_rent", None)
+
+                elif command == 'GET_LOG':
+                    get_log_msg = JsonMessages.GetLog(message)
+                    print "{} - {}".format(self.data_holder.card_key, get_log_msg.month)
+                    msg_log = ApiMessages.Log(self.data_holder.card_key)
+                    logs = msg_log.get_log(get_log_msg.month)
+
+                    if len(logs) > 0:
+                        self.ws.send(JsonMessages.Logs(logs).get_json())
+                    else:
+                        print "SIN LOGS"
+                        self.response = JsonMessages.Error(None, "NOT AVAILABLE",
+                                                           "NO HAY TRANSACCIONES DISPONIBLES").get_json()
+                        self.ws.send(self.response)
+                    return
 
                 elif command == 'CANCEL':
-                    self.vmc_socket.sendall('CANCEL')
                     print 'Canceling'
+                    api_msg = ApiMessages.Lockers()
+                    api_msg.set_locker_available(self.data_holder.user_locker)
+                    self.data_holder.user_locker = None
 
                 elif command == 'PRINT':
-                    format_date = '%Y-%m-%d'
-                    format_time = '%H:%M:%S'
+                    get_print_msg = JsonMessages.Print(message)
+                    # format_date = '%Y-%m-%d'
+                    # format_time = '%H:%M:%S'
 
                     # Get start and end dates.
-                    date = datetime.datetime.now()
-                    actual_date = date.strftime(format_date)
-                    actual_time = date.strftime(format_time)
+                    # date = datetime.datetime.now()
+                    # actual_date = date.strftime(format_date)
+                    # actual_time = date.strftime(format_time)
 
                     try:
-                        #user_in_session : Info about user
+                        # user_in_session : Info about user
                         #data_holder.user_locker : Info about locker
+                        #PRINT, MATRICULA,FOLIO,FECHA,HORA,FECHAINICIO,TIPODERENTA,AREA,NOMBRELOCKER,TOTAL
 
                         folio = "00001"
                         printer_status = self.printer_socket.connect_ex((self.host_vmc, 1026))
-                        """self.printer_socket.sendall("{0}, {1},{2},{3},{4},{5},{6},{7},{8},{9}".format(command,
-                                                    self.user_in_session.user_mat,folio, actual_date, actual_time,
-                                                    self.data_holder.user_locker.locker_start_time,
-                                                    self.data_holder.user_locker.locker_rent_type,
-                                                    self.data_holder.area_name,self.data_holder.user_locker.locker_name,
-                                                    self.data_holder.total,))"""
-                        self.printer_socket.sendall("PRINT, Matricula,0003,23-02-2015,12:30,10:30,By_Time,CITA,A3,20")
+                        printer_text = "{}, {},{},{},{},{},{},{},{},{}".format(
+                            command,
+                            get_print_msg.user,
+                            get_print_msg.numeration,
+                            get_print_msg.end_date,
+                            get_print_msg.end_time,
+                            get_print_msg.start_date,
+                            get_print_msg.rent_type,
+                            self.data_holder.area_name,
+                            get_print_msg.locker_id,
+                            get_print_msg.total)
+                        print printer_text
+                        self.printer_socket.sendall(printer_text)
+                        # self.printer_socket.sendall("PRINT, A000000,0003,23-02-2015,12:30,10:30,By_Time,CITA,A3,20")
                         print "PRINTER STATUS {}".format(printer_status)
                     except Exception as ex:
-                        print ex
-                        print "Error al comunicar con impresora"
+                        print "Error al comunicar con impresora {}".format(ex)
 
                     print 'Printing ticket'
 
@@ -425,8 +571,26 @@ class EchoApplication(WebSocketApplication):
                 print ex
                 self.response = JsonMessages.Error(True, "Otro", "Excepcion Generica").get_json()
 
-    def calculate_payment(self, p_start, rate):
+    def get_rates(self):
+        rates_msg = ApiMessages.Rates()
+        rates = rates_msg.get_rates()
+
+        for rate in rates:
+            if rate.rate_unit == 'h':
+                self.data_holder.rate_h = float(rate.rate_rate)
+            elif rate.rate_unit == 'd':
+                self.data_holder.rate_d = float(rate.rate_rate)
+            elif rate.rate_unit == 'w':
+                self.data_holder.rate_w = float(rate.rate_rate)
+            elif rate.rate_unit == 's':
+                self.data_holder.rate_s = float(rate.rate_rate)
+
+        print "Tarifas por hora: h-{} d-{} semana-{} semestre-{}".format(self.data_holder.rate_h, self.data_holder.rate_d,
+                                   self.data_holder.rate_w, self.data_holder.rate_s)
+
+    def calculate_payment(self, p_start):
         payment = 0
+        rate = 1
         try:
             # Obtener la zona horaria de la maquina y añadirla a la hora actual
             str_timezone_diff = datetime.datetime.now(pytz.timezone('America/Chihuahua')).strftime('%z')
@@ -436,21 +600,28 @@ class EchoApplication(WebSocketApplication):
             start = parse(p_start)
             end = parse(end_time)
 
-            # calcular el pago por ho
-            # ra
+            # calcular el pago por hora
             elapsed_time = end - start
-            payment = math.ceil(elapsed_time.total_seconds()/60/60) * rate
+            total_hours = math.ceil(elapsed_time.total_seconds() / 60 / 60)
+            if total_hours < 24:
+                rate = self.data_holder.rate_h
+            elif total_hours < (24 * 7):
+                rate = self.data_holder.rate_d
+            else:
+                rate = self.data_holder.rate_w
+
+            payment = total_hours * rate
+            self.data_holder.total_hours = total_hours
+
         except Exception as ex:
-            print ex
-            print "ERROR AL CALCULAR PAGO"
-            # self.response = JsonMessages.Error(True, "Calcular pago", "No se ha podido calcular el pago").get_json()
+            print "ERROR AL CALCULAR PAGO - {}".format(ex)
+
         return payment
 
     def on_close(self, reason):
-        """
-        When stopping the socket, we must check to stop all services.
-        """
+        # When stopping the socket, we must check to stop all services.
         print 'WebSocket closed\n{}'.format(reason)
+
 
 """
  Create a WebSocketServer, to listen to the front-end.
@@ -459,4 +630,3 @@ WebSocketServer(
     ('127.0.0.1', 1024),  # Modify
     Resource({'/': EchoApplication})
 ).serve_forever()
-
