@@ -114,7 +114,7 @@ class PrinterThread(threading.Thread):
                     ^FT17,265^A0N,28,28^FH\^FDUSUARIO:""" + self.user + """^FS
                     ^FT337,548^A0N,110,112^FH\^FD""" + self.place + """^FS
                     ^FT327,591^A0N,11,14^FH\^F""" + self.place + """^FS
-                    ^FT17,347^A0N,20,19^FH\^FDHORA DE TERMINO": """ + self.hour + """^FS
+                    ^FT17,347^A0N,20,19^FH\^FDHORA DE TERMINO": """ + self.date + " " + self.hour + """^FS
                     ^FT17,367^A0N,20,19^FH\^FDHORA DE INICIO: """ + self.start_hour + """^FS
                     ^FT315,437^A0N,20,19^FH\^FDLOCKER """ + self.state + """^FS
                     ^FT44,500^A0N,14,14^FH\^FDESQUEMA DE RENTA: """ + self.scheme + """^FS
