@@ -13,6 +13,7 @@ class ReadThread(threading.Thread):
     available_50c, available_1, available_2, available_5 = 0, 0, 0, 0
     tubes = Tubes.Tubes()
     hopper_ok = False
+    is_low = False
 
     def __init__(self, thread_id, name):
         threading.Thread.__init__(self)
@@ -78,8 +79,15 @@ class ReadThread(threading.Thread):
                     elif reading == 'H_STA_ERROR<':
                         self.hopper_ok = False
                     reading = ''
+
                 else:
                     reading += data
+
+                #Check if Changer is low on change
+                value_on_tubes = ((self.tubes.tube_50c*.5) + (self.tubes.tube_1) + (self.tubes.tube_2*2)
+                                 + (self.tubes.tube_5*5))
+                if value_on_tubes < 150:
+                    self.is_low = True
 
             except serial.SerialException:
                 print 'Reader: Error, exception'
@@ -171,37 +179,37 @@ class Changer(threading.Thread):
     def write_accept(self):
         self.write_thread.write_cmd(self.commands.enable_tubes())
 
-        while (not self.read_thread.deposited_50c) and (not self.read_thread.deposited_1) \
+        if(not self.read_thread.deposited_50c) and (not self.read_thread.deposited_1) \
                 and (not self.read_thread.deposited_2) and (not self.read_thread.deposited_5)\
                 and (not self.read_thread.deposited_10):
             pass
         
-
-        print 'Coin deposited'
-        self.write_thread.write_cmd(self.commands.disable_tubes())
-
-        if self.read_thread.deposited_50c:
-            self.read_thread.deposited_50c = False
-            return 0.5
-
-        elif self.read_thread.deposited_1:
-            self.read_thread.deposited_1 = False
-            return 1.0
-
-        elif self.read_thread.deposited_2:
-            self.read_thread.deposited_2 = False
-            return 2.0
-
-        elif self.read_thread.deposited_5:
-            self.read_thread.deposited_5 = False
-            return 5.0
-
-        elif self.read_thread.deposited_10:
-            self.read_thread.deposited_10 = False
-            return 10.0
-
         else:
-            return 0
+            print 'Coin deposited'
+            self.write_thread.write_cmd(self.commands.disable_tubes())
+
+            if self.read_thread.deposited_50c:
+                self.read_thread.deposited_50c = False
+                return 0.5
+
+            elif self.read_thread.deposited_1:
+                self.read_thread.deposited_1 = False
+                return 1.0
+
+            elif self.read_thread.deposited_2:
+                self.read_thread.deposited_2 = False
+                return 2.0
+
+            elif self.read_thread.deposited_5:
+                self.read_thread.deposited_5 = False
+                return 5.0
+
+            elif self.read_thread.deposited_10:
+                self.read_thread.deposited_10 = False
+                return 10.0
+
+            else:
+                return 0
 
     def socket_com(self, command=''):
         cmd, param1 = command.split()
