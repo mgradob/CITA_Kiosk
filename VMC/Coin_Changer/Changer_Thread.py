@@ -150,6 +150,7 @@ class Changer(threading.Thread):
             self.write_thread.write_cmd(self.commands.enable_tubes())
 
             if not quantity_10 == 0:
+                print "Dispensing Hopper coins = " + str(quantity_10)
                 self.write_thread.write_cmd(self.commands.check_hopper())
                 self.write_thread.write_cmd(self.commands.hopper_dispense(quantity_10))
                 self.number_of_coins -= quantity_10

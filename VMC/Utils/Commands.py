@@ -69,7 +69,8 @@ class BillCommands:
     BILL_DISABLE_ESCROW = {'cmd': chr(171), 'name': 'BILL_DISABLE_ESCROW'}
     BILL_ACCEPT_ESCROW = {'cmd': chr(172), 'name': 'BILL_ACCEPT_ESCROW'}
     BILL_REJECT_ESCROW = {'cmd': chr(173), 'name': 'BILL_REJECT_ESCROW'}
-
+    BILL_DISABLE_ALL = {'cmd': chr(185), 'name': 'BILL_DISABLE_ALL'}
+    BILL_DISABLE_TIMEOUT = {'cmd': chr(190), 'name': 'BILL_DISABLE_TIMEOUT'}
     def __init__(self):
         """ Initialization method. """
         pass
