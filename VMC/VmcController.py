@@ -71,7 +71,7 @@ class VmcController(threading.Thread):
                                 else:
                                     try:
 
-                                        #deposit += self.changer_thread.socket_com('ACCEPT {}'.format(balance))
+                                         deposit += self.changer_thread.socket_com('ACCEPT {}'.format(balance))
                                          deposit_bill += self.bill_dispenser_thread.socket_com('ACCEPTBILL {}'.format(balance))
                                     except Exception as ex:
                                         print ex
@@ -83,10 +83,11 @@ class VmcController(threading.Thread):
                             if deposit+deposit_bill > balance:
                                 dif = float(deposit+deposit_bill-balance)
                                 print 'Dif: {}'.format(dif)
-                                # TODO Lógica del dispense
+
                                 conn.sendall('DIFFERENCE {}'.format(dif))
                                 try:
                                     self.changer_thread.socket_com('DISPENSE {}'.format(dif))
+                                    print "Dispensing"
                                 except Exception as ex:
                                     print "{}".format(ex)
                                     conn.sendall('DIFFERENCE {}'.format(dif))

@@ -161,8 +161,6 @@ class BillDispenserThread(threading.Thread):
 
                     if self.must_accept and self.bill_count == 0 and not self.first_run:
                         print "Initializing bill escrow..."
-                        self.write_enable_escrow()
-                        print "Deposit now"
                         self.first_run = True
                     elif self.bill_count >= self.balance and self.first_run:
                         print "MORE THAN BALANCE"
@@ -221,10 +219,10 @@ class BillDispenserThread(threading.Thread):
     def write_accept(self):
 
 
-        while (not self.deposited_20) and (not self.deposited_50) \
+        if(not self.deposited_20) and (not self.deposited_50) \
                 and (not self.deposited_100) and (not self.deposited_200):
             pass
-        print 'Bill deposited'
+            time.sleep(.5)
         self.must_accept = False
 
         time.sleep(2)

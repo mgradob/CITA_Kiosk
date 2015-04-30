@@ -4,7 +4,7 @@ __author__ = 'mgradob'
 import threading
 import serial
 from VMC.Utils import Commands, Tubes
-from time import sleep, time
+import time
 
 
 class ReadThread(threading.Thread):
@@ -100,7 +100,7 @@ class WriteThread(threading.Thread):
         except serial.SerialException:
             print 'Exception, data not written'
 
-        sleep(0.5)
+        time.sleep(0.5)
 
 class Changer(threading.Thread):
 
@@ -170,13 +170,12 @@ class Changer(threading.Thread):
     def write_accept(self):
         self.write_thread.write_cmd(self.commands.enable_tubes())
 
-        while (not self.read_thread.deposited_50c) and (not self.read_thread.deposited_1) \
+        if(not self.read_thread.deposited_50c) and (not self.read_thread.deposited_1) \
                 and (not self.read_thread.deposited_2) and (not self.read_thread.deposited_5)\
                 and (not self.read_thread.deposited_10):
             pass
-        
+            time.sleep(.2)
 
-        print 'Coin deposited'
         self.write_thread.write_cmd(self.commands.disable_tubes())
         if self.read_thread.deposited_50c:
             self.read_thread.deposited_50c = False
