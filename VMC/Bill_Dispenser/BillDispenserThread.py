@@ -1,4 +1,5 @@
-from time import sleep
+
+import time
 
 __author__ = 'mgradob'
 
@@ -53,7 +54,7 @@ class BillDispenserThread(threading.Thread):
                 av_port = serial.Serial(i)
                 coms.append("COM" + str(i + 1))
                 av_port.close()
-            except serial.SerialException:
+            except serial.SerialException:+
                 pass
 
         print(coms)
@@ -61,7 +62,7 @@ class BillDispenserThread(threading.Thread):
         self.com_port_number = int(raw_input('Select COM port: ')) - 1
         """
 
-        self.com_port = serial.Serial('COM3', 9600, parity=serial.PARITY_NONE)
+        self.com_port = serial.Serial('COM11', 9600, timeout=2,  parity=serial.PARITY_NONE)
 
         if self.com_port.isOpen():
             self.com_port.close()
@@ -145,87 +146,77 @@ class BillDispenserThread(threading.Thread):
 
     def run(self):
         """ Run method for the thread. """
-
         # First run.
         # Must not reset and start the initialization sequence.
         read, reading = True, ''
         while read:
-            self.must_reset = False
-            self.init_sequence()
-            while not self.must_reset:
-                reading = 0
-                if self.com_port.inWaiting() > 0:
-                    reading = self.com_port.read()
-                    reading = ord(reading)
-                    #print reading
+            try:
 
-                if self.must_accept and self.bill_count == 0 and not self.first_run:
-                    print "Initializing bill escrow..."
-                    self.write_enable_escrow()
-                    print "Deposit now"
-                    self.first_run = True
-                elif self.bill_count >= self.balance and self.first_run:
-                    self.must_accept = False
-                    self.balance = 0
-                    self.bill_count = 0
-                    self.first_run = False
-                    self.socket_response = 'FINISHED {}'.format(self.bill_count - self.balance)
-                elif self.must_accept:
-                    if reading == 120:
-                        print 'Validator Busy'
-                    elif reading == 121:
-                        print 'Validator Ready'
-                    elif reading == 1:
-                        self.bill_type = 1
-                        if (self.balance - self.bill_count) >= 20:
+                self.must_reset = False
+                self.init_sequence()
+                while not self.must_reset:
+                    reading = 0
+                    if self.com_port.inWaiting() > 0:
+                        reading = self.com_port.read()
+                        reading = ord(reading)
+                        #print reading
+
+                    if self.must_accept and self.bill_count == 0 and not self.first_run:
+                        print "Initializing bill escrow..."
+                        self.first_run = True
+                    elif self.bill_count >= self.balance and self.first_run:
+                        print "MORE THAN BALANCE"
+                        self.must_accept = False
+                        self.balance = 0
+                        self.bill_count = 0
+                        self.first_run = False
+                        self.socket_response = 'FINISHED {}'.format(self.bill_count - self.balance)
+                    elif self.must_accept:
+                        if reading == 120:
+                            print 'Validator Busy'
+                        elif reading == 121:
+                            print 'Validator Ready'
+                        elif reading == 1:
+                            self.bill_type = 1
                             self.com_port.write(self.commands.BILL_ACCEPT_ESCROW['cmd'])
                             self.deposited_20 = True
-                        else:
-                            self.com_port.write(self.commands.BILL_REJECT_ESCROW['cmd'])
-                    elif reading == 2:
-                        self.bill_type = 2
-                        if (self.balance - self.bill_count) >= 50:
+                        elif reading == 2:
+                            self.bill_type = 2
                             self.deposited_50 = True
                             self.com_port.write(self.commands.BILL_ACCEPT_ESCROW['cmd'])
-                        else:
-                            self.com_port.write(self.commands.BILL_REJECT_ESCROW['cmd'])
-                    elif reading == 3:
-                        self.bill_type = 3
-                        if (self.balance - self.bill_count) >= 100:
+                        elif reading == 3:
+                            self.bill_type = 3
                             self.deposited_100 = True
                             self.com_port.write(self.commands.BILL_ACCEPT_ESCROW['cmd'])
-                        else:
-                            self.com_port.write(self.commands.BILL_REJECT_ESCROW['cmd'])
-                    elif reading == 4:
-                        self.bill_type = 4
-                        if (self.balance - self.bill_count) >= 200:
+                        elif reading == 4:
+                            self.bill_type = 4
                             self.deposited_200 = True
                             self.com_port.write(self.commands.BILL_ACCEPT_ESCROW['cmd'])
-                        else:
-                            self.com_port.write(self.commands.BILL_REJECT_ESCROW['cmd'])
-                    elif reading == 5:
-                            self.com_port.write(self.commands.BILL_REJECT_ESCROW['cmd'])
-                    elif reading == 172:
-                        while self.com_port.inWaiting() < 1:
-                            pass
-                        print(ord(self.com_port.read(1)))
+                        elif reading == 5:
+                                self.com_port.write(self.commands.BILL_REJECT_ESCROW['cmd'])
+                        elif reading == 172:
+                            while self.com_port.inWaiting() < 1:
+                                pass
+                            print(ord(self.com_port.read(1)))
 
-                        if self.bill_type == 1:
-                            self.bill_count += 20
-                            print 'Balance: ${}'.format(self.bill_count)
-                            print 'Owes: ${}'.format(self.balance - self.bill_count)
-                        elif self.bill_type == 2:
-                            self.bill_count += 50
-                            print 'Balance: ${}'.format(self.bill_count)
-                            print 'Owes: ${}'.format(self.balance - self.bill_count)
-                        elif self.bill_type == 3:
-                            self.bill_count += 100
-                            print 'Balance: ${}'.format(self.bill_count)
-                            print 'Owes: ${}'.format(self.balance - self.bill_count)
-                        elif self.bill_type == 4:
-                            self.bill_count += 200
-                            print 'Balance: ${}'.format(self.bill_count)
-                            print 'Owes: ${}'.format(self.balance - self.bill_count)
+                            if self.bill_type == 1:
+                                self.bill_count += 20
+                                print 'Balance: ${}'.format(self.bill_count)
+                                print 'Owes: ${}'.format(self.balance - self.bill_count)
+                            elif self.bill_type == 2:
+                                self.bill_count += 50
+                                print 'Balance: ${}'.format(self.bill_count)
+                                print 'Owes: ${}'.format(self.balance - self.bill_count)
+                            elif self.bill_type == 3:
+                                self.bill_count += 100
+                                print 'Balance: ${}'.format(self.bill_count)
+                                print 'Owes: ${}'.format(self.balance - self.bill_count)
+                            elif self.bill_type == 4:
+                                self.bill_count += 200
+                                print 'Balance: ${}'.format(self.bill_count)
+                                print 'Owes: ${}'.format(self.balance - self.bill_count)
+            except serial.SerialException:
+                print 'Serial error'
 
     def write_accept(self):
 
@@ -233,37 +224,38 @@ class BillDispenserThread(threading.Thread):
         if(not self.deposited_20) and (not self.deposited_50) \
                 and (not self.deposited_100) and (not self.deposited_200):
             pass
+            time.sleep(.5)
+        self.must_accept = False
+
+        time.sleep(2)
+        if self.deposited_20:
+            self.deposited_20 = False
+            return 20.0
+
+        elif self.deposited_50:
+            self.deposited_50 = False
+            return 50.0
+
+        elif self.deposited_100:
+            self.deposited_100 = False
+            return 100.0
+
+        elif self.deposited_200:
+            self.deposited_200 = False
+            return 200.0
+
         else:
-            self.must_accept = False
-            if self.deposited_20:
-                self.deposited_20 = False
-                return 20.0
-
-            elif self.deposited_50:
-                self.deposited_50 = False
-                return 50.0
-
-            elif self.deposited_100:
-                self.deposited_100 = False
-                return 100.0
-
-            elif self.deposited_200:
-                self.deposited_200 = False
-                return 200.0
-
-            else:
-                return 0
+            return 0
 
     def socket_com(self, command=''):
         cmd, param1 = command.split()
 
-        if cmd == 'ACCEPT':
+        if cmd == 'ACCEPTBILL':
             self.must_accept = True
             return self.write_accept()
 
         else:
             self.must_accept = False
-            self.write_reject_escrow()
 
     def __init__(self):
         """ Thread initialization """

@@ -53,12 +53,11 @@ class PrinterController(threading.Thread):
 
                     if self.data:
                         print 'Received {}'.format(self.data)
-                        inst = self.data.split()
-                        print inst[0]
+                        inst = self.data.split('#')
+                        print inst[1]
                         if inst[0] == 'PRINT,':
                             user_id, folio, date, time, start_time, \
-                            scheme, locker, area, total =  inst[1].split(',')
-
+                            scheme,locker, area, total =  inst[1].split(',')
                              # Set the parameters
                             self.printer_thread.set_ticker_parameters(user_id, folio, date, area, time, start_time,
                                                                     locker, scheme, total)

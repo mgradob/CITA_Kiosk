@@ -1,5 +1,5 @@
 __author__ = 'mgradob'
-
+import datetime
 
 class Commands:
     """
@@ -51,6 +51,14 @@ class Commands:
         return 'STP/00/400/<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><RequestCall><RequestName> SaltoDBGroup.Update </RequestName><Params><SaltoDBGroup><ExtGroupID> {} </ExtGroupID><SaltoDB.MembershipList.User_Group><SaltoDB.Membership.User_Group><ExtUserID> {} </ExtUserID></SaltoDB.Membership.User_Group></SaltoDB.MembershipList.User_Group></SaltoDBGroup></Params></RequestCall>'.format(locker_id, user_id)
 
     @staticmethod
+    def delete_access_level(locker_id=''):
+        """
+        Returns an XML String for deleting access level to users from SALTO software.
+        :return: String.
+        """
+        return 'STP/00/400/<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><RequestCall><RequestName> SaltoDBGroup.Update </RequestName><Params><SaltoDBGroup><ExtGroupID> {} </ExtGroupID><SaltoDB.MembershipList.User_Group/></SaltoDBGroup></Params></RequestCall>'.format(locker_id)
+
+    @staticmethod
     def assign_new_key(user_id=''):
         """
         Returns an XML String for to UID card from SALTO software.
@@ -59,21 +67,72 @@ class Commands:
         return 'STP/00/400/<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?><RequestCall><RequestName> Encoder.SaltoDBUser.AssignNewKey </RequestName><Params><ExtUserID> {} </ExtUserID><EncoderID> Encoder#2 </EncoderID></Params></RequestCall>'.format(user_id)
 
     @staticmethod
-    def assign_by_time(user_id=''):
+    def assign_by_time(locker_id ='0', start_time='00:00:00', end_time='23:59:59',days=['1','1','1','1','1','1','1']):
         """
         Returns an XML String for to UID card from SALTO software.
         :return: String.
         """
-        return 'STP/00/400/<?xml version="1.0" encoding="ISO-8859-1"?><RequestCall><RequestName> SaltoDBTimezoneTable.Update </RequestName><Params><SaltoDBTimezoneTable><TimezoneTableID> 2 </TimezoneTableID><SaltoDBTimezoneList><SaltoDBTimezone><TimezoneID> 1 </TimezoneID><StartTime> 8:00:00 </StartTime><EndTime> 12:30:00 </EndTime><Monday>1</Monday></SaltoDBTimezone></SaltoDBTimezoneList></SaltoDBTimezoneTable></Params></RequestCall>'
-
+        str_assign ='STP/00/600/<?xml version="1.0" encoding="ISO-8859-1"?><RequestCall><RequestName> SaltoDBTimezoneTable.Update </RequestName><Params>' \
+                    '<SaltoDBTimezoneTable><TimezoneTableID> {} </TimezoneTableID><SaltoDBTimezoneList><SaltoDBTimezone>' \
+                    '<TimezoneID> 1 </TimezoneID><StartTime> {} </StartTime><EndTime> {} </EndTime>' \
+                   '<Monday> {} </Monday><Tuesday> {} </Tuesday><Wednesday> {} </Wednesday>' \
+                   '<Thursday> {} </Thursday><Friday> {} </Friday><Saturday> {} </Saturday>' \
+                   '<Sunday> {} </Sunday></SaltoDBTimezone></SaltoDBTimezoneList></SaltoDBTimezoneTable></Params>' \
+                   '</RequestCall>'.format(locker_id,start_time, end_time,
+                                           days[0], days[1], days[2], days[3], days[4], days[5], days[6])
+        return str_assign
 
     @staticmethod
-    def assign_by_time2(user_id=''):
+    def update_user(id_user=1, locker_id='0', expiration=datetime.datetime.today()):
+        """
+        str_update = 'STP/00/500/<?xml version="1.0" encoding="ISO-8859-1"?>' \
+                     '<RequestCall><RequestName> SaltoDBUser.Update </RequestName>'\
+                     '<Params><SaltoDBUser><ExtUserID> {} </ExtUserID>' \
+                     '<UserExpiration.Enabled> 1 </UserExpiration.Enabled>' \
+                     '<UserExpiration> {} </UserExpiration>' \
+                     '</SaltoDBUser></Params></RequestCall>'.format(id_user, expiration)
+        """
+
+        str_update = 'STP/00/500/<?xml version="1.0" encoding="ISO-8859-1"?>' \
+                     '<RequestCall><RequestName> SaltoDBUser.Update </RequestName>' \
+                     '<Params><SaltoDBUser><ExtUserID> {} </ExtUserID>' \
+                     '<SaltoDB.AccessPermissionList.User_Door><SaltoDB.AccessPermission.User_Door>' \
+                     '<ExtDoorID> {} </ExtDoorID></SaltoDB.AccessPermission.User_Door>' \
+                     '</SaltoDB.AccessPermissionList.User_Door>' \
+                     '<UserExpiration.Enabled> 1 </UserExpiration.Enabled>' \
+                     '<UserExpiration> {} </UserExpiration></SaltoDBUser></Params>' \
+                     '</RequestCall>'.format(id_user, locker_id, expiration)
+
+        return str_update
+
+    @staticmethod
+    def update_user_two(id_user=1, locker_id='0', locker_id2='0', expiration=datetime.datetime.today()):
+        str_update = 'STP/00/600/<?xml version="1.0" encoding="ISO-8859-1"?>' \
+                     '<RequestCall><RequestName> SaltoDBUser.Update </RequestName>' \
+                     '<Params><SaltoDBUser><ExtUserID> {} </ExtUserID>' \
+                     '<SaltoDB.AccessPermissionList.User_Door><SaltoDB.AccessPermission.User_Door>' \
+                     '<ExtDoorID> {} </ExtDoorID></SaltoDB.AccessPermission.User_Door>' \
+                     '<SaltoDB.AccessPermission.User_Door><ExtDoorID> {} </ExtDoorID>' \
+                     '</SaltoDB.AccessPermission.User_Door>' \
+                     '</SaltoDB.AccessPermissionList.User_Door>' \
+                     '<UserExpiration.Enabled> 1 </UserExpiration.Enabled>' \
+                     '<UserExpiration> {} </UserExpiration></SaltoDBUser></Params>' \
+                     '</RequestCall>'.format(id_user, locker_id, locker_id2, expiration)
+
+        return str_update
+
+    @staticmethod
+    def assign_calendar(locker_id ='0', year=datetime.datetime.today().year, months=[]):
         """
         Returns an XML String for to UID card from SALTO software.
         :return: String.
         """
-        return 'STP/00/400/<?xml version="1.0" encoding="ISO-8859-1"?><RequestCall><RequestName> SaltoDBYearCalendar.Update </RequestName><Params><SaltoDBYearCalendar><CalendarID> 2 </CalendarID><Year> 2015 </Year><Month1>1111111111111111111111111111111</Month1><Month2>1111111111111111111111111111111</Month2><Month3>1111111111111111111111111111111</Month3><Month4>1111111111111111111111111111111</Month4><Month5>1111111111111111111111111111111</Month5><Month6>1111111111111111111111111111111</Month6><Month7>1111111111111111111111111111111</Month7><Month8>1111111111111111111111111111111</Month8><Month9>1111111111111111111111111111111</Month9><Month10>1111111101111111111111111111111</Month10><Month11>1111111111111111111111111111111</Month11><Month12>1111111111111111111111111111111</Month12></SaltoDBYearCalendar></Params></RequestCall>'
+        return 'STP/00/600/<?xml version="1.0" encoding="ISO-8859-1"?><RequestCall><RequestName> SaltoDBYearCalendar.Update </RequestName><Params><SaltoDBYearCalendar>' \
+               '<CalendarID> {} </CalendarID><Year> {} </Year><Month1> {} </Month1><Month2> {}</Month2>' \
+               '<Month3> {} </Month3><Month4> {} </Month4><Month5> {} </Month5><Month6> {} </Month6>' \
+               '<Month7> {} </Month7><Month8> {} </Month8><Month9> {} </Month9><Month10> {} </Month10>' \
+               '<Month11> {} </Month11><Month12> {} </Month12></SaltoDBYearCalendar></Params></RequestCall>'\
+                .format(locker_id, year, months)
 
 
     @staticmethod

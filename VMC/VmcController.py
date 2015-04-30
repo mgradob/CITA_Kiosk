@@ -1,3 +1,4 @@
+# coding=utf-8
 __author__ = 'mgradob'
 
 """ Imports """
@@ -36,15 +37,10 @@ class VmcController(threading.Thread):
     def run(self):
         while 1:
             conn, addr = self.socket.accept()
-            print 'VMC SOCKET connected'
+            print 'Client connected'
 
             while True:
                 try:
-                    #First check Changer Reader available tubes
-                    self.changer_thread.write_thread.write_cmd(self.changer_thread.commands.C_TUBE_STATUS)
-                    if(self.changer_thread.read_thread.is_low):
-                        conn.sendall('IS_LOW')
-
                     # Wait for data (1024)
                     self.command = conn.recv(1024)
                     print('Command received: {}'.format(self.command))
@@ -73,12 +69,12 @@ class VmcController(threading.Thread):
                                     break
 
                                 else:
-                                    coins = self.changer_thread.socket_com('ACCEPT {}'.format(balance))
-                                    bills = self.bill_dispenser_thread.socket_com('ACCEPT {}'.format(balance))
-                                    if(coins != 0):
-                                        deposit += coins
-                                    if(bills != 0):
-                                        deposit_bill += bills
+                                    try:
+
+                                         deposit += self.changer_thread.socket_com('ACCEPT {}'.format(balance))
+                                         deposit_bill += self.bill_dispenser_thread.socket_com('ACCEPTBILL {}'.format(balance))
+                                    except Exception as ex:
+                                        print ex
                                     print 'VMC: Deposit: {}, Balance: {}'.format(deposit+deposit_bill, balance)
                                     conn.sendall('DEPOSIT: {}'.format(deposit+deposit_bill))
 
@@ -86,24 +82,26 @@ class VmcController(threading.Thread):
 
                             if deposit+deposit_bill > balance:
                                 dif = float(deposit+deposit_bill-balance)
-                                print 'Dif: '.format(dif)
-                                self.bill_dispenser_thread.write_disable_escrow()
-                                self.changer_thread.socket_com('DISPENSE {}'.format(dif))
+                                print 'Dif: {}'.format(dif)
 
+                                conn.sendall('DIFFERENCE {}'.format(dif))
+                                try:
+                                    self.changer_thread.socket_com('DISPENSE {}'.format(dif))
+                                    print "Dispensing"
+                                except Exception as ex:
+                                    print "{}".format(ex)
+                                    conn.sendall('DIFFERENCE {}'.format(dif))
                             print 'Balance completed'
                             conn.sendall('COMPLETE')
 
                         elif data[0] == 'CANCEL':
                             self.bill_dispenser_thread.write_reject_escrow()
-                            self.bill_dispenser_thread.write_disable_escrow()
-                            conn.sendall('CANCEL')
                         else:
                             print('Incorrect cmd')
                             conn.sendall('ERROR')
 
                 except Exception as ex:
-                    print "ERROR EN EL VMC"
-                    print ex
+                    print "ERROR EN EL VMC - {}".format(ex)
 
             # Close the connection on an error
             conn.close()

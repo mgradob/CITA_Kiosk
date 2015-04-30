@@ -4,7 +4,7 @@ __author__ = 'mgradob'
 import threading
 import serial
 from VMC.Utils import Commands, Tubes
-from time import sleep
+import time
 
 
 class ReadThread(threading.Thread):
@@ -13,7 +13,6 @@ class ReadThread(threading.Thread):
     available_50c, available_1, available_2, available_5 = 0, 0, 0, 0
     tubes = Tubes.Tubes()
     hopper_ok = False
-    is_low = False
 
     def __init__(self, thread_id, name):
         threading.Thread.__init__(self)
@@ -31,7 +30,7 @@ class ReadThread(threading.Thread):
             try:
                 data = serial_port.read()
                 str_data = str(data)
-
+                # print str_data
                 if str_data == '<':
                     print 'Received: {}'.format(reading)
 
@@ -66,28 +65,21 @@ class ReadThread(threading.Thread):
                         self.tubes.tube_2 = int(reading[17:18])
                         self.tubes.tube_5 = int(reading[19:20])
 
-                        print 'READER: Full tubes: {}'.format(self.tubes.full_tubes)
-                        print 'READER: Coins on tube_50c: {}'.format(self.tubes.tube_50c)
-                        print 'READER: Coins on tube_1: {}'.format(self.tubes.tube_1)
-                        print 'READER: Coins on tube_2: {}'.format(self.tubes.tube_2)
-                        print 'READER: Coins on tube_5: {}'.format(self.tubes.tube_5)
-
                     #Check for hopper availability
                     elif reading == 'H_STA_OK<':
                         self.hopper_ok = True
 
                     elif reading == 'H_STA_ERROR<':
                         self.hopper_ok = False
-                    reading = ''
+                        print 'READER: Full tubes: {}'.format(self.tubes.full_tubes)
+                        print 'READER: Coins on tube_50c: {}'.format(self.tubes.tube_50c)
+                        print 'READER: Coins on tube_1: {}'.format(self.tubes.tube_1)
+                        print 'READER: Coins on tube_2: {}'.format(self.tubes.tube_2)
+                        print 'READER: Coins on tube_5: {}'.format(self.tubes.tube_5)
 
+                    reading = ''
                 else:
                     reading += data
-
-                #Check if Changer is low on change
-                value_on_tubes = ((self.tubes.tube_50c*.5) + (self.tubes.tube_1) + (self.tubes.tube_2*2)
-                                 + (self.tubes.tube_5*5))
-                if value_on_tubes < 150:
-                    self.is_low = True
 
             except serial.SerialException:
                 print 'Reader: Error, exception'
@@ -108,7 +100,7 @@ class WriteThread(threading.Thread):
         except serial.SerialException:
             print 'Exception, data not written'
 
-        sleep(0.5)
+        time.sleep(0.5)
 
 class Changer(threading.Thread):
 
@@ -116,12 +108,14 @@ class Changer(threading.Thread):
     write_thread = WriteThread(2, 'Writer')
     commands = Commands.VmcCommands()
     number_of_coins = 100 #dummy data for coins on hopper
+    
     def start_serial(self):
         try:
             global serial_port
 
             # TODO Change serial port to the uC's.
-            serial_port = serial.Serial('COM6', 115200, timeout=1, parity=serial.PARITY_NONE)
+            #Lo cambie para poder conectar la impresora en el COM6
+            serial_port = serial.Serial('COM9', 115200, timeout=1, parity=serial.PARITY_NONE)
             self.serial_port = serial_port
             print 'Serial port open'
         except serial.SerialException:
@@ -157,11 +151,8 @@ class Changer(threading.Thread):
 
             if not quantity_10 == 0:
                 self.write_thread.write_cmd(self.commands.check_hopper())
-                if self.read_thread.hopper_ok:
-                    self.write_thread.write_cmd(self.commands.hopper_dispense(quantity_10))
-                    self.number_of_coins -= quantity_10
-                else:
-                    print 'Error with Hopper, please check.'
+                self.write_thread.write_cmd(self.commands.hopper_dispense(quantity_10))
+                self.number_of_coins -= quantity_10
             if not quantity_5 == 0:
                 self.write_thread.write_cmd(self.commands.changer_dispense(4, quantity_5))
 
@@ -183,33 +174,31 @@ class Changer(threading.Thread):
                 and (not self.read_thread.deposited_2) and (not self.read_thread.deposited_5)\
                 and (not self.read_thread.deposited_10):
             pass
-        
+            time.sleep(.2)
+
+        self.write_thread.write_cmd(self.commands.disable_tubes())
+        if self.read_thread.deposited_50c:
+            self.read_thread.deposited_50c = False
+            return 0.5
+
+        elif self.read_thread.deposited_1:
+            self.read_thread.deposited_1 = False
+            return 1.0
+
+        elif self.read_thread.deposited_2:
+            self.read_thread.deposited_2 = False
+            return 2.0
+
+        elif self.read_thread.deposited_5:
+            self.read_thread.deposited_5 = False
+            return 5.0
+
+        elif self.read_thread.deposited_10:
+            self.read_thread.deposited_10 = False
+            return 10.0
+
         else:
-            print 'Coin deposited'
-            self.write_thread.write_cmd(self.commands.disable_tubes())
-
-            if self.read_thread.deposited_50c:
-                self.read_thread.deposited_50c = False
-                return 0.5
-
-            elif self.read_thread.deposited_1:
-                self.read_thread.deposited_1 = False
-                return 1.0
-
-            elif self.read_thread.deposited_2:
-                self.read_thread.deposited_2 = False
-                return 2.0
-
-            elif self.read_thread.deposited_5:
-                self.read_thread.deposited_5 = False
-                return 5.0
-
-            elif self.read_thread.deposited_10:
-                self.read_thread.deposited_10 = False
-                return 10.0
-
-            else:
-                return 0
+            return 0
 
     def socket_com(self, command=''):
         cmd, param1 = command.split()
