@@ -61,8 +61,11 @@ class VmcController(threading.Thread):
                             conn.sendall('Thread_response: {}'.format(thread_response))
 
                         elif data[0] == 'ACCEPT':
+                            #Set values to use during checking of Thread
                             balance, deposit, deposit_bill = float(data[1]), float(0), float(0)
                             self.bill_dispenser_thread.balance = balance
+
+                            #Listen until the user deposits at least the balance
                             while deposit+deposit_bill < balance:
 
                                 if deposit+deposit_bill >= balance:
@@ -80,6 +83,7 @@ class VmcController(threading.Thread):
 
                             sleep(0.5)
 
+                            #Calculate difference to dispense
                             if deposit+deposit_bill > balance:
                                 dif = float(deposit+deposit_bill-balance)
                                 print 'Dif: {}'.format(dif)
@@ -91,6 +95,7 @@ class VmcController(threading.Thread):
                                 except Exception as ex:
                                     print "{}".format(ex)
                                     conn.sendall('DIFFERENCE {}'.format(dif))
+                            #Send a Complete command to the MainController
                             print 'Balance completed'
                             conn.sendall('COMPLETE')
 
@@ -108,15 +113,13 @@ class VmcController(threading.Thread):
 
     def start_socket_server(self):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        print('Socket created')
         try:
             self.socket.bind((self.addr, self.port))
         except socket.error as msg:
             print('Bind failed. Error code: {}'.format(msg))
             quit()
-        print('Socket bind complete')
         self.socket.listen(self.conns)
-        print('Socket listening, conns: {}'.format(self.conns))
+        print('VMC Socket listening, conns: {}'.format(self.conns))
         self.changer_thread = Changer_Thread.Changer()
         self.changer_thread.start()
         self.bill_dispenser_thread = BillDispenserThread.BillDispenserThread()
