@@ -70,7 +70,7 @@ class VmcController(threading.Thread):
                             default_timeout = 15
                             timeout_counter = default_timeout
                             timeout = True
-                            while deposit+deposit_bill < balance:
+                            while sum < balance:
 
                                 if sum >= balance:
                                     break
@@ -84,8 +84,8 @@ class VmcController(threading.Thread):
                                     if (deposit != 0 or deposit_bill != 0):
                                         timeout_counter = default_timeout
                                         sum += deposit_bill + deposit
-                                        print 'VMC: Deposit: {}, Balance: {}'.format(sum, balance)
-                                        conn.sendall('DEPOSIT {}'.format(sum))
+                                        print 'VMC: Deposit: {}, Balance: {}'.format(deposit+deposit_bill, balance)
+                                        conn.sendall('DEPOSIT {}'.format(deposit_bill+deposit))
 
                                 timeout_counter -= 1
                                 print "{}".format(timeout_counter)
