@@ -4,6 +4,7 @@ __author__ = 'mgradob'
 """ Imports """
 from VMC.Coin_Changer import Changer_Thread
 from VMC.Bill_Dispenser import BillDispenserThread
+from VMC.Utils import Commands
 import socket
 import threading
 from time import sleep
@@ -24,6 +25,7 @@ class VmcController(threading.Thread):
     bill_dispenser_thread = None
     poll_thread = None
     command = ""
+    commands = Commands.BillCommands()
 
     # Initialization
     def __init__(self, address='127.0.0.1', port=1025, connections=1):
@@ -61,38 +63,51 @@ class VmcController(threading.Thread):
                             conn.sendall('Thread_response: {}'.format(thread_response))
 
                         elif data[0] == 'ACCEPT':
+                            self.bill_dispenser_thread.write_cmd(self.commands.BILL_ENABLE_ALL)
                             balance, deposit, deposit_bill = float(data[1]), float(0), float(0)
+                            sum = 0
                             self.bill_dispenser_thread.balance = balance
+                            default_timeout = 15
+                            timeout_counter = default_timeout
+                            timeout = True
                             while deposit+deposit_bill < balance:
 
-                                if deposit+deposit_bill >= balance:
+                                if sum >= balance:
                                     break
 
                                 else:
                                     try:
-
-                                         deposit += self.changer_thread.socket_com('ACCEPT {}'.format(balance))
-                                         deposit_bill += self.bill_dispenser_thread.socket_com('ACCEPTBILL {}'.format(balance))
+                                        deposit = self.changer_thread.socket_com('ACCEPT {}'.format(balance))
+                                        deposit_bill = self.bill_dispenser_thread.socket_com('ACCEPTBILL {}'.format(balance))
                                     except Exception as ex:
                                         print ex
-                                    print 'VMC: Deposit: {}, Balance: {}'.format(deposit+deposit_bill, balance)
-                                    conn.sendall('DEPOSIT: {}'.format(deposit+deposit_bill))
+                                    if (deposit != 0 or deposit_bill != 0):
+                                        timeout_counter = default_timeout
+                                        sum += deposit_bill + deposit
+                                        print 'VMC: Deposit: {}, Balance: {}'.format(sum, balance)
+                                        conn.sendall('DEPOSIT {}'.format(sum))
+
+                                timeout_counter -= 1
+                                print "{}".format(timeout_counter)
+                                if timeout_counter <= 0:
+                                    timeout = False
+                                    break
 
                             sleep(0.5)
 
-                            if deposit+deposit_bill > balance:
-                                dif = float(deposit+deposit_bill-balance)
-                                print 'Dif: {}'.format(dif)
-
-                                conn.sendall('DIFFERENCE {}'.format(dif))
-                                try:
+                            if not timeout:
+                                print "TIMEOUT"
+                                conn.sendall('TIMEOUT {}'.format(sum))
+                            else:
+                                if sum > balance:
+                                    dif = float(sum-balance)
+                                    print 'Dif: {}'.format(dif)
+                                    self.bill_dispenser_thread.write_cmd(self.commands.BILL_DISABLE_ALL)
+                                    # TODO Lógica del dispense
+                                    #conn.sendall('DIFFERENCE {}'.format(0))
                                     self.changer_thread.socket_com('DISPENSE {}'.format(dif))
-                                    print "Dispensing"
-                                except Exception as ex:
-                                    print "{}".format(ex)
-                                    conn.sendall('DIFFERENCE {}'.format(dif))
-                            print 'Balance completed'
-                            conn.sendall('COMPLETE')
+                                print 'Balance completed'
+                                conn.sendall('COMPLETE')
 
                         elif data[0] == 'CANCEL':
                             self.bill_dispenser_thread.write_reject_escrow()
