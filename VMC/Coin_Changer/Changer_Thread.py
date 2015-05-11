@@ -175,9 +175,10 @@ class Changer(threading.Thread):
                 and (not self.read_thread.deposited_2) and (not self.read_thread.deposited_5)\
                 and (not self.read_thread.deposited_10):
             pass
-            time.sleep(.2)
+            time.sleep(1)
+        
 
-        self.write_thread.write_cmd(self.commands.disable_tubes())
+        print 'Coin deposited'
         if self.read_thread.deposited_50c:
             self.read_thread.deposited_50c = False
             return 0.5

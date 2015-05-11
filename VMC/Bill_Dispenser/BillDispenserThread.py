@@ -138,9 +138,13 @@ class BillDispenserThread(threading.Thread):
         """ Writes a Reject Escrow command."""
         self.write_cmd(self.commands.BILL_REJECT_ESCROW)
 
+    def write_disable_all(self):
+        "Writes a Disable All command"
+        self.write_cmd(self.commands.BILL_DISABLE_ALL)
+
     def init_sequence(self):
         """ Initialization sequence. """
-        self.write_enable_all()
+        self.write_disable_all()
         self.write_status()
         pass
 
@@ -220,32 +224,31 @@ class BillDispenserThread(threading.Thread):
 
     def write_accept(self):
 
-
         if(not self.deposited_20) and (not self.deposited_50) \
                 and (not self.deposited_100) and (not self.deposited_200):
             pass
             time.sleep(.5)
-        self.must_accept = False
-
-        time.sleep(2)
-        if self.deposited_20:
-            self.deposited_20 = False
-            return 20.0
-
-        elif self.deposited_50:
-            self.deposited_50 = False
-            return 50.0
-
-        elif self.deposited_100:
-            self.deposited_100 = False
-            return 100.0
-
-        elif self.deposited_200:
-            self.deposited_200 = False
-            return 200.0
-
-        else:
             return 0
+        else:
+
+            if self.deposited_20:
+                self.deposited_20 = False
+                return 20.0
+
+            elif self.deposited_50:
+                self.deposited_50 = False
+                return 50.0
+
+            elif self.deposited_100:
+                self.deposited_100 = False
+                return 100.0
+
+            elif self.deposited_200:
+                self.deposited_200 = False
+                return 200.0
+
+            else:
+                return 0
 
     def socket_com(self, command=''):
         cmd, param1 = command.split()
