@@ -13,6 +13,7 @@ class ReadThread(threading.Thread):
     available_50c, available_1, available_2, available_5 = 0, 0, 0, 0
     tubes = Tubes.Tubes()
     hopper_ok = False
+    dispense_error = False
 
     def __init__(self, thread_id, name):
         threading.Thread.__init__(self)
@@ -77,6 +78,12 @@ class ReadThread(threading.Thread):
                         print 'READER: Coins on tube_2: {}'.format(self.tubes.tube_2)
                         print 'READER: Coins on tube_5: {}'.format(self.tubes.tube_5)
 
+                    #Check for Hopper/Changer error responses
+                    elif reading[:-2] == 'H_DIS_TIMEOUT_':
+                        self.dispense_error = True
+
+                    elif reading[:-1] == 'C_DIS_ERROR':
+                        self.dispense_error = True
                     reading = ''
                 else:
                     reading += data
@@ -155,15 +162,19 @@ class Changer(threading.Thread):
                 self.write_thread.write_cmd(self.commands.hopper_dispense(quantity_10))
                 self.number_of_coins -= quantity_10
             if not quantity_5 == 0:
+                print "Dispensing Changer coins = " + str(quantity_5)
                 self.write_thread.write_cmd(self.commands.changer_dispense(4, quantity_5))
 
             if not quantity_2 == 0:
+                print "Dispensing Changer coins = " + str(quantity_2)
                 self.write_thread.write_cmd(self.commands.changer_dispense(3, quantity_2))
 
             if not quantity_1 == 0:
+                print "Dispensing Changer coins = " + str(quantity_1)
                 self.write_thread.write_cmd(self.commands.changer_dispense(2, quantity_1))
 
             if not quantity_50c == 0:
+                print "Dispensing Changer coins = " + str(quantity_50c)
                 self.write_thread.write_cmd(self.commands.changer_dispense(0, quantity_50c))
 
             self.write_thread.write_cmd(self.commands.disable_tubes())
