@@ -103,9 +103,14 @@ class VmcController(threading.Thread):
                                     dif = float(sum-balance)
                                     print 'Dif: {}'.format(dif)
                                     self.bill_dispenser_thread.write_cmd(self.commands.BILL_DISABLE_ALL)
-                                    # TODO Lógica del dispense
-                                    #conn.sendall('DIFFERENCE {}'.format(0))
                                     self.changer_thread.socket_com('DISPENSE {}'.format(dif))
+                                    if self.changer_thread.read_thread.dispense_error:
+                                        print "Error on dispense"
+                                        self.changer_thread.read_thread.dispense_error = False
+                                        if self.changer_thread.error_amount > 0:
+                                            conn.sendall('DIFFERENCE {}'.format(self.changer_thread.error_amount))
+                                        else:
+                                            conn.sendall('DIFFERENCE {}'.format(dif))
                                 print 'Balance completed'
                                 conn.sendall('COMPLETE')
 
