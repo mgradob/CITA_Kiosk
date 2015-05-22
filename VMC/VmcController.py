@@ -8,6 +8,7 @@ from VMC.Utils import Commands
 import socket
 import threading
 from time import sleep
+import datetime
 
 
 class VmcController(threading.Thread):
@@ -70,6 +71,8 @@ class VmcController(threading.Thread):
                             default_timeout = 15
                             timeout_counter = default_timeout
                             timeout = True
+                            timeout_date =  datetime.datetime.today() + datetime.timedelta(seconds=10)
+
                             while sum < balance:
 
                                 if sum >= balance:
@@ -83,34 +86,40 @@ class VmcController(threading.Thread):
                                         print ex
                                     if (deposit != 0 or deposit_bill != 0):
                                         timeout_counter = default_timeout
+                                        timeout_date =  datetime.datetime.today() + datetime.timedelta(seconds=10)
                                         sum += deposit_bill + deposit
-                                        print 'VMC: Deposit: {}, Balance: {}'.format(deposit+deposit_bill, balance)
-                                        conn.sendall('DEPOSIT {}'.format(deposit_bill+deposit))
+                                        print 'VMC: Deposit: {}, Balance: {}'.format(sum, balance)
+                                        conn.sendall('DEPOSIT {}'.format(sum))
 
                                 timeout_counter -= 1
                                 print "{}".format(timeout_counter)
-                                if timeout_counter <= 0:
+                                if datetime.datetime.today() > timeout_date:
                                     timeout = False
+                                    print "TIMEOUT POR TIEMPO"
                                     break
+
+                                #if timeout_counter <= 0:
+                                #    timeout = False
+                                #   break
 
                             sleep(0.5)
 
                             if not timeout:
-                                print "TIMEOUT"
                                 conn.sendall('TIMEOUT {}'.format(sum))
                             else:
-                                if sum > balance:
-                                    dif = float(sum-balance)
-                                    print 'Dif: {}'.format(dif)
-                                    self.bill_dispenser_thread.write_cmd(self.commands.BILL_DISABLE_ALL)
-                                    self.changer_thread.socket_com('DISPENSE {}'.format(dif))
-                                    if self.changer_thread.read_thread.dispense_error:
-                                        print "Error on dispense"
-                                        self.changer_thread.read_thread.dispense_error = False
-                                        if self.changer_thread.error_amount > 0:
-                                            conn.sendall('DIFFERENCE {}'.format(self.changer_thread.error_amount))
-                                        else:
-                                            conn.sendall('DIFFERENCE {}'.format(dif))
+                                dif = float(sum-balance)
+                                print 'Dif: {}'.format(dif)
+                                self.bill_dispenser_thread.write_cmd(self.commands.BILL_DISABLE_ALL)
+                                self.changer_thread.socket_com('DISPENSE {}'.format(dif))
+                                if self.changer_thread.read_thread.dispense_error:
+                                    print "Error on dispense"
+                                    self.changer_thread.read_thread.dispense_error = False
+                                    if self.changer_thread.error_amount > 0:
+                                        print "Amount"
+                                        conn.sendall('DIFFERENCE {}'.format(self.changer_thread.error_amount))
+                                    else:
+                                        print "Difference"
+                                        conn.sendall('DIFFERENCE {}'.format(dif))
                                 print 'Balance completed'
                                 conn.sendall('COMPLETE')
 

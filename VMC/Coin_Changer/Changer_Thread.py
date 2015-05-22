@@ -154,19 +154,23 @@ class Changer(threading.Thread):
             quantity_50c = int(cents) / 5
 
             # Dispense coins depending on the coins it should dispense.
-
+            print "Dispensing " + str(quantity_10) + " coins of 10"
+            print "Dispensing " + str(quantity_5) + " coins of 5"
+            print "Dispensing " + str(quantity_2) + " coins of 2"
+            print "Dispensing " + str(quantity_1) + " coins of 1"
+            print "Dispensing " + str(quantity_50c) + " coins of 50c"
             self.write_thread.write_cmd(self.commands.enable_tubes())
             #Check tubes status
             self.write_thread.write_cmd(self.commands.C_TUBE_STATUS)
             #Get available coins on each tube
             av_50c = self.read_thread.tubes.tube_50c
-            print "Available 50c = " + av_50c
+            print "Available 50c = " + str(av_50c)
             av_1 = self.read_thread.tubes.tube_1
-            print "Available 1 = " + av_1
+            print "Available 1 = " + str(av_1)
             av_2 = self.read_thread.tubes.tube_2
-            print "Available 2 = " + av_2
+            print "Available 2 = " + str(av_2)
             av_5 = self.read_thread.tubes.tube_5
-            print "Available 5 = " + av_5
+            print "Available 5 = " + str(av_5)
 
             if quantity_10 != 0 and quantity_10 <= self.number_of_coins:
                 print "Dispensing Hopper coins = " + str(quantity_10)
@@ -176,30 +180,43 @@ class Changer(threading.Thread):
             elif quantity_10 != 0 and quantity_10 > self.number_of_coins:
                 self.error_amount += quantity_10*10
                 self.read_thread.dispense_error = True
+                print "10 " + str(self.error_amount)
             if quantity_5 != 0 and quantity_5 <= av_5:
                 print "Dispensing Changer coins = " + str(quantity_5)
                 self.write_thread.write_cmd(self.commands.changer_dispense(4, quantity_5))
+                if self.read_thread.dispense_error:
+                    self.error_amount -= quantity_5*5
             elif quantity_5 != 0 and quantity_2 > av_5:
                 self.error_amount += quantity_5*5
                 self.read_thread.dispense_error = True
+                print "5 " + str(self.error_amount)
             if quantity_2 != 0 and quantity_2 <= av_2:
                 print "Dispensing Changer coins = " + str(quantity_2)
                 self.write_thread.write_cmd(self.commands.changer_dispense(3, quantity_2))
+                if self.read_thread.dispense_error:
+                    self.error_amount -= quantity_2*2
             elif quantity_2 != 0 and quantity_2 > av_2:
                 self.error_amount += quantity_2*2
                 self.read_thread.dispense_error = True
+                print "2 " + str(self.error_amount)
             if quantity_1 != 0 and quantity_1 <= av_1:
                 print "Dispensing Changer coins = " + str(quantity_1)
                 self.write_thread.write_cmd(self.commands.changer_dispense(2, quantity_1))
+                if self.read_thread.dispense_error:
+                    self.error_amount -= quantity_1
             elif quantity_1 != 0 and quantity_1 > av_1:
                 self.error_amount += quantity_1
                 self.read_thread.dispense_error = True
+                print " 1 " +str(self.error_amount)
             if quantity_50c != 0 and quantity_50c <= av_50c:
                 print "Dispensing Changer coins = " + str(quantity_50c)
                 self.write_thread.write_cmd(self.commands.changer_dispense(0, quantity_50c))
+                if self.read_thread.dispense_error:
+                    self.error_amount -= quantity_50c*.5
             elif quantity_50c != 0 and quantity_50c > av_50c:
                 self.error_amount += quantity_50c*.5
                 self.read_thread.dispense_error = True
+                print "50c " + str(self.error_amount)
 
             self.write_thread.write_cmd(self.commands.disable_tubes())
 
