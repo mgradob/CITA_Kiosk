@@ -1,3 +1,5 @@
+import json
+
 __author__ = 'mgradob'
 
 """ Imports """
@@ -5,6 +7,7 @@ import threading
 import serial
 from VMC.Utils import Commands, Tubes
 import time
+import requests
 
 class ReadThread(threading.Thread):
 
@@ -115,7 +118,25 @@ class Changer(threading.Thread):
     commands = Commands.VmcCommands()
     number_of_coins = 100 #dummy data for coins on hopper
     error_amount = 0
-    
+
+    def update_data(self):
+        self.write_thread.write_cmd(self.commands.C_TUBE_STATUS)
+        av_50c = self.read_thread.tubes.tube_50c
+        av_1 = self.read_thread.tubes.tube_1
+        av_2 = self.read_thread.tubes.tube_2
+        av_5 = self.read_thread.tubes.tube_5
+        coins_on_hopper = self.number_of_coins
+        data = [{'coin_50c': av_50c, 'coin_1': av_1, 'coin_2': av_2, 'coin_5': av_5,
+                 'hopper_coins': coins_on_hopper}]
+        json_data = json.dumps(data, default=lambda o: o.__dict__,
+                                sort_keys= True, indent=4)
+        url = "http://localhost:8000/Coins/"
+        print "Uploading to " + url
+        headers = {"Authorization": "Basic YWRtaW46YWRtaW4=",
+                   "Content-Type": "application/json"}
+        request = requests.post(url, data = json_data, headers = headers)
+        print request.status_code
+
     def start_serial(self):
         try:
             global serial_port
@@ -230,7 +251,6 @@ class Changer(threading.Thread):
             time.sleep(1)
         
 
-        print 'Coin deposited'
         if self.read_thread.deposited_50c:
             self.read_thread.deposited_50c = False
             return 0.5
@@ -248,6 +268,7 @@ class Changer(threading.Thread):
             return 5.0
 
         elif self.read_thread.deposited_10:
+            self.number_of_coins += 1
             self.read_thread.deposited_10 = False
             return 10.0
 
@@ -258,12 +279,14 @@ class Changer(threading.Thread):
         cmd, param1 = command.split()
 
         if cmd == 'DISPENSE':
+            self.update_data()
             units, cents = param1.split('.')
             self.write_dispense(units, cents)
 
             return 'OK'
 
         elif cmd == 'ACCEPT':
+            self.update_data()
             return self.write_accept()
 
         else:
