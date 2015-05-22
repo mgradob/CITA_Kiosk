@@ -105,6 +105,7 @@ class VmcController(threading.Thread):
                             sleep(0.5)
 
                             if not timeout:
+                                self.changer_thread.write_thread.write_cmd(self.changer_thread.commands.disable_tubes())
                                 conn.sendall('TIMEOUT {}'.format(sum))
                             else:
                                 dif = float(sum-balance)
