@@ -126,11 +126,14 @@ class Changer(threading.Thread):
         av_2 = self.read_thread.tubes.tube_2
         av_5 = self.read_thread.tubes.tube_5
         coins_on_hopper = self.number_of_coins
-        data = [{'coin_50c': av_50c, 'coin_1': av_1, 'coin_2': av_2, 'coin_5': av_5,
-                 'hopper_coins': coins_on_hopper}]
+        data = [{"currency_id":1,"currency_name":"50 centavos","currency_quantity":av_50c},
+                {"currency_id":2,"currency_name":"1 peso","currency_quantity":av_1},
+                {"currency_id": 3,"currency_name":"2 pesos","currency_quantity":av_2},
+                {"currency_id":4,"currency_name":"5 pesos","currency_quantity":av_5},
+                {"currency_id":5,"currency_name":"10 pesos","currency_quantity":coins_on_hopper}]
         json_data = json.dumps(data, default=lambda o: o.__dict__,
                                 sort_keys= True, indent=4)
-        url = "http://localhost:8000/Coins/"
+        url = "http://localhost:8000/Currency/"
         print "Uploading to " + url
         headers = {"Authorization": "Basic YWRtaW46YWRtaW4=",
                    "Content-Type": "application/json"}
