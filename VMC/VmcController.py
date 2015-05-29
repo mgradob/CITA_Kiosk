@@ -106,6 +106,7 @@ class VmcController(threading.Thread):
 
                             if not timeout:
                                 self.changer_thread.write_thread.write_cmd(self.changer_thread.commands.disable_tubes())
+                                self.bill_dispenser_thread.write_cmd(self.commands.BILL_DISABLE_ALL)
                                 conn.sendall('TIMEOUT {}'.format(sum))
                             else:
                                 dif = float(sum-balance)
@@ -125,6 +126,8 @@ class VmcController(threading.Thread):
                                 conn.sendall('COMPLETE')
 
                         elif data[0] == 'CANCEL':
+                            self.bill_dispenser_thread.write_cmd(self.commands.BILL_DISABLE_ALL)
+                            self.changer_thread.write_thread.write_cmd(self.changer_thread.commands.disable_tubes())
                             self.bill_dispenser_thread.write_reject_escrow()
                         else:
                             print('Incorrect cmd')
