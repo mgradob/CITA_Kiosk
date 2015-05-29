@@ -138,7 +138,7 @@ class Changer(threading.Thread):
         headers = {"Authorization": "Basic YWRtaW46YWRtaW4=",
                    "Content-Type": "application/json"}
         request = requests.post(url, data = json_data, headers = headers)
-        print request.status_code
+        print "Server response: " +  str(request.status_code)
 
     def start_serial(self):
         try:
