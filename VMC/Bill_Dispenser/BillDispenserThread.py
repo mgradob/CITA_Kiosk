@@ -223,7 +223,7 @@ class BillDispenserThread(threading.Thread):
                 print 'Serial error'
 
     def write_accept(self):
-
+        self.write_enable_all()
         if(not self.deposited_20) and (not self.deposited_50) \
                 and (not self.deposited_100) and (not self.deposited_200):
             pass
