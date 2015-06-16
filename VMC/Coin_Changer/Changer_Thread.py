@@ -27,6 +27,13 @@ class ReadThread(threading.Thread):
         self.reading()
 
     def reading(self):
+        """
+        Listens and reads the coin that is deposited through
+        the Changer, also checks for a case of error or timeout on
+        Hopper / Changer
+
+        :return:
+        """
         read, reading = True, ''
 
         while read:
@@ -120,6 +127,11 @@ class Changer(threading.Thread):
     error_amount = 0
 
     def update_data(self):
+        """
+        Update the data that is on the REST API, server.
+
+        :return:
+        """
         self.write_thread.write_cmd(self.commands.C_TUBE_STATUS)
         av_50c = self.read_thread.tubes.tube_50c
         av_1 = self.read_thread.tubes.tube_1
@@ -131,14 +143,14 @@ class Changer(threading.Thread):
                 {"currency_id": 3,"currency_name":"2 pesos","currency_quantity":av_2},
                 {"currency_id":4,"currency_name":"5 pesos","currency_quantity":av_5},
                 {"currency_id":5,"currency_name":"10 pesos","currency_quantity":coins_on_hopper}]
-        json_data = json.dumps(data, default=lambda o: o.__dict__,
-                                sort_keys= True, indent=4)
-        url = "http://localhost:8000/Currency/"
-        print "Uploading to " + url
         headers = {"Authorization": "Basic YWRtaW46YWRtaW4=",
                    "Content-Type": "application/json"}
-        request = requests.post(url, data = json_data, headers = headers)
-        print request.status_code
+        for id in xrange(1,5):
+            json_data = json.dumps(data[id], default=lambda o: o.__dict__,
+                                sort_keys= True, indent=4)
+            url = "http://localhost:8000/Currency/" + str(id) + "/"
+            request = requests.put(url, data = json_data, headers = headers)
+            print "Server response: " +  str(request.status_code)
 
     def start_serial(self):
         try:
@@ -196,6 +208,17 @@ class Changer(threading.Thread):
             av_5 = self.read_thread.tubes.tube_5
             print "Available 5 = " + str(av_5)
 
+            """
+
+                Check if the available coins are enough to dispense
+
+                params:
+                @quantity_x = coins to dispense
+                @av_coins = available coins
+                @dispense_error = flag to check if the changer couldn't dispense
+                @error_amount = amount to deposit in case of a changer dispense error
+
+            """
             if quantity_10 != 0 and quantity_10 <= self.number_of_coins:
                 print "Dispensing Hopper coins = " + str(quantity_10)
                 self.write_thread.write_cmd(self.commands.check_hopper())
@@ -208,6 +231,7 @@ class Changer(threading.Thread):
             if quantity_5 != 0 and quantity_5 <= av_5:
                 print "Dispensing Changer coins = " + str(quantity_5)
                 self.write_thread.write_cmd(self.commands.changer_dispense(4, quantity_5))
+                #In case of an already dispensing error, calculate the amount to deposit to user
                 if self.read_thread.dispense_error:
                     self.error_amount -= quantity_5*5
             elif quantity_5 != 0 and quantity_2 > av_5:
@@ -245,14 +269,24 @@ class Changer(threading.Thread):
             self.write_thread.write_cmd(self.commands.disable_tubes())
 
     def write_accept(self):
+        """
+         Check if a coin has been deposited, if that's the case,
+            return the value of the coin deposited
+
+            @deposited_x = coins that have been deposited
+            @number_of_coins = coins on hopper
+        :return:
+        """
+
+        # Enable the tubes for accepting of coins
         self.write_thread.write_cmd(self.commands.enable_tubes())
 
+        #Checks if a coin has been deposited
         if(not self.read_thread.deposited_50c) and (not self.read_thread.deposited_1) \
                 and (not self.read_thread.deposited_2) and (not self.read_thread.deposited_5)\
                 and (not self.read_thread.deposited_10):
             pass
             time.sleep(1)
-        
 
         if self.read_thread.deposited_50c:
             self.read_thread.deposited_50c = False
@@ -275,6 +309,7 @@ class Changer(threading.Thread):
             self.read_thread.deposited_10 = False
             return 10.0
 
+        # Not a coin deposited
         else:
             return 0
 

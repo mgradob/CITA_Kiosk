@@ -110,7 +110,7 @@ class BillDispenserThread(threading.Thread):
         except serial.SerialException:
             # If a SerialException is catch then must restart the communication.
             self.must_reset = True
-            sleep(sleep_thread)
+            time.sleep(sleep_thread)
             print 'Error'
             return ''
 
