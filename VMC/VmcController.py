@@ -68,10 +68,11 @@ class VmcController(threading.Thread):
                             balance, deposit, deposit_bill = float(data[1]), float(0), float(0)
                             sum = 0
                             self.bill_dispenser_thread.balance = balance
+                            # Change timeout
                             default_timeout = 15
                             timeout_counter = default_timeout
                             timeout = True
-                            timeout_date =  datetime.datetime.today() + datetime.timedelta(seconds=10)
+                            timeout_date = datetime.datetime.today() + datetime.timedelta(seconds=10)
 
                             while sum < balance:
 
@@ -85,6 +86,7 @@ class VmcController(threading.Thread):
                                     except Exception as ex:
                                         print ex
                                     if (deposit != 0 or deposit_bill != 0):
+                                        print "Deposited"
                                         timeout_counter = default_timeout
                                         timeout_date =  datetime.datetime.today() + datetime.timedelta(seconds=10)
                                         sum += deposit_bill + deposit
