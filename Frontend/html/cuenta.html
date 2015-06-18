@@ -18,7 +18,23 @@
 		<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.1.js"></script>
         <!-- Latest compiled and minified JavaScript -->
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        <script src="js/moment.js"></script>
+<style>
+    .log_detail{
+        display: inline-block;
+        float: right;
+    }
+    #detail_text{
+        padding-bottom: 60px;
+    }
+    #detail_text > div{
+        margin-bottom: 5px;
+        background: #3B8699;
+        padding: 10px;
+        color:white;
+    }
 
+</style>
 	</head>
 
 	<body class="background white">
@@ -27,46 +43,74 @@
             <div class="icon"><img src="Images/CuentaIcon.png"></div>
             <p class="subttitle"></p>
         </div>
-        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"></div>
-        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" id="main-text">
-            <div class="myAccount_screen">
-                <div class="user_data">
-                    <p>Usuario: <span class="rent_user">A00755343</span></p>
-                    <p>Nombre: <span class="rent_name">Justin Camaney</span></p>
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-4" id="main-text">
+                <div class="myAccount_screen">
+                    <div class="user_data">
+                        <p>Usuario: <span class="rent_user">A00755343</span></p>
+                        <p>Nombre: <span class="rent_name">Justin Camaney</span></p>
+                    </div>
+                    <div class="month_selection">
+                        <p>Estado de cuenta</p>
+                        <p>Mes:
+                            <div class="box_list">
+                                <select id="month">
+                                    <option value="01">Enero</option>
+                                    <option value="02">Febrero</option>
+                                    <option value="03">Marzo</option>
+                                    <option value="04">Abril</option>
+                                    <option value="05">Mayo</option>
+                                    <option value="06">Junio</option>
+                                    <option value="07">Julio</option>
+                                    <option value="08">Agosto</option>
+                                    <option value="09">Septiembre</option>
+                                    <option value="10">Octubre</option>
+                                    <option value="11">Noviembre</option>
+                                    <option value="12">Diciembre</option>
+                                </select>
+                            </div>
+                        </p>
+                    </div>
+                    <div class="summary">
+                        <p>Resumen</p>
+                        <p class="content">Número de transacciones: <div><span class="transactions">0</span></div></p>
+                        <p class="content">Monto pagado: <div><span class="pay_done">0</span></div></p>
+                    </div>
+                    <button id="detail_btn"><img src="Images/Detail.png"><p>Detalle</p></button>
                 </div>
-                <div class="month_selection">
-                    <p>Estado de cuenta</p>
-                    <p>Mes:
-                        <div class="box_list">
-                            <select id="month">
-                                <option value="enero">Enero</option>
-                                <option value="febrero">Febrero</option>
-                                <option value="marzo">Marzo</option>
-                                <option value="abril">Abril</option>
-                                <option value="mayo">Mayo</option>
-                                <option value="junio">Junio</option>
-                                <option value="julio">Julio</option>
-                                <option value="agosto">Agosto</option>
-                                <option value="septiembre">Septiembre</option>
-                                <option value="octubre">Octubre</option>
-                                <option value="noviembre">Noviembre</option>
-                                <option value="diciembre">Diciembre</option>
-                            </select>
-                        </div> 
-                    </p>
+                <div id="contact" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                    <img src="Images/Contact.png">
                 </div>
-                <div class="summary">
-                    <p>Resumen</p>
-                    <p class="content">Número de transacciones: <div><span class="transactions">4</span></div></p>
-                    <p class="content">Monto pagado: <div><span class="pay_done">$100</span></div></p>
-                </div>
-                <button id="detail_btn"><img src="Images/Detail.png"><p>Detalle</p></button>
             </div>
-            <div id="contact" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                <img src="Images/Contact.png">
+            <div class="col-md-3">
+                <div id="loader" class="hidden">
+                    <div class="spinner">
+                        <div class="spinner-container container1">
+                            <div class="circle1"></div>
+                            <div class="circle2"></div>
+                            <div class="circle3"></div>
+                            <div class="circle4"></div>
+                        </div>
+                        <div class="spinner-container container2">
+                            <div class="circle1"></div>
+                            <div class="circle2"></div>
+                            <div class="circle3"></div>
+                            <div class="circle4"></div>
+                        </div>
+                            <div class="spinner-container container3">
+                            <div class="circle1"></div>
+                            <div class="circle2"></div>
+                            <div class="circle3"></div>
+                            <div class="circle4"></div>
+                        </div>
+                    </div>
+                </div>
+                <div  id="detail_text"></div>
             </div>
         </div>
-        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"></div>
+
+
         <div id="bottom">
             <div class="footer">
                 <p class="contact">Contacto</p>

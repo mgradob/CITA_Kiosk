@@ -18,6 +18,7 @@
 		<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.1.js"></script>
         <!-- Latest compiled and minified JavaScript -->
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        <script src="js/moment.js"></script>
 
 	</head>
 
@@ -27,96 +28,149 @@
             <div class="icon"><img src="Images/SolicitarIcon.png"></div>
             <p class="subttitle"></p>
         </div>
-        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"></div>
-        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" id="main-text">
-            <div class="confirm_screen">
-                <div class="rent_fields">
-                    <ul class="fields_list">
-                        <li>RENTA:</li>
-                        <li>Usuario:</li>
-                        <li>Nombre:</li>
-                        <li>Inicio:</li>
-                        <li class="rent_end">Término:</li>
-                    </ul>
-                </div>
-                <div class="rent_values">
-                    <ul class="values_list">
-                        <li class="rent_type"></li>
-                        <li class="rent_user"></li>
-                        <li class="rent_name"></li>
-                        <li class="rent_start"></li>
-                        <li class="rent_end" id="rent_end"></li>
-                    </ul>
-                </div>
-                <div class="locker_data">
-                    <div class="locker_number">
-                        <p>Locker asignado</p>
-                        <p class="locker_id"></p>
-                    </div>
-                    <div class="locker_zone">
-                        <p>Zona</p>
-                        <p class="zone_id"></p>
+        <div class="row">
+            <div class="col-md-2 "></div>
+            <div class="col-md-8" id="main-text">
+
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="payment_stats jumbotron">
+                            <p class="total_cost">Total: $<span id="total">100</span></p>
+                            <p class="cant_toPay hidden">Saldo pagado: $<span class="payment">0</span></p>
+                        </div>
                     </div>
                 </div>
-                <button class="change_btn">Cambiar <img class="changeBtn_img" src="Images/CambiarIcon1.png"></button>
-                <div class="payment_stats">
-                    <p class="total_cost">Total: $<span id="total">100</span></p>
-                    <p class="cant_toPay hidden">Saldo pagado: $<span class="payment">0</span></p>
-                </div>
-                <div class="start_payment hidden">¡ COMIENZA A PAGAR !</div>
-                <div class="confirm_button">
-                    <button type="button" class="confirmBtn">CONFIRMAR RENTA</button>
-                </div>
-                <div id="takeCard" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                    <img src="Images/Retirar.png">
-                </div>
-            </div>
-            <div id="procesando" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-body">
-                            <p>PROCESANDO...</p>
-                            <p>POR FAVOR ESPERE</p>
-                            <div class="spinner">
-                              <div class="spinner-container container1">
-                                <div class="circle1"></div>
-                                <div class="circle2"></div>
-                                <div class="circle3"></div>
-                                <div class="circle4"></div>
-                              </div>
-                              <div class="spinner-container container2">
-                                <div class="circle1"></div>
-                                <div class="circle2"></div>
-                                <div class="circle3"></div>
-                                <div class="circle4"></div>
-                              </div>
-                              <div class="spinner-container container3">
-                                <div class="circle1"></div>
-                                <div class="circle2"></div>
-                                <div class="circle3"></div>
-                                <div class="circle4"></div>
-                              </div>
+
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="confirm_screen">
+                            <div class="rent_fields">
+                                <ul class="fields_list">
+                                    <li>RENTA:</li>
+                                    <li>Usuario:</li>
+                                    <li>Nombre:</li>
+                                    <li>Inicio:</li>
+                                    <li class="rent_end">Término:</li>
+                                </ul>
+                            </div>
+                            <div class="rent_values">
+                                <ul class="values_list">
+                                    <li class="rent_type"></li>
+                                    <li class="rent_user"></li>
+                                    <li class="rent_name"></li>
+                                    <li class="rent_start"></li>
+                                    <li class="rent_end" id="rent_end"></li>
+                                </ul>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="locker_information">
+                            <div class="locker_number">
+                                <p>Locker asignado</p>
+                                <p class="locker_id"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="locker_information">
+                            <div class="locker_information">
+                                <p>Zona</p>
+                                <p class="zone_id"></p>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div id="contact" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                <img src="Images/Contact.png">
-            </div>
-            <div id="cancelar" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-body">
-                            <p>¿ SEGURO QUE DESEAS CANCELAR ?</p>
-                            <button type="button" id="sicancelar" class="btn btn-default">SI</button>
-                            <button type="button" id="nocancelar" class="btn btn-default" data-dismiss="modal">NO</button>
+
+                <div class="row hidden">
+                    <div class="col-md-6">
+                        <button class="change_btn">
+                            Cambiar <img class="changeBtn_img" src="Images/CambiarIcon1.png">
+                        </button>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-3"></div>
+                    <div class="col-md-6">
+                        <div class="start_payment hidden">¡ COMIENZA A PAGAR !</div>
+                        <div class="confirm_button">
+                            <button type="button" class="confirmBtn">CONFIRMAR RENTA</button>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"></div>
+
+        <div id="takeCard" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <img src="Images/Retirar.png">
+        </div>
+         <div id="procesando" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <p>ESCRIBIENDO EN LA TARJETA...</p>
+                        <p>POR FAVOR ESPERE</p>
+                        <div class="spinner">
+                          <div class="spinner-container container1">
+                            <div class="circle1"></div>
+                            <div class="circle2"></div>
+                            <div class="circle3"></div>
+                            <div class="circle4"></div>
+                          </div>
+                          <div class="spinner-container container2">
+                            <div class="circle1"></div>
+                            <div class="circle2"></div>
+                            <div class="circle3"></div>
+                            <div class="circle4"></div>
+                          </div>
+                          <div class="spinner-container container3">
+                            <div class="circle1"></div>
+                            <div class="circle2"></div>
+                            <div class="circle3"></div>
+                            <div class="circle4"></div>
+                          </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="contact" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <img src="Images/Contact.png">
+        </div>
+        <div id="modal_abono" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <p id="msg_abono">EL SALDO SERÁ ABONADO A TU CUENTA </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="cancelar" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <p>¿ SEGURO QUE DESEAS CANCELAR ?</p>
+                        <button type="button" id="sicancelar" class="btn btn-default">SI</button>
+                        <button type="button" id="nocancelar" class="btn btn-default" data-dismiss="modal">NO</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="cancelarpago" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-body">
+                        <p>¿ DESEAS SEGUIR ABONANDO ?</p>
+                        <button type="button" id="sicancelarpago" class="btn btn-default">SI</button>
+                        <button type="button" id="nocancelarpago" class="btn btn-default" data-dismiss="modal">NO</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div id="bottom">
             <div class="footer">
                 <p class="contact">Contacto</p>

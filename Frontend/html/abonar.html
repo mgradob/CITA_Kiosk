@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<title>Web Socket Test</title>
+
+        <!-- Latest compiled and minified CSS -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+
+		<!-- Optional theme -->
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap-theme.min.css">
+
+        <link rel="stylesheet" href="css/style.css">
+        <link href='http://fonts.googleapis.com/css?family=Roboto:400,300,100' rel='stylesheet' type='text/css'>
+
+		<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.1.js"></script>
+        <!-- Latest compiled and minified JavaScript -->
+		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+        <script src="js/moment.js"></script>
+	</head>
+	<body class="background white">
+        <div class="header_menu" id="menu">
+            <p class="tittle">MENÚ</p>
+            <div class="icon_space"></div>
+            <p class="subttitle"></p>
+        </div>
+        <div class="col-md-2"></div>
+        <div class="col-md-8" id="main-text">
+            <div class="row">
+                <div class="jumbotron">
+                    <p>Tienes un saldo a favor de <span id="net_balance"></span></p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-3"></div>
+                <div class="col-md-6">
+                    <!--<div class="start_payment ">¡ COMIENZA A PAGAR !</div>-->
+                    <div class="confirm_button">
+                        <button type="button" class="abonarBtn">COMENZAR A ABONAR</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="bottom">
+            <div class="footer">
+                <p class="contact">Contacto</p>
+                <div class="foot_btns">
+                    <button type="button" class="foot_button" id="return_btn"><img src="Images/Return.png"></button>
+                    <button type="button" class="foot_button" id="home_btn"><img src="Images/Home.png"></button>
+                </div>
+            </div>
+        </div>
+        <script src="app.js"></script>
+        <script src="carhartl-jquery-cookie-92b7715/jquery.cookie.js"></script>
+	</body>
+
+</html>

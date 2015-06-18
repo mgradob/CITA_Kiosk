@@ -12,10 +12,10 @@ class LockerSocket():
      Thread to manage communication with Salto Lockers.
     """
 
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.connect(("gmail.com",80))
-    myHost = s.getsockname()[0]
-    s.close()
+    # s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    # s.connect(("gmail.com",80))
+    myHost = "localhost" # s.getsockname()[0]
+    # s.close()
 
     """ Global Variables """
     sock = None

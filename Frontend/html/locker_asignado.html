@@ -18,6 +18,7 @@
 		<script type="text/javascript" src="http://code.jquery.com/jquery-1.11.1.js"></script>
         <!-- Latest compiled and minified JavaScript -->
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        <script src="js/moment.js"></script>
 
 	</head>
 
@@ -27,41 +28,62 @@
             <div class="icon_space"></div>
             <p class="subttitle"></p>
         </div>
-        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
-            <div id="finish_date">Fecha de entrega de locker: <span class="finish_date">10-Dic-2014</span></div>
-            <div class="byTime_elements hidden">
-                <div class="elapsed_time">
-                    <p>Tiempo de uso: <span id="elapsed_time">#</span></p>
-                    <p>Saldo a pagar: $ <span id="cant_toPay">#</span></p>
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-8">
+                <div class="row jumbotron">
+                    <div class="row">
+                        <div id="finish_date">
+                            Fecha de entrega de locker: <span class="finish_date">10-Dic-2014</span>
+                        </div>
+                    </div>
+                    <div class="row byTime_elements hidden">
+                        <div class="elapsed_time row">
+                            <p>Tiempo de uso: <span id="elapsed_time">#</span></p>
+                            <p>Saldo a pagar: $ <span id="cant_toPay">#</span></p>
+                            <p>Balance de usuario: $ <span id="user_balance">#</span></p>
+                        </div>
+                        <div class="row" style="text-align:center;">
+                            <button id="pay_btn">PAGAR</button>
+                        </div>
+                    </div>
                 </div>
-                <button id="pay_btn">PAGAR</button>
             </div>
         </div>
-        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" id="main-text">
-            <div class="assign_screen">
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div class="col-md-8" id="main-text">
+                <div class="row">
+                    <div class="col-md-3">
+                        <button class="btn_locker_assign" id="cuentaBtn"><img src="Images/MiCuenta2.png"></button>
+                    </div>
+                    <div class="col-md-3">
+                        <button class="btn_locker_assign" id="reportarBtn"><img src="Images/Reportar.png"></button>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="locker_information">
+                            <p>Locker asignado</p>
+                            <p class="locker_id"></p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="locker_information">
+                            <p>Zona</p>
+                            <p class="zone_id"></p>
+                        </div>
 
-                <div class="cuentaBtn_area">
-                    <button class="cuenta_btn2" id="cuentaBtn"><img src="Images/MiCuenta2.png"></button>
-                </div>
-                <div class="reportBtn_area">
-                    <button class="report_btn" id="reportarBtn"><img src="Images/Reportar.png"></button>
-                </div>
-                <div class="locker_info">
-                    <div class="locker_number">
-                        <p>Locker asignado</p>
-                        <p class="locker_id"></p>
-                    </div>
-                    <div class="locker_zone">
-                        <p>Zona</p>
-                        <p class="zone_id"></p>
                     </div>
                 </div>
-            </div>
-            <div id="contact" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                <img src="Images/Contact.png">
+                <div class="assign_screen">
+                    <div class="locker_information">
+                    </div>
+                </div>
+                <div id="contact" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                    <img src="Images/Contact.png">
+                </div>
             </div>
         </div>
-        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"></div>
+
         <div id="bottom">
             <div class="footer">
                 <p class="contact">Contacto</p>

@@ -27,13 +27,6 @@ class ReadThread(threading.Thread):
         self.reading()
 
     def reading(self):
-        """
-        Listens and reads the coin that is deposited through
-        the Changer, also checks for a case of error or timeout on
-        Hopper / Changer
-
-        :return:
-        """
         read, reading = True, ''
 
         while read:
@@ -45,22 +38,22 @@ class ReadThread(threading.Thread):
                     print 'Received: {}'.format(reading)
 
                     if reading[:-2] == 'C_CDM_50':
-                        available_50c = int(reading[-2:])
+                        available_50c = int(reading[-2:],16)
                         print 'READER: 1 coin $0.5, in tube: {}'.format(available_50c)
                         self.deposited_50c = True
 
                     elif reading[:-2] == 'C_CDM_52':
-                        available_1 = int(reading[-2:])
+                        available_1 = int(reading[-2:],16)
                         print 'READER: 1 coin $1.0, in tube: {}'.format(available_1)
                         self.deposited_1 = True
 
                     elif reading[:-2] == 'C_CDM_53':
-                        available_2 = int(reading[-2:])
+                        available_2 = int(reading[-2:],16)
                         print 'READER: 1 coin $2.0, in tube: {}'.format(available_2)
                         self.deposited_2 = True
 
                     elif reading[:-2] == 'C_CDM_54':
-                        available_5 = int(reading[-2:])
+                        available_5 = int(reading[-2:],16)
                         print 'READER: 1 coin $5.0, in tube: {}'.format(available_5)
                         self.deposited_5 = True
 
@@ -70,10 +63,10 @@ class ReadThread(threading.Thread):
 
                     elif reading[:6] == 'C_TUB_':
                         self.tubes.full_tubes = reading[7:10]
-                        self.tubes.tube_50c = int(reading[11:12])
+                        self.tubes.tube_50c = int(reading[11:12], 16)
                         self.tubes.tube_1 = int(reading[13:16])
-                        self.tubes.tube_2 = int(reading[17:18])
-                        self.tubes.tube_5 = int(reading[19:20])
+                        self.tubes.tube_2 = int(reading[17:18], 16)
+                        self.tubes.tube_5 = int(reading[19:20], 16)
 
                     #Check for hopper availability
                     elif reading == 'H_STA_OK<':
@@ -127,11 +120,6 @@ class Changer(threading.Thread):
     error_amount = 0
 
     def update_data(self):
-        """
-        Update the data that is on the REST API, server.
-
-        :return:
-        """
         self.write_thread.write_cmd(self.commands.C_TUBE_STATUS)
         av_50c = self.read_thread.tubes.tube_50c
         av_1 = self.read_thread.tubes.tube_1
@@ -143,14 +131,17 @@ class Changer(threading.Thread):
                 {"currency_id": 3,"currency_name":"2 pesos","currency_quantity":av_2},
                 {"currency_id":4,"currency_name":"5 pesos","currency_quantity":av_5},
                 {"currency_id":5,"currency_name":"10 pesos","currency_quantity":coins_on_hopper}]
-        headers = {"Authorization": "Basic YWRtaW46YWRtaW4=",
+        json_data = json.dumps(data, default=lambda o: o.__dict__,
+                                sort_keys= True, indent=4)
+        url = "http://localhost:8000/Currency/"
+        print "Uploading to " + url
+        headers = {"Authorization": "Basic YmVjYXJpbzpiZWNhcmlv",
                    "Content-Type": "application/json"}
         for id in xrange(1,5):
             json_data = json.dumps(data[id], default=lambda o: o.__dict__,
                                 sort_keys= True, indent=4)
             url = "http://localhost:8000/Currency/" + str(id) + "/"
             request = requests.put(url, data = json_data, headers = headers)
-            print "Server response: " +  str(request.status_code)
 
     def start_serial(self):
         try:
@@ -174,6 +165,7 @@ class Changer(threading.Thread):
         self.write_thread.write_cmd(self.commands.C_TUBE_STATUS)
         self.write_thread.write_cmd(self.commands.C_EXPANSION)
         self.write_thread.write_cmd(self.commands.disable_tubes())
+        self.update_data()
 
     def write_dispense(self, units=0, cents=0):
             """ Writes a Dispense command. Also evaluates which coins should be dispensed. """
@@ -207,17 +199,26 @@ class Changer(threading.Thread):
             print "Available 2 = " + str(av_2)
             av_5 = self.read_thread.tubes.tube_5
             print "Available 5 = " + str(av_5)
+            #Chopper
+            if quantity_10 != 0:
+                print "Dispensing Hopper coins = " + str(quantity_10)
+                self.write_thread.write_cmd(self.commands.check_hopper())
+                self.write_thread.write_cmd(self.commands.hopper_dispense(quantity_10))
+                self.number_of_coins -= quantity_10
+            if quantity_5 != 0:
+                print "Dispensing Changer coins = " + str(quantity_5)
+                self.write_thread.write_cmd(self.commands.changer_dispense(4, quantity_5))
+            if quantity_2 != 0:
+                print "Dispensing Changer coins = " + str(quantity_2)
+                self.write_thread.write_cmd(self.commands.changer_dispense(3, quantity_2))
+            if quantity_1 != 0:
+                print "Dispensing Changer coins = " + str(quantity_1)
+                self.write_thread.write_cmd(self.commands.changer_dispense(2, quantity_1))
+            if quantity_50c != 0:
+                print "Dispensing Changer coins = " + str(quantity_50c)
+                self.write_thread.write_cmd(self.commands.changer_dispense(0, quantity_50c))
 
-            """
-
-                Check if the available coins are enough to dispense
-
-                params:
-                @quantity_x = coins to dispense
-                @av_coins = available coins
-                @dispense_error = flag to check if the changer couldn't dispense
-                @error_amount = amount to deposit in case of a changer dispense error
-
+            #Abonar
             """
             if quantity_10 != 0 and quantity_10 <= self.number_of_coins:
                 print "Dispensing Hopper coins = " + str(quantity_10)
@@ -231,7 +232,6 @@ class Changer(threading.Thread):
             if quantity_5 != 0 and quantity_5 <= av_5:
                 print "Dispensing Changer coins = " + str(quantity_5)
                 self.write_thread.write_cmd(self.commands.changer_dispense(4, quantity_5))
-                #In case of an already dispensing error, calculate the amount to deposit to user
                 if self.read_thread.dispense_error:
                     self.error_amount -= quantity_5*5
             elif quantity_5 != 0 and quantity_2 > av_5:
@@ -265,28 +265,16 @@ class Changer(threading.Thread):
                 self.error_amount += quantity_50c*.5
                 self.read_thread.dispense_error = True
                 print "50c " + str(self.error_amount)
-
+            """
             self.write_thread.write_cmd(self.commands.disable_tubes())
 
     def write_accept(self):
-        """
-         Check if a coin has been deposited, if that's the case,
-            return the value of the coin deposited
-
-            @deposited_x = coins that have been deposited
-            @number_of_coins = coins on hopper
-        :return:
-        """
-
-        # Enable the tubes for accepting of coins
-        self.write_thread.write_cmd(self.commands.enable_tubes())
-
-        #Checks if a coin has been deposited
+        print('ready to accept coins')
         if(not self.read_thread.deposited_50c) and (not self.read_thread.deposited_1) \
                 and (not self.read_thread.deposited_2) and (not self.read_thread.deposited_5)\
                 and (not self.read_thread.deposited_10):
             pass
-            time.sleep(1)
+
 
         if self.read_thread.deposited_50c:
             self.read_thread.deposited_50c = False
@@ -309,7 +297,6 @@ class Changer(threading.Thread):
             self.read_thread.deposited_10 = False
             return 10.0
 
-        # Not a coin deposited
         else:
             return 0
 
@@ -324,7 +311,7 @@ class Changer(threading.Thread):
             return 'OK'
 
         elif cmd == 'ACCEPT':
-            self.update_data()
+            print 'command accept'
             return self.write_accept()
 
         else:

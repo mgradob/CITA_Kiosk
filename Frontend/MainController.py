@@ -147,6 +147,8 @@ class EchoApplication(WebSocketApplication):
                                 self.data_holder.end_date = str_locker_end
                                 print payment
 
+                            # TODO Set locker free if it's not confirmed after X time
+
                             # if it's by semester, check if the
                             elif str_locker_rent_type == 'by_semester':
                                 fmt2 = '%Y-%m-%dT%H:%M:%SZ'
@@ -501,6 +503,7 @@ class EchoApplication(WebSocketApplication):
                         if ok_msg.rent_type == 'by_semester':
                             api_msg.confirm_assign_locker(self.data_holder.user_locker, True)
                         elif ok_msg.rent_type == 'by_time':
+                            #api_msg.confirm_assign_locker(self.data_holder.user_locker, True) #Cambiado el 16/Junio/15 #No funcionó
                             api_msg.set_locker_available(self.data_holder.user_locker)
 
                         # RETURN PAID MESSAGE TO FRONTEND

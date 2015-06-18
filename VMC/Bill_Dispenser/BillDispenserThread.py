@@ -158,44 +158,34 @@ class BillDispenserThread(threading.Thread):
 
                 self.must_reset = False
                 self.init_sequence()
+
                 while not self.must_reset:
                     reading = 0
                     if self.com_port.inWaiting() > 0:
                         reading = self.com_port.read()
-                        reading = ord(reading)
-                        #print reading
+                        try:
+                            reading = ord(reading)
+                            print reading
+                        except Exception as ex:
+                            pass
 
-                    if self.must_accept and self.bill_count == 0 and not self.first_run:
-                        print "Initializing bill escrow..."
-                        self.first_run = True
-                    elif self.bill_count >= self.balance and self.first_run:
-                        print "MORE THAN BALANCE"
-                        self.must_accept = False
-                        self.balance = 0
-                        self.bill_count = 0
-                        self.first_run = False
-                        self.socket_response = 'FINISHED {}'.format(self.bill_count - self.balance)
-                    elif self.must_accept:
+                    if self.must_accept:
                         if reading == 120:
                             print 'Validator Busy'
                         elif reading == 121:
                             print 'Validator Ready'
                         elif reading == 1:
                             self.bill_type = 1
-                            self.com_port.write(self.commands.BILL_ACCEPT_ESCROW['cmd'])
                             self.deposited_20 = True
                         elif reading == 2:
                             self.bill_type = 2
                             self.deposited_50 = True
-                            self.com_port.write(self.commands.BILL_ACCEPT_ESCROW['cmd'])
                         elif reading == 3:
                             self.bill_type = 3
                             self.deposited_100 = True
-                            self.com_port.write(self.commands.BILL_ACCEPT_ESCROW['cmd'])
                         elif reading == 4:
                             self.bill_type = 4
                             self.deposited_200 = True
-                            self.com_port.write(self.commands.BILL_ACCEPT_ESCROW['cmd'])
                         elif reading == 5:
                                 self.com_port.write(self.commands.BILL_REJECT_ESCROW['cmd'])
                         elif reading == 172:
@@ -223,7 +213,6 @@ class BillDispenserThread(threading.Thread):
                 print 'Serial error'
 
     def write_accept(self):
-        self.write_enable_all()
         if(not self.deposited_20) and (not self.deposited_50) \
                 and (not self.deposited_100) and (not self.deposited_200):
             pass

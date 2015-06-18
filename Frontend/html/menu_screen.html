@@ -19,6 +19,7 @@
         <!-- Latest compiled and minified JavaScript -->
 		<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 
+        <script src="js/moment.js"></script>
 	</head>
 
 	<body class="background white">
@@ -27,15 +28,25 @@
             <div class="icon_space"></div>
             <p class="subttitle"></p>
         </div>
-        <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"></div>
-        <div class="col-xs-6 col-sm-6 col-md-6 col-lg-6" id="main-text">
-            <div class="menu">
-                <button type="button" class="solicitar_btn" id="solicitarBtn"><img src="Images/SolicitarLocker.png"></button>
-                <button type="button" class="cuenta_btn" id="cuentaBtn"><img src="Images/MiCuenta.png"></button>
+        <div class="col-md-2"></div>
+        <div class="col-md-8" id="main-text">
+            <div class="row">
+                <div class="jumbotron">
+                    <p>Tienes un saldo a favor de <span id="net_balance"></span></p>
+                </div>
             </div>
-            <div id="contact" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-                <img src="Images/Contact.png">
+            <div class="row">
+                <div class="menu">
+                    <button type="button" class="confirmar_btn hidden" id="confirmarBtn"><img src="Images/SolicitarLocker.png"></button>
+                    <button type="button" class="solicitar_btn" id="solicitarBtn"><img src="Images/SolicitarLocker.png"></button>
+                    <!--<button type="button" class="abonar_btn" id="abonarBtn"><img src="Images/SolicitarLocker.png"></button>-->
+                    <button type="button" class="cuenta_btn" id="cuentaBtn"><img src="Images/MiCuenta.png"></button>
+                </div>
+                <div id="contact" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                    <img src="Images/Contact.png">
+                </div>
             </div>
+
         </div>
         <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3"></div>
         <div id="bottom">

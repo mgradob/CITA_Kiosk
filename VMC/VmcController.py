@@ -65,9 +65,9 @@ class VmcController(threading.Thread):
 
                         elif data[0] == 'ACCEPT':
                             self.bill_dispenser_thread.write_cmd(self.commands.BILL_ENABLE_ALL)
+                            self.changer_thread.write_thread.write_cmd(self.changer_thread.commands.enable_tubes())
                             balance, deposit, deposit_bill = float(data[1]), float(0), float(0)
                             sum = 0
-                            self.bill_dispenser_thread.balance = balance
                             # Change timeout
                             default_timeout = 15
                             timeout_counter = default_timeout
@@ -81,6 +81,7 @@ class VmcController(threading.Thread):
 
                                 else:
                                     try:
+                                        print 'listening to receive'
                                         deposit = self.changer_thread.socket_com('ACCEPT {}'.format(balance))
                                         deposit_bill = self.bill_dispenser_thread.socket_com('ACCEPTBILL {}'.format(balance))
                                     except Exception as ex:
@@ -114,6 +115,7 @@ class VmcController(threading.Thread):
                                 dif = float(sum-balance)
                                 print 'Dif: {}'.format(dif)
                                 self.bill_dispenser_thread.write_cmd(self.commands.BILL_DISABLE_ALL)
+                                self.changer_thread.write_thread.write_cmd(self.changer_thread.commands.disable_tubes())
                                 self.changer_thread.socket_com('DISPENSE {}'.format(dif))
                                 if self.changer_thread.read_thread.dispense_error:
                                     print "Error on dispense"
@@ -130,7 +132,6 @@ class VmcController(threading.Thread):
                         elif data[0] == 'CANCEL':
                             self.bill_dispenser_thread.write_cmd(self.commands.BILL_DISABLE_ALL)
                             self.changer_thread.write_thread.write_cmd(self.changer_thread.commands.disable_tubes())
-                            self.bill_dispenser_thread.write_reject_escrow()
                         else:
                             print('Incorrect cmd')
                             conn.sendall('ERROR')

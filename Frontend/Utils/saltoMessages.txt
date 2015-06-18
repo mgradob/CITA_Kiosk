@@ -38,6 +38,22 @@ STP/00/500/<?xml version="1.0" encoding="ISO-8859-1"?>
 </Params>
 </RequestCall>
 
+STP/00/500/<?xml version="1.0" encoding="ISO-8859-1"?>
+<RequestCall>
+<RequestName> SaltoDBUser.Update </RequestName>
+<Params>
+<SaltoDBUser>
+<ExtUserID> ID de User </ExtUserID>
+<SaltoDB.AccessPermissionList.User_Door>
+<SaltoDB.AccessPermission.User_Door>
+<ExtDoorID> ID de Locker </ExtDoorID>
+</SaltoDB.AccessPermission.User_Door>
+</SaltoDB.AccessPermissionList.User_Door>
+<UserExpiration.Enabled> 1 </UserExpiration.Enabled>
+<UserExpiration> 2014-08-28T11:10:00 </UserExpiration>
+</SaltoDBUser>
+</Params>
+</RequestCall>
 
 /* Assign Access Level */
 

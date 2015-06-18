@@ -33,6 +33,7 @@ var main = function() {
 			$userId = jsonMsg.params.matricula;
 			$userName = jsonMsg.params.nombre;
 			$bill = jsonMsg.params.pago;
+			$balance = jsonMsg.params.balance;
 			$area = jsonMsg.params.area;
 			$.cookie('locker', $locker);
 			$.cookie('locker_id', $locker_id);
@@ -45,6 +46,7 @@ var main = function() {
 			$.cookie('userName', $userName);
 			$.cookie('bill', $bill);
 			$.cookie('area', $area);
+			$.cookie('balance', $balance);
 			//Si el usuario tiene locker asignado y la renta ha sido confirmada se va a la pantalla
 			if ($registered == "True" && $locker_confirmed == "True"){
 				window.location.href = "locker_asignado.html";
@@ -57,6 +59,11 @@ var main = function() {
 	/*funcion botón solicitar en menu principal*/
 	$('#solicitarBtn').click(function() {
 		window.location.href = "solicitar.html";
+	});
+
+	/*funcion botón solicitar en menu principal*/
+	$('#abonarBtn').click(function() {
+		window.location.href = "abonar.html";
 	});
 
 	/*funcion elementos en menu de solicitar*/
@@ -159,6 +166,7 @@ var main = function() {
 
 	/*funcion para establecer valores de pantalla*/
 	window.onload = function() {
+        moment.locale('es');
 		var command = $.cookie('command');
 
 		if (typeof command == "undefined") command = "";
@@ -167,13 +175,18 @@ var main = function() {
 		$('.subttitle').text("Bienvenido: " + $.cookie('userName'));
 		$('.rent_user').text($.cookie('userId'));
 		$('.rent_name').text($.cookie('userName'));
-		$('.rent_start').text($.cookie('startDate'));
+		try{
+		    rent_start = moment($.cookie('startDate')).format("DD/MMMM/YYYY hh:mm a");
+		}catch(e){
+            console.log(e);
+            rent_start = "NONE";
+		}
+		$('.rent_start').text(rent_start);
 
 		$('.locker_id').text($.cookie('locker'));
 		$('.zone_id').text($.cookie('area'));
 		$('#total').html($.cookie('total'));
 
-        console.log($.cookie('type'));
 		if ($.cookie('type') == 'by_time') {
             $('#total').html($.cookie('bill'));
 
@@ -183,9 +196,9 @@ var main = function() {
 			$('.cant_toPay').addClass('hidden');
 			$('.confirm_button').removeClass('hidden');
 			$('.start_payment').addClass('hidden');
-
 			$('#elapsed_time').html(get_time_diff($.cookie('startDate')));
 			$('#cant_toPay').html($.cookie('bill'));
+			$('#user_balance').html($.cookie('balance'));
 			$('.rent_end').addClass('hidden');
 
 		}else if ($.cookie('type') == 'by_semester') {
@@ -204,21 +217,62 @@ var main = function() {
         switch (page) {
             case "menu_screen.html":
                 if($.cookie('locker_confirmed') == "False" && $.cookie('registered') == "True"){
-                    alert("Proceso de reserva no completado");
+
+                    var now_m = moment();
+                    var start_m = moment($.cookie('startDate'));
+                    var start_p = moment($.cookie('startDate')).add(10, 'm');
+
+                    if (moment(start_p).isBetween(start_m, now_m)){
+                        // TODO eliminar confirmacion
+                        //alert("Eliminar completado");
+                        window.setTimeout(function(){makeLockerAvailable('available')}, 3000);
+                    }else{
+                        $('#confirmarBtn').removeClass('hidden');
+                        alert("Proceso de reserva no completado");
+                    }
                 }
+                $('#net_balance').html($.cookie('balance'));
+                break;
+            case "abonar.html":
+                $('#net_balance').html($.cookie('balance'));
                 break;
             case "cambiar.html":
                 if ($.cookie('type') == 'by_time') {
                     $('#chUbic_btn').addClass('hidden');
                 }
+            //    break;
+            // case "cambiar.html":
+                $('.pay_done').addClass('hidden');
+                $('.transactions').addClass('hidden');
                 break;
             case "confirmar.html":
+                $('.foot_btns button').addClass('hidden');
                 if($.cookie('locker_confirmed') == "True" && $.cookie('registered') == "True"){
                     $('.tittle').text('PAGO DEL LOCKER');
 			        $('.cant_toPay').removeClass('hidden');
 			        $('.change_btn').addClass('hidden');
 			        $('.confirmBtn').addClass('hidden');
+			        $('.start_payment').removeClass('hidden');
                 }
+                if($.cookie('locker_confirmed') == "False" && $.cookie('type') == 'by_time'){
+                    $('.total_cost').addClass('hidden');
+                }
+                break;
+            case "transaccion_exitosa.html":
+                var f_inicio = moment($.cookie('startDate')).format("DD - MMMM - YYYY hh:mm a");
+                var f_fin = moment( $.cookie('endDate') );
+                console.log(f_fin);
+                console.log($.cookie('endDate'));
+                (f_fin.isValid()) ? f_fin = f_fin.format("DD - MMMM - YYYY hh:mm a") : f_fin = "";
+
+                $('#numeration').html();
+                $('#user').html($.cookie('userId'));
+                $('#start_date').html(f_inicio);
+                $('#end_date').html(f_fin);
+                $('#hour').html();
+                $('#rent_type').html(rent_type_to_string($.cookie('type')));
+                $('#locker').html($.cookie('locker'));
+                $('#total').html($.cookie('total'));
                 break;
         }
 	};
@@ -237,6 +291,18 @@ var main = function() {
 	$('#damaged_btn').click(function() {
 	    changeLockerStatus("is_damaged");
 	});
+
+	// Función para botón de cambio de locker
+	$('#chUbic_btn').click(function() {
+	    changeLockerStatus("is_relocated");
+	});
+
+	function makeLockerAvailable(new_status){
+
+        var params = [$.cookie('locker_id'), new_status];
+        sendMsg('MAKE_AVAILABLE', params);
+	}
+
 
 	function changeLockerStatus(new_status){
         $('#procesando').modal({
@@ -275,6 +341,69 @@ var main = function() {
         }
 	}
 
+	// Función para botón de cambio de locker
+	$('#detail_btn').click(function() {
+	    $('#detail_text').html("");
+        $('.transactions').text("0");
+        $('.pay_done').text("0");
+        $('#loader').removeClass('hidden');
+        var params = [$.cookie('locker_id'), $('#month').val()];
+        sendMsg('GET_LOG', params);
+        ws.onmessage = function(serverMsg) {
+            console.log(serverMsg.data);
+            mensaje = serverMsg.data;
+            jsonMsg = JSON.parse(mensaje);
+            $command = jsonMsg.command;
+
+            $('#loader').addClass('hidden');
+            load_log(jsonMsg["params"]["logs"]);
+
+        }
+	});
+
+    function rent_type_to_string (tipo){
+        var tipoDeRenta = "";
+        switch (tipo){
+            case "by_semester":
+                tipoDeRenta = "Renta por semestre";
+            break;
+            case "by_time":
+                tipoDeRenta = "Renta por tiempo";
+            break;
+            case "locker_rent":
+                tipoDeRenta = "Renta de locker";
+            break;
+        }
+        return tipoDeRenta;
+    }
+
+    function load_log(jsonAreas){
+        area = '';
+        if (jsonAreas === undefined){
+            area = '<div><p>NO HAY RESULTADOS</p>'
+        }else{
+            moment.locale('es');
+            $('.pay_done').removeClass('hidden');
+            $('.transactions').removeClass('hidden');
+            total_pay = 0;
+            $.each(jsonAreas, function(i){
+                var f_inicio = moment(jsonAreas[i].log_start_time );
+                var f_fin = moment(jsonAreas[i].log_end_time );
+                (f_fin.isValid()) ? f_fin = f_fin.format("DD - MMMM - YYYY hh:mm a") : f_fin = "";
+
+                area += '<div><p>Renta: <span class="log_detail">' + rent_type_to_string(jsonAreas[i].log_rent_type)
+                    + "</span></p>" +
+                    '<p>Inicio: <span class="log_detail">' + f_inicio.format("DD - MMMM - YYYY hh:mm a")+ '</span></p>' +
+                    '<p>Fin: <span class="log_detail">' + f_fin + '</span></p>' +
+                    '<p>Pagado: <span class="log_detail">' + jsonAreas[i].log_total_pay + '</span></p></div>';
+                total_pay += jsonAreas[i].log_total_pay;
+            });
+            $('.transactions').text(jsonAreas.length);
+            $('.pay_done').text(total_pay);
+
+        }
+        $('#detail_text').html(area);
+    }
 
     function getPage(){
         var path = window.location.pathname;
@@ -310,10 +439,6 @@ var main = function() {
         nTotalDiff -= oDiff.hours*1000*60*60;
 
         oDiff.minutes = Math.floor(nTotalDiff/1000/60);
-
-        // Calcular segundos
-        //nTotalDiff -= oDiff.minutes*1000*60;
-        //oDiff.seconds = Math.floor(nTotalDiff/1000);
 
         (oDiff.minutes > 0) ? extra = 1 : extra = 0;
         var totalHoras = oDiff.hours + extra;
@@ -358,6 +483,20 @@ var main = function() {
     	    		    case 'AREAS':
     	    		        load_areas(jsonMsg["params"]["areas"]);
     	    		        break;
+    	    		    case 'DIFFERENCE':
+                            $difference = jsonMsg.params.cantidad;
+                            alert("Ha quedado saldo a su favor por una cantidad de " +  $difference);
+                            /*$('.payment').text($currentPay);
+                            curPay = parseFloat($currentPay);
+                            totPay = parseFloat($('#total').html());
+                            if ((curPay >= totPay) && (!boolPaid)) {
+                                $('#procesando').modal({
+                                    show: 'true',
+                                    backdrop: 'static',
+                                    keyboard:false
+                                });
+                            };*/
+                            break;
     	    		    case 'DEPOSIT':
                             $currentPay = jsonMsg.params.cantidad;
                             $('.payment').text($currentPay);
@@ -370,6 +509,34 @@ var main = function() {
                                     keyboard:false
                                 });
                             };
+                            break;
+    	    		    case 'TIMEOUT':
+			                $('#cancelarpago').modal('show');
+			                /*
+    	    		        if (confirm("¿Deseas seguir abonando?")){
+	                            prepare_payment($currentPay);
+    	    		        }
+    	    		        else{
+    	    		            alert("El saldo será abonado a tu cuenta");
+    	    		            var old_balance = parseFloat($.cookie('balance'));
+    	    		            sendMsg('ADD',[$currentPay - old_balance    ]);
+    	    		        }*/
+                            break;
+                        case 'EXIT':
+                            //boolPaid = true;
+                            //$('#procesando').modal('hide');
+                            //$('#takeCard').modal('show');
+                            $('#msg_abono').html("Tu pago ha sido abonado");
+                            window.setTimeout(function(){
+                                    $('#modal_abono').modal('hide');
+
+                                    if ($.cookie('type') == 'by_semester'){
+                                        sendMsg('CANCEL');
+                                    }
+                                    window.location.href = 'index.html';
+                                },2500);
+
+                            //window.setTimeout(function(){window.location.href = 'transaccion_exitosa.html'},3000);
                             break;
                         case 'PAID':
                             boolPaid = true;
@@ -384,13 +551,28 @@ var main = function() {
     	};
 	});
 
-    function prepare_payment(){
+    function prepare_payment(current_balance){
+        if (current_balance === undefined){
+            current_balance = 0;
+        }
         if ($.cookie('type') == 'by_time') {
             if($.cookie('locker_confirmed') == "True" && $.cookie('registered') == "True"){
-                sendMsg('OK');
+                sendMsg('OK',['by_time', current_balance]);
             }
         }else{
-            sendMsg('OK');
+            var user_balance= parseFloat($.cookie('balance'));
+            var locker_total = parseFloat($.cookie('total'));
+            if (user_balance > locker_total){
+                if (confirm("El locker se pagará de su saldo")){
+                    sendMsg('OK', [$.cookie('type'), current_balance]);
+                }else{
+                    sendMsg('CANCEL');
+                    window.history.back();
+                }
+            }else{
+                sendMsg('OK', [$.cookie('type'), current_balance]);
+            }
+
         }
     }
 
@@ -418,6 +600,7 @@ var main = function() {
         })
         $('.zone_menu').append(area);
         $('.menu_element').click(on_btn_click);
+        $('#loader').addClass('hidden');
     }
 
 	/* Web socket msg sender*/
@@ -433,6 +616,7 @@ var main = function() {
 		catch(err) {
             console.log(err.message);
             alert("ERROR DE SOCKET");
+		    window.location.href = "index.html";
             return;
         }
 	};
@@ -447,13 +631,31 @@ var main = function() {
 		});
 	});
 
-	/*funcion botón imprimir*/
+	/* Funcion botón imprimir */
 	$('#print_btn').click(function() {
-		sendMsg('PRINT');
-		window.location.href = "index.html";
+        moment.locale('es');
+        var f_inicio = moment($.cookie('startDate')).format("DD - MMMM - YYYY hh:mm a");
+        var f_fin = moment( $.cookie('endDate') );
+        var h_fin = "";
+
+        if (f_fin.isValid()) {
+            h_fin = f_fin.format("hh:mm a");
+            f_fin = f_fin.format("DD - MMMM - YYYY");
+        }else{
+            f_fin = "";
+        }
+
+        $('#numeration').html();
+        $('#rent_type').html();
+        $('#locker').html();
+        // User,
+	    var params = [$.cookie('userId'), f_inicio, f_fin, h_fin, rent_type_to_string($.cookie('type')),
+	        $.cookie('locker'), $('#total').html(), 001];
+		sendMsg('PRINT', params);
+		//window.location.href = "index.html";
 	});
 
-	/*funcion botón de finalizar*/
+	/* Funcion botón de finalizar */
 	$('#endSesion_btn').click(function() {
 	    deleteCookies();
 		sendMsg('LOG_OUT');
@@ -476,7 +678,6 @@ var main = function() {
 		switch(page){
             case "confirmar.html" :
 			    $('#cancelar').modal('show');
-			    //sendMsg('CANCEL');
 			    break;
             case "locker_asignado.html":
                 deleteCookies();
@@ -490,7 +691,6 @@ var main = function() {
 	/*funcion de botón home*/
 	$('#home_btn').click(function() {
 	    deleteCookies();
-		sendMsg('CANCEL');
 		window.location.href = "index.html";
 	});
 
@@ -503,10 +703,39 @@ var main = function() {
 		$('#contact').modal('hide');
 	});
 
-	/*cancelar*/
+	/* cancelar */
 	$('#sicancelar').click(function(){
-		sendMsg('CANCEL');
+	    var page = getPage();
+		switch(page){
+            case "confirmar.html" :
+                if (($.cookie('type') == 'by_time') && ($.cookie('locker_confirmed')     == "False")){
+                    $.cookie('locker', null);
+                    $.cookie('endDate', null);
+                    $.cookie('startDate', null);
+                    $.cookie('bill', 0);
+                    $.cookie('total', 0);
+                }
+
+			    break;
+		}
+        if (($.cookie('type') == 'by_time') && ($.cookie('locker_confirmed') == "False")){
+		    sendMsg('CANCEL');
+        }
 		window.history.back();
+	});
+
+	/* cancelar */
+	$('#sicancelarpago').click(function(){
+	    prepare_payment($currentPay);
+        $('#cancelarpago').modal('hide');
+	});
+
+	$('#nocancelarpago').click(function(){
+        $('#msg_abono').html('"El saldo será abonado a tu cuenta"');
+        $('#modal_abono').modal('show');
+        //window.setTimeout(function(){$('#modal_abono').modal('hide');},3000);
+        var old_balance = parseFloat($.cookie('balance'));
+        sendMsg('ADD',[$currentPay - old_balance    ]);
 	});
 };
 
