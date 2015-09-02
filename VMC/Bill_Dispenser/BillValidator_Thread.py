@@ -30,6 +30,7 @@ class ReadThread(Thread):
 
     def run(self):
             logging.info('Starting thread: ' + self.name)
+            self.reading()
 
     def reading(self):
         read, reading = True, ''
@@ -42,29 +43,31 @@ class ReadThread(Thread):
                 """
                 data = serial_port.read()
                 str_data = str(data)
-                logging.info(str_data)
                 if str_data == '<':
                     logging.info('Received: {}'.format(reading))
 
-                    if reading[:6] == 'B_STA_':
+                    if reading[:7] != 'B_STA_E':
                         self.validator_ok = True
                         logging.info('Validator Status --> OK')
 
-                    elif reading[2:-1] == 'BAC_FF80':
+                    elif reading == 'B_BAC_FF80':
                         self.deposited_20 = True
                         logging.info('Validator READER -> $20 Deposited')
 
-                    elif reading[2:-1] == 'BAC_FF81':
+                    elif reading == 'B_BAC_FF81':
                         self.deposited_50 = True
                         logging.info('Validator READER -> $50 Deposited')
 
-                    elif reading[2:-1] == 'BAC_FF82':
+                    elif reading == 'B_BAC_FF82':
                         self.deposited_100 = True
                         logging.info('Validator READER -> $100 Deposited')
 
-                    elif reading[2:-1] == 'BAC_FF83':
+                    elif reading == 'B_BAC_FF83':
                         self.deposited_200 = True
                         logging.info('Validator READER -> $200 Deposited')
+
+                    elif reading == 'B_BAC_FF94':
+                        logging.info('Validator READER -> $500 NOT ALLOWED')
 
                     reading = ''
 
@@ -93,7 +96,7 @@ class WriteThread(Thread):
         try:
             if serial_port.isOpen():
                 # Write the requested command
-                serial_port.write(cmd['request'])
+                serial_port.write(cmd['cmd'])
                 logging.info('Sent: {} cmd'.format(cmd['name']))
 
         except serial.SerialException:
@@ -128,11 +131,10 @@ class BillValidator(Thread):
         self.write_thread.write_status()
 
     def write_accept(self):
-        logging.info('Accepting bills')
 
         if not(self.read_thread.deposited_20 or self.read_thread.deposited_50 or
                self.read_thread.deposited_100 or self.read_thread.deposited_200):
-            pass
+            return 0.0
 
         elif self.read_thread.deposited_20:
             self.read_thread.deposited_20 = False
@@ -157,16 +159,16 @@ class BillValidator(Thread):
         cmd, param = command.split()
 
         if cmd == 'ACCEPTBILL':
-            logging.info('Command accept for bill enabled')
             return self.write_accept()
 
         else:
             pass
 
     def __init__(self, universal_port):
+        super(BillValidator, self).__init__()
         global serial_port
         serial_port = universal_port
-        super(BillValidator, self).__init__(universal_port)
+
 
     def run(self):
         logging.info('Starting serial port')

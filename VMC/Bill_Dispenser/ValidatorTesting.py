@@ -6,7 +6,7 @@ from VMC.Utils import Commands
 import socket
 import serial
 import logging
-
+from time import sleep
 
 class ValidatorTesting(threading.Thread):
 
@@ -15,7 +15,7 @@ class ValidatorTesting(threading.Thread):
     balance = 70
     sum = 0
     try:
-        serial_port = serial.Serial('COM5', 115200, timeout=1, parity=serial.PARITY_NONE)
+        serial_port = serial.Serial('/dev/cu.usbserial-FTVSGL58', 115200, timeout=1, parity=serial.PARITY_NONE)
         logging.info('Serial port open')
     except serial.SerialException:
         logging.info('Port not created')
@@ -27,7 +27,8 @@ class ValidatorTesting(threading.Thread):
 
     bill_thread = BillValidator_Thread.BillValidator(serial_port)
     bill_thread.start()
-
+    sleep(5)
+    bill_thread.write_thread.write_enable_all()
     while sum < balance:
 
         if sum >= balance:
