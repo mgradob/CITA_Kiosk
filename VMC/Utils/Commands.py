@@ -63,6 +63,7 @@ class VmcCommands:
 
 class BillCommands:
     """ Bill Dispenser Commands """
+    """
     BILL_STATUS = {'cmd': chr(182), 'name': 'BILL_STATUS'}
     BILL_ENABLE_ALL = {'cmd': chr(184), 'name': 'BILL_ENABLE_ALL'}
     BILL_ENABLE_ESCROW = {'cmd': chr(170), 'name': 'BILL_ENABLE_ESCROW'}
@@ -70,6 +71,13 @@ class BillCommands:
     BILL_ACCEPT_ESCROW = {'cmd': chr(172), 'name': 'BILL_ACCEPT_ESCROW'}
     BILL_REJECT_ESCROW = {'cmd': chr(173), 'name': 'BILL_REJECT_ESCROW'}
     BILL_DISABLE_ALL = {'cmd': chr(185), 'name':'BILL_DISABLE_ALL'}
+    """
+    BILL_STATUS = {'cmd': 'B_STA<', 'name': 'BILL_STATUS'}
+    BILL_ENABLE_20 = {'cmd': 'B_BTY_1515<', 'name': 'ENABLE_20'}
+    BILL_ENABLE_50 = {'cmd': 'B_BTY_1313<', 'name': 'ENABLE_50'}
+    BILL_ENABLE_100 = {'cmd': '', 'name': 'ENABLE_100'}
+    BILL_ENABLE_200 = {'cmd': '', 'name': 'ENABLE_200'}
+    BILL_DISABLE_ALL = {'cmd': 'B_BTY_0000<', 'name': 'DISABLE_ALL'}
 
     def __init__(self):
         """ Initialization method. """
