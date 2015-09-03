@@ -73,9 +73,10 @@ class VmcController(threading.Thread):
                             conn.sendall('Thread_response: {}'.format(thread_response))
 
                         elif data[0] == 'ACCEPT':
+                            print "Ready to accept"
                             # Enables the Bill Validator for accepting bills
                             self.bill_dispenser_thread.write_thread.write_enable_all()
-                            self.changer_thread.write_thread.write_cmd(self.changer_thread.commands.enable_tubes())
+                            #self.changer_thread.write_thread.write_cmd(self.changer_thread.commands.enable_tubes())
 
                             # Init variables of balance, and deposit values
                             balance, deposit, deposit_bill = float(data[1]), float(0), float(0)
@@ -96,8 +97,8 @@ class VmcController(threading.Thread):
                                 else:
                                     try:
                                         # Accepts bills and coins until the sum is equal or greater than the debt
-                                        deposit = self.changer_thread.\
-                                            socket_com('ACCEPT {}'.format(balance))
+                                        #deposit = self.changer_thread.\
+                                        #    socket_com('ACCEPT {}'.format(balance))
                                         deposit_bill = self.bill_dispenser_thread.\
                                             socket_com('ACCEPTBILL {}'.format(balance))
                                     except Exception as ex:
@@ -113,7 +114,6 @@ class VmcController(threading.Thread):
                                         conn.sendall('DEPOSIT {}'.format(sum))
 
                                 timeout_counter -= 1
-                                print "{}".format(timeout_counter)
                                 if datetime.datetime.today() > timeout_date:
                                     #In case of a timeout
                                     timeout = False
@@ -127,7 +127,7 @@ class VmcController(threading.Thread):
                             sleep(0.5)
 
                             if not timeout:
-                                self.changer_thread.write_thread.write_cmd(self.changer_thread.commands.disable_tubes())
+                                #self.changer_thread.write_thread.write_cmd(self.changer_thread.commands.disable_tubes())
                                 self.bill_dispenser_thread.write_thread.write_disable_all()
                                 conn.sendall('TIMEOUT {}'.format(sum))
                             else:
@@ -135,27 +135,28 @@ class VmcController(threading.Thread):
                                 dif = float(sum-balance)
                                 print 'Dif: {}'.format(dif)
                                 self.bill_dispenser_thread.write_thread.write_disable_all()
-                                self.changer_thread.write_thread.write_cmd(self.changer_thread.commands.disable_tubes())
-                                self.changer_thread.socket_com('DISPENSE {}'.format(dif))
-
+                                #self.changer_thread.write_thread.write_cmd(self.changer_thread.commands.disable_tubes())
+                                #self.changer_thread.socket_com('DISPENSE {}'.format(dif))
                                 #If there is a coin that couldn't be dispensed, it deposits the value to user account
-                                if self.changer_thread.read_thread.dispense_error:
-                                    print "Error on dispense"
-                                    self.changer_thread.read_thread.dispense_error = False
+
+                         #       if self.changer_thread.read_thread.dispense_error:
+                         #           print "Error on dispense"
+                         #           self.changer_thread.read_thread.dispense_error = False
                                     #Sends the amount difference
-                                    if self.changer_thread.error_amount > 0:
-                                        print "Amount"
-                                        conn.sendall('DIFFERENCE {}'.format(self.changer_thread.error_amount))
+                         #           if self.changer_thread.error_amount > 0:
+                         #               print "Amount"
+                         #               conn.sendall('DIFFERENCE {}'.format(self.changer_thread.error_amount))
                                     #Sends the entire difference, in case that none coin couldn't be dispensed
-                                    else:
-                                        print "Difference"
-                                        conn.sendall('DIFFERENCE {}'.format(dif))
+                         #           else:
+                         #               print "Difference"
+                         #               conn.sendall('DIFFERENCE {}'.format(dif))
+
                                 print 'Balance completed'
                                 conn.sendall('COMPLETE')
                         # In case of a cancel action, it disables all the payments methods
                         elif data[0] == 'CANCEL':
                             self.bill_dispenser_thread.write_thread.write_disable_all()
-                            self.changer_thread.write_thread.write_cmd(self.changer_thread.commands.disable_tubes())
+                        #    self.changer_thread.write_thread.write_cmd(self.changer_thread.commands.disable_tubes())
                         else:
                             print('Incorrect cmd')
                             conn.sendall('ERROR')
@@ -171,7 +172,7 @@ class VmcController(threading.Thread):
             global serial_port
 
             #Lo cambie para poder conectar la impresora en el COM6
-            serial_port = serial.Serial('COM9', 115200, timeout=1, parity=serial.PARITY_NONE)
+            serial_port = serial.Serial('/dev/cu.usbserial-FTVSGL58', 115200, timeout=1, parity=serial.PARITY_NONE)
             print 'Serial port open'
         except serial.SerialException:
             print 'Port not created'
@@ -197,7 +198,7 @@ class VmcController(threading.Thread):
         self.socket.listen(self.conns)
         print('Socket listening, conns: {}'.format(self.conns))
         self.start_serial()
-        self.changer_thread = Changer_Thread.Changer(serial_port)
-        self.changer_thread.start()
+        #self.changer_thread = Changer_Thread.Changer(serial_port)
+        #self.changer_thread.start()
         self.bill_dispenser_thread = BillValidator_Thread.BillValidator(serial_port)
         self.bill_dispenser_thread.start()
