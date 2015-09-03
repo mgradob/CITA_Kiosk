@@ -86,6 +86,7 @@ class ReadThread(threading.Thread):
 
                     elif reading[:-1] == 'C_DIS_ERROR':
                         self.dispense_error = True
+
                     reading = ''
                 else:
                     reading += data
@@ -142,23 +143,6 @@ class Changer(threading.Thread):
                                 sort_keys= True, indent=4)
             url = "http://localhost:8000/Currency/" + str(id) + "/"
             request = requests.put(url, data = json_data, headers = headers)
-
-    def start_serial(self):
-        try:
-            global serial_port
-
-            # TODO Change serial port to the uC's.
-            #Lo cambie para poder conectar la impresora en el COM6
-            serial_port = serial.Serial('COM9', 115200, timeout=1, parity=serial.PARITY_NONE)
-            self.serial_port = serial_port
-            print 'Serial port open'
-        except serial.SerialException:
-            print 'Port not created'
-
-        if serial_port.isOpen():
-            serial_port.close()
-
-        serial_port.open()
 
     def start_changer(self):
         self.write_thread.write_cmd(self.commands.C_SETUP)
@@ -275,8 +259,7 @@ class Changer(threading.Thread):
                 and (not self.read_thread.deposited_10):
             pass
 
-
-        if self.read_thread.deposited_50c:
+        elif self.read_thread.deposited_50c:
             self.read_thread.deposited_50c = False
             return 0.5
 
@@ -317,12 +300,14 @@ class Changer(threading.Thread):
         else:
             pass
 
-    def __init__(self):
+    def __init__(self, changer_port):
         super(Changer, self).__init__()
+        global serial_port
+        serial_port = changer_port
 
     def run(self):
         print 'Starting serial port'
-        self.start_serial()
+        #self.start_serial() // Not used because changes to protocol
 
         print 'Starting threads'
         self.read_thread.start()
