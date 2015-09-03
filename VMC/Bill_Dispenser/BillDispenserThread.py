@@ -1,4 +1,3 @@
-
 import time
 
 __author__ = 'mgradob'
@@ -19,8 +18,6 @@ class BillDispenserThread(threading.Thread):
     """
 
     """ Global Variables """
-    # COM variables
-    com_port = None
 
     # Commands and VMCCommands object
     commands = Commands.BillCommands()
@@ -42,33 +39,6 @@ class BillDispenserThread(threading.Thread):
     # Thread communication
     socket_receive = []
     socket_response = ". ."
-
-    def open_com(self):
-        """ Creates and opens the serial port. """
-        """
-        coms = []
-
-        print('Searching COMs...')
-        for i in range(0, 255):
-            try:
-                av_port = serial.Serial(i)
-                coms.append("COM" + str(i + 1))
-                av_port.close()
-            except serial.SerialException:+
-                pass
-
-        print(coms)
-
-        self.com_port_number = int(raw_input('Select COM port: ')) - 1
-        """
-
-        self.com_port = serial.Serial('COM11', 9600, timeout=2,  parity=serial.PARITY_NONE)
-
-        if self.com_port.isOpen():
-            self.com_port.close()
-        self.com_port.open()
-
-        print('{} is open.'.format(self.com_port.name))
 
     def write_cmd(self, cmd=Commands.BillCommands(), in_waiting=1, sleep_thread=0.1):
         """
@@ -161,8 +131,9 @@ class BillDispenserThread(threading.Thread):
 
                 while not self.must_reset:
                     reading = 0
-                    if self.com_port.inWaiting() > 0:
-                        reading = self.com_port.read()
+                    com_port = self.com_port
+                    if com_port.inWaiting() > 0:
+                        reading = com_port.read()
                         try:
                             reading = ord(reading)
                             print reading
@@ -187,11 +158,11 @@ class BillDispenserThread(threading.Thread):
                             self.bill_type = 4
                             self.deposited_200 = True
                         elif reading == 5:
-                                self.com_port.write(self.commands.BILL_REJECT_ESCROW['cmd'])
+                                com_port.write(self.commands.BILL_REJECT_ESCROW['cmd'])
                         elif reading == 172:
-                            while self.com_port.inWaiting() < 1:
+                            while com_port.inWaiting() < 1:
                                 pass
-                            print(ord(self.com_port.read(1)))
+                            print(ord(com_port.read(1)))
 
                             if self.bill_type == 1:
                                 self.bill_count += 20
@@ -249,7 +220,8 @@ class BillDispenserThread(threading.Thread):
         else:
             self.must_accept = False
 
-    def __init__(self):
+    def __init__(self, changer_port):
         """ Thread initialization """
-        super(BillDispenserThread, self).__init__()
-        self.open_com()
+        self.com_port = changer_port
+        super(BillDispenserThread, self).__init__(changer_port)
+        # self.open_com() // Not used with protocol v3
